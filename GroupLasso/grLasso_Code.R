@@ -1,10 +1,4 @@
-## all provider effect will not be penalized
-## group lasso algorithm is implemented for penalizing risk factors coefficient; 
-  ### "group information" is specified by group = c(1,1,2,1,3,...), same index implies same group
-  ### unpenalized risk factor coefficients can be specified by group 0, (i.e. group = c(0,0,1,1,2,...))
-## coefficient estimation has been converted back to original scale
-
-grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grlasso"), group = 1:ncol(Z), group.multiplier, 
+grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grlasso"), group = 1:length(Z.char), group.multiplier, 
                       standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE, nvar.max = p, 
                       group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, 
                       max.iter = 10000, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
@@ -27,12 +21,12 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
   initial.group <- group
   if (standardize == T){
     std.Z <- newZG.Std(data, Z.char, group, group.multiplier)
-    Z <- std.Z$std.Z[, ]  # standardized covariate matrix
+    Z <- std.Z$std.Z[, , drop = F]  # standardized covariate matrix
     group <- std.Z$g  # new group order
     group.multiplier <- std.Z$m # new group multiplier
   } else {
     std.Z <- newZG.Unstd(data, Z.char, group, group.multiplier)
-    Z <- std.Z$std.Z[, ] 
+    Z <- std.Z$std.Z[, , drop = F] 
     group <- std.Z$g 
     group.multiplier <- std.Z$m 
   }
@@ -41,7 +35,7 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
   Y <- newY(data, Y.char)
   nvar.max <- as.integer(nvar.max)
   group.max <- as.integer(group.max)
-
+  
   n.prov <- sapply(split(Y, ID), length) 
   gamma.prov <- rep(log(mean(Y)/(1 - mean(Y))), length(n.prov))
   beta <- rep(0, ncol(Z))
@@ -65,20 +59,13 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
   # nullDev: theoretical deviance of the model that only contains provider effects
   mean.Y.obs <- rep(sapply(split(Y, ID), mean), n.prov) 
   nullDev <- Deviance(Y, mean.Y.obs)
-
+  
   K <- as.integer(table(group)) #number of features in each group
-  # first penalized group index (start from 0)
   K0 <- as.integer(if (min(group) == 0) K[1] else 0) 
-  # end index of each group (start from 1; include group 0)
-  # e.g. If group1 = c(0, 0, 0, 0, 1, 2, 2, 3, 4, 4), then K0 = 4 and K1 = c(4, 5, 7, 8, 10); 
-  # If group2 = c(1, 2, 2, 3, 4, 4), then K0 = 0 and K1 = c(0, 1, 3, 4, 6)
   K1 <- as.integer(if (min(group) == 0) cumsum(K) else c(0, cumsum(K)))  
   if (K0 == 0){
-    # Since our stop rule is based on beta change, we need at least one beta to be "updated" during each iteration
-    # If all beta's are penalized, we set the first group with smallest group size as the first active group.
     initial.active.group <- which(K == min(K))[1] - 1  
   } else {
-    # If some beta's are unpenalized, those ones will be "updated" during each iteration. So we don't need to modify initial active group
     initial.active.group <- 0
   }
   
@@ -123,7 +110,7 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
     beta <- unstandardize.para$beta
     gamma <- unstandardize.para$gamma
   }
-
+  
   # Names
   dimnames(beta) <- list(Z.char, round(lambda, digits = 4))
   if (nrow(gamma) == 1 & length(lambda.seq) == 1){

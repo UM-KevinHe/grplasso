@@ -1,6 +1,6 @@
 # prepare simulation data
 fe.data.prep <- function(data, Y.char, Z.char, prov.char, cutoff=10, check=TRUE) {
- if (check) {
+  if (check) {
     message("Checking absence of variables ... ")
     Y.ind <- match(Y.char, names(data))
     if (is.na(Y.ind)) {
@@ -204,7 +204,7 @@ standardize.Z <- function(Z){
   new.X <- scale(as.matrix(Z), scale = apply(as.matrix(Z), 2, mysd))
   mean.X <- attributes(new.X)$`scaled:center`
   sd.X <- attributes(new.X)$`scaled:scale`
-  new.X <- new.X[, ]
+  new.X <- new.X[, ,drop = F]
   res <- list(new.Z = new.X, mean.Z = mean.X, sd.Z = sd.X)
   return(res)
 }
@@ -263,7 +263,7 @@ unorthogonalize <- function(beta, Z, group) {
 
 # standardize + orthogonalize covariate matrix
 newZG.Std <- function(data, Z.char, g, m){
-  Z <- as.matrix(data[, Z.char])
+  Z <- as.matrix(data[, Z.char, drop = F])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
   } 
@@ -300,7 +300,7 @@ newZG.Std <- function(data, Z.char, g, m){
 
 # Only orthogonalize covariate matrix
 newZG.Unstd <- function(data, Z.char, g, m){
-  Z <- as.matrix(data[, Z.char])
+  Z <- as.matrix(data[, Z.char, drop = F])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
   } 
@@ -416,7 +416,7 @@ predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 
                                type = c("response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){
   beta <- coef.gr_ppLasso(object, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.gr_ppLasso(object, lambda = lambda, which = which, drop = FALSE)$gamma
-
+  
   if (type == "vars"){
     return(drop(apply(beta!=0, 2, FUN = which)))
   }
@@ -507,8 +507,6 @@ loss.grp.lasso <- function(Y.i, yhat.i){
       val[Y.i == 0] <- -2 * log(1 - yhat.i[Y.i == 0])
     } 
   }
-  
-
   return(val)
 }
 

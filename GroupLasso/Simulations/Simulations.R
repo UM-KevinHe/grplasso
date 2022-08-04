@@ -44,7 +44,7 @@ ID.char <- colnames(dummy_data)[(ncol(dummy_data) - sim.parameters.GrLasso$m + 2
 ## 1. gr_ppLasso
 start <- Sys.time()
 model_grp_lasso <- grp.lasso(data_GrLasso, Y.char, Z.char, prov.char, group = group, 
-                             trace.lambda = T, backtrack = TRUE)
+                             trace.lambda = T, backtrack = F)
 end <- Sys.time()
 process.time1 <- end - start
 print(process.time1)
@@ -67,8 +67,8 @@ grpreg.beta <- model_grpreg$beta[2:(1 + sim.parameters.GrLasso$n.beta),]
 if (ncol(model_grpreg$beta) == 1){
   grpreg.beta <- matrix(grpreg.beta, ncol = 1)
   grpreg.gamma <- c(model_grpreg$beta[1,],
-                        model_grpreg$beta[1,] +
-                          model_grpreg$beta[(sim.parameters.GrLasso$n.beta + 2):length(model_grpreg$beta[, 1]),])
+                    model_grpreg$beta[1,] +
+                      model_grpreg$beta[(sim.parameters.GrLasso$n.beta + 2):length(model_grpreg$beta[, 1]),])
   names(grpreg.gamma) <-  names(table(data_GrLasso$Prov.ID))
   grpreg.gamma <- matrix(grpreg.gamma, ncol = 1)
   n <- 1
@@ -89,12 +89,12 @@ gamma.diff <- round(grLasso.gamma[, 1:n] - grpreg.gamma[, 1:n], digits = 4)
 
 
 ######----------- 2. Estimation Comparison: With only one provider (only intercept) ------------######
-sim.parameters2 <- list(m = 1, n.beta = 20, n.groups = 5, prop.NonZero.group = 1, 
+sim.parameters2 <- list(m = 1, n.beta = 1, n.groups = 1, prop.NonZero.group = 1, 
                         prop.outlier = 0, rho = 0.6)
 set.seed(1)
 ## Note: If any beta are unpenalized, grpreg will add 1e-05 to the maximum lambda. 
-#Sim_2 <- Simulation_data_GroupLasso(sim.parameters2, unpenalized.beta = T, prop.unpenalized.beta = 0.5)
-Sim_2 <- Simulation_data_GroupLasso(sim.parameters2, unpenalized.beta = F)
+#Sim_2 <- Simulation_data_GroupLasso(sim.parameters2, , prov.size.mean = 2000， unpenalized.beta = T, prop.unpenalized.beta = 0.5)
+Sim_2 <- Simulation_data_GroupLasso(sim.parameters2, prov.size.mean = 2000, unpenalized.beta = F)
 data2 <- Sim_2$sim.data
 Z.char <- colnames(data2)[3:(ncol(data2) - 1)]
 Y.char <- 'Y'
@@ -118,7 +118,7 @@ grLasso.loss.onlyIntercept <- model_grp_lasso_onlyIntercept$loss
 
 ## 2. grpreg
 start <- Sys.time()
-model_grpreg_onlyIntercept <- grpreg(data2[,c(Z.char)], data2[,Y.char], family = "binomial", penalty = "grLasso",
+model_grpreg_onlyIntercept <- grpreg(data2[,c(Z.char), drop = F], data2[,Y.char], family = "binomial", penalty = "grLasso",
                                      group = original.group2, alpha = 1, eps = 1e-10, max.iter = 1e6, returnX = F)
 end <- Sys.time()
 process.time2 <- end - start
@@ -380,8 +380,6 @@ cv.model_grpreg$lambda.min
 plot(cv.model_grpreg)
 
 
-
-
 ######----------- Real Data Estimation: (Based on "Birthwt") ------------######
 data(Birthwt)
 Z <- Birthwt$X
@@ -402,7 +400,7 @@ grLasso.loss <- RD.model_grp_lasso$loss
 X.grpreg <- Birthwt$X
 y.grpreg <- Birthwt$low
 RD.model_grpreg <- grpreg(X.grpreg, y.grpreg, family = "binomial", penalty = "grLasso", 
-                             group = group, alpha = 1)
+                          group = group, alpha = 1)
 grpreg.beta <- RD.model_grpreg$beta[2:(1 + length(Z.char)),]
 grpreg.gamma <- matrix(RD.model_grpreg$beta[1, ], nrow = 1)
 rownames(grpreg.gamma) <- "Intercept"
@@ -424,28 +422,8 @@ print(max(abs(gamma.diff)))
 ######----------- Time Comparison ------------######
 ######----------- Time Comparison ------------######
 
-# Since the "foreach" package has problems on directly executing Rcpp functions,
-# we need to create a simple package for our Rcpp functions! 
-
-## After run "Rcpp.package.skeleton" line, we need to manually add ", RcppArmadillo" in "DESCRIPTION" file, 
-## and replace "Rcpp.h" by "RcppArmadillo.h" in "src/RcppExports.cpp" file 
-#Rcpp.package.skeleton("TmpGrlasso", path = "GroupLasso/Simulations/MyCpp",
-#                      code_files = c("GroupLasso/Relevant Functions/Relevant_Functions.R",
-#                                     "GroupLasso/grLasso_Code.R"),
-#                      cpp_files = c("GroupLasso/grLasso_Code.cpp", 
-#                                    "GroupLasso/Relevant Functions/Relevant_Functions.cpp"))
-
-#RcppArmadillo.package.skeleton("compare", path = "GroupLasso/Simulations/MyCpp")
-#install.packages("GroupLasso/Simulations/MyCpp/TmpGrlasso", repos = NULL, type="source") 
-#library(TmpGrlasso)
 
 # 1. n.beta = 100, n.groups = 20, non.zero.groups = 4, n.provider range from 200 to 3000
-
-# Under each provider counts, 10 data are simulated; 
-# "mean \pm sd runtime" based on 5-fold cross validation on entire lambda path will be reported; 
-# RME and RMSE will be computed based on the "best lambda" selected by 10-fod cross validation;
-# each data has 100 betas which have been randomly assigned into 20 groups. 4 groups contains non-zero beta, while other beta's are set to zero;
-# no unpenalized beta's have been specified;
 
 multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL, cross_entropy = NULL, wrong_prediction_rate = NULL){
   result <- list(
@@ -515,11 +493,7 @@ for (j in m.sequence){ #outer loop for
   cl <- makeCluster(cl.cores - 1)
   registerDoParallel(cl) 
   Model.Comparison <- 
-    foreach (i = data.loop, .packages = c("grpreg", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "myRcpp"),
-             .noexport = c("Deviance", "grp_lasso", "logis_fe_prov", "SerBIN", "Z_max_grLasso")) %dopar% {
-               source("GroupLasso/Relevant Functions/Relevant_Functions.R")
-               source("GroupLasso/Relevant Functions/Simulated_Functions.R")
-               source("GroupLasso/grLasso_Code.R")
+    foreach (i = data.loop, .packages = c("grpreg", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "TmpGrlasso")) %dopar% {
                Y.char <- 'Y'
                prov.char <- 'Prov.ID'
                sim.parameters.GrLasso <- list(m = j, n.beta = 50, n.groups = 10, prop.NonZero.group = 0.2, 
@@ -863,10 +837,9 @@ for (j in num.beta){ #outer loop for
   registerDoParallel(cl) 
   Model.Comparison <- 
     foreach (i = data.loop, .packages = c("grpreg", "RcppArmadillo", "MASS", "Matrix", "TmpGrlasso")) %dopar% {
-      source("GroupLasso/Relevant Functions/Simulation_Functions.R")
       sim.parameters <- list(m = 1, n.beta = j, n.groups = floor(j/3), prop.NonZero.group = 1, 
                              prop.outlier = 0, rho = 0.6)
-      Sim <- Simulation_data_GroupLasso(sim.parameters, unpenalized.beta = F)
+      Sim <- Simulation_data_GroupLasso(sim.parameters, prov.size.mean = 2000, unpenalized.beta = F)
       data <- Sim$sim.data
       Z.char <- colnames(data)[3:(ncol(data) - 1)]
       Y.char <- 'Y'
@@ -941,9 +914,6 @@ for (j in num.beta){ #outer loop for
   MGD.sd[, ind] <- apply(MGD, 1, sd)
 }
 
-
-### Figures (Runtime, RME, RMSE, cross_entropy, wrong_prediction_rate)
-library(reshape2)
 
 #### Figure1: Runtime
 n.beta <- num.beta

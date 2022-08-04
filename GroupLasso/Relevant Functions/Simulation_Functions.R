@@ -26,13 +26,13 @@ sim.f <- function(m, prov.size, gamma, beta, Y.char, Z.char, prov.char, rho) {
 #              rho: corr(Z, gamma) = rho (note: also equals to corr(Z_p1, Z_p2), for all p1, p2 \in {1,2, ..., n.beta} )
 
 
-Simulation_data_GroupLasso <- function(ls, unpenalized.beta = F, prop.unpenalized.beta = 0.25) { 
+Simulation_data_GroupLasso <- function(ls, prov.size.mean = 80, unpenalized.beta = F, prop.unpenalized.beta = 0.25) { 
   m <- ls$m  # number of providers
   n <- ls$n.beta  # number of risk factors
   n.groups <- ls$n.groups  # number of groups
   n.outlier <- floor(ls$prop.outlier * m) # proportion of outlying providers (some gamma's are not generated from normal distribution)
   rho <- ls$rho 
-  prov.size <- pmax(c(rpois(m, 5000)), 11) # mean 80 based on real data; 11: provider size cutoff
+  prov.size <- pmax(c(rpois(m, prov.size.mean)), 11) # mean 80 based on real data; 11: provider size cutoff
   gamma <- rnorm(m, log(4/11), 0.4) # log odds; mean and sd based on real data
   gamma[sample.int(m, n.outlier)] <- log(4/11) + 
     (2 * rbinom(n.outlier, 1, 0.5) - 1) *
