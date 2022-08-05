@@ -19,7 +19,8 @@ install.packages(".../TmpGrlasso", repos = NULL, type="source")
 
 ### 1. Fixed Effects Model vs. Pooled Model:
 
-<img src="https://drive.google.com/uc?export=view&id=1sIYLQXqYhRbNY493rsnNMF3_b33D0Cgp"  width=75% height=75%>
+<img src="https://drive.google.com/uc?export=view&id=1aS_KUCU8c7SowdIXjZPDeEhsorP2_FAh"  width=75% height=75%>
+
 
 
 ### 2. Regularization Coefficient Paths:
@@ -80,7 +81,7 @@ We only provide a naive example here, with provider counts from 50 to 1100. Even
 
 <img src="https://drive.google.com/uc?export=view&id=1ugDFN2w3HPGB-1UztibVq0zkMAOszFoM"  width=80% height=80%>
 
-<img src="https://drive.google.com/uc?export=view&id=1Gf_UVuOhchyexQCvXYJHuB3ufmgxbmXu"  width=80% height=80%>
+<img src="https://drive.google.com/uc?export=view&id=1Gf_UVuOhchyexQCvXYJHuB3ufmgxbmXu"  width=70% height=70%>
 
 
 *Note that the running time of the algorithm excludes the time required by grpreg to convert high-dimensional provider data into dummy variables. But we need to keep in mind that as the number of providers grows, data conversion can be incredibly time and memory consuming.*

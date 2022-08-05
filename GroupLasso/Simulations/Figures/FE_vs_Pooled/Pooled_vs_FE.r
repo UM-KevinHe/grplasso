@@ -88,7 +88,8 @@ plot.function <- function(res.df){
           legend.text = element_text(size = 12, family = "serif")) + 
     theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
     theme(legend.direction = "horizontal", legend.spacing.x = unit(0.5, 'cm')) + 
-    theme(legend.key.height = unit(0.5, 'cm'),
+    theme(legend.key = element_blank(),
+          legend.key.height = unit(0.5, 'cm'),
           legend.key.width = unit(1, 'cm')) +
     labs(title = "", 
          x = "", 
@@ -108,7 +109,8 @@ plot.function <- function(res.df){
           legend.text = element_text(size = 12, family = "serif")) + 
     theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
     theme(legend.direction = "horizontal", legend.spacing.x = unit(0.5, 'cm')) + 
-    theme(legend.key.height = unit(0.5, 'cm'),
+    theme(legend.key = element_blank(),
+          legend.key.height = unit(0.5, 'cm'),
           legend.key.width = unit(1, 'cm')) +
     labs(title = "", 
          x = "", 
@@ -128,7 +130,8 @@ plot.function <- function(res.df){
           legend.text = element_text(size = 12, family = "serif")) + 
     theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
     theme(legend.direction = "horizontal", legend.spacing.x = unit(0.5, 'cm')) + 
-    theme(legend.key.height = unit(0.5, 'cm'),
+    theme(legend.key = element_blank(),
+          legend.key.height = unit(0.5, 'cm'),
           legend.key.width = unit(1, 'cm')) +
     labs(title = "", 
          x = "", 
@@ -148,7 +151,8 @@ plot.function <- function(res.df){
           legend.text = element_text(size = 12, family = "serif")) + 
     theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
     theme(legend.direction = "horizontal", legend.spacing.x = unit(0.5, 'cm')) + 
-    theme(legend.key.height = unit(0.5, 'cm'),
+    theme(legend.key = element_blank(),
+          legend.key.height = unit(0.5, 'cm'),
           legend.key.width = unit(1, 'cm')) +
     labs(title = "", 
          x = "", 
