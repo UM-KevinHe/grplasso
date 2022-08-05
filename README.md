@@ -17,7 +17,12 @@ install.packages(".../TmpGrlasso", repos = NULL, type="source")
 
 ## Simulation:
 
-### 1. Regularization Coefficient Paths:
+### 1. Fixed Effects Model vs. Pooled Model:
+
+<img src="https://drive.google.com/uc?export=view&id=1sIYLQXqYhRbNY493rsnNMF3_b33D0Cgp"  width=75% height=75%>
+
+
+### 2. Regularization Coefficient Paths:
 
 #### (1) Regularization path of model without unpenalized groups
 
@@ -32,7 +37,7 @@ Ten risk factors were randomly assigned to four groups. Among the four groups of
 <img src="https://drive.google.com/uc?export=view&id=1UlxAT7nXw5qB3O4d0DOYIpympKiGxD-H"  width=75% height=75%>
 
 
-### 2.  Cross entropy Loss by cross validation:
+### 3.  Cross entropy Loss by cross validation:
 
 Here, we use the "Birthwt" data provided with the grpreg package to show how cross-validation can be used to select the best regularization parameter. Currently, we use cross entropy loss as our selection criterion.
 
