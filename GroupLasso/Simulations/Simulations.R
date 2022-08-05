@@ -425,13 +425,13 @@ print(max(abs(gamma.diff)))
 
 # 1. n.beta = 100, n.groups = 20, non.zero.groups = 4, n.provider range from 200 to 3000
 
-multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL, cross_entropy = NULL, wrong_prediction_rate = NULL){
+multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL){#, cross_entropy = NULL, wrong_prediction_rate = NULL){
   result <- list(
     Runtime = Runtime,
     RME = RME,
-    RMSE = RMSE,
-    cross_entropy = cross_entropy,
-    wrong_prediction_rate = wrong_prediction_rate
+    RMSE = RMSE#,
+    #cross_entropy = cross_entropy,
+    #wrong_prediction_rate = wrong_prediction_rate
   )
   ## Set the name for the class
   class(result) <- append(class(result), "multiResultClass")
@@ -439,7 +439,7 @@ multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL, cross_entr
 }
 
 
-m.sequence <- seq(50, 2000, 50)
+m.sequence <- seq(50, 500, 20)
 
 Runtime.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
 colnames(Runtime.Mean) <- paste0("n.prov = ", m.sequence)
@@ -465,22 +465,21 @@ RMSE.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
 colnames(RMSE.sd) <- paste0("n.prov = ", m.sequence)
 rownames(RMSE.sd) <- c("grLasso", "grpreg")
 
-cross_entropy.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(cross_entropy.Mean) <- paste0("n.prov = ", m.sequence)
-rownames(cross_entropy.Mean) <- c("grLasso", "grpreg")
+#cross_entropy.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(cross_entropy.Mean) <- paste0("n.prov = ", m.sequence)
+#rownames(cross_entropy.Mean) <- c("grLasso", "grpreg")
 
-cross_entropy.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(cross_entropy.sd) <- paste0("n.prov = ", m.sequence)
-rownames(cross_entropy.sd) <- c("grLasso", "grpreg")
+#cross_entropy.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(cross_entropy.sd) <- paste0("n.prov = ", m.sequence)
+#rownames(cross_entropy.sd) <- c("grLasso", "grpreg")
 
-wrong_prediction_rate.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(wrong_prediction_rate.Mean) <- paste0("n.prov = ", m.sequence)
-rownames(wrong_prediction_rate.Mean) <- c("grLasso", "grpreg")
+#wrong_prediction_rate.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(wrong_prediction_rate.Mean) <- paste0("n.prov = ", m.sequence)
+#rownames(wrong_prediction_rate.Mean) <- c("grLasso", "grpreg")
 
-wrong_prediction_rate.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(wrong_prediction_rate.sd) <- paste0("n.prov = ", m.sequence)
-rownames(wrong_prediction_rate.sd) <- c("grLasso", "grpreg")
-
+#wrong_prediction_rate.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(wrong_prediction_rate.sd) <- paste0("n.prov = ", m.sequence)
+#rownames(wrong_prediction_rate.sd) <- c("grLasso", "grpreg")
 
 
 data.loop <- 1:10
@@ -488,77 +487,70 @@ ind <- 0
 
 for (j in m.sequence){ #outer loop for
   ind <- ind + 1
-  
-  cl.cores <- detectCores()
-  cl <- makeCluster(cl.cores - 1)
+  cl <- makeCluster(4)
   registerDoParallel(cl) 
   Model.Comparison <- 
     foreach (i = data.loop, .packages = c("grpreg", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "TmpGrlasso")) %dopar% {
-               Y.char <- 'Y'
-               prov.char <- 'Prov.ID'
-               sim.parameters.GrLasso <- list(m = j, n.beta = 50, n.groups = 10, prop.NonZero.group = 0.2, 
-                                              prop.outlier = 0.05, rho = 0.7)
-               Sim_GrLasso <- Simulation_data_GroupLasso(sim.parameters.GrLasso, unpenalized.beta = F)
-               data_GrLasso <- Sim_GrLasso$sim.data
-               group <- Sim_GrLasso$group
-               
-               true.beta <- Sim_GrLasso$beta  #true beta's for computing RMSE
-               Z.char <- paste0('Z_', 1:sim.parameters.GrLasso$n.beta)
-               data_prep <- fe.data.prep(data_GrLasso, Y.char, Z.char, prov.char, cutoff = 0, check = FALSE)
-               data_prep <- data_prep[data_prep$included == 1, ]
-               true.mu <- data_prep$mu #true mu's for computing RME
-               
-               # dummy data for grpreg
-               dummy_data <- dummy_cols(data_prep, select_columns = prov.char, remove_selected_columns = TRUE, 
-                                        remove_first_dummy = TRUE)
-               ID.char <- rep(NA, sim.parameters.GrLasso$m - 1)
-               for (i in 1:(sim.parameters.GrLasso$m - 1)){
-                 ID.char[i] <- paste0("Prov.ID_", i + 1)
-               }
-               
-               # results from grLasso
-               start <- Sys.time()
-               cv.model_grp_lasso <- cv.grp.lasso(data_prep, Y.char, Z.char, prov.char, group = group, trace.lambda = T,
-                                                  nfolds = 5, trace.cv = F)
-               end <- Sys.time()
-               cv.process.time1 <- difftime(end, start, units = 'mins')  #runtime
-               cv_BestModel_grp_lasso <- cv.model_grp_lasso$fit
-               best.beta.grp_lasso <- cv_BestModel_grp_lasso$beta[, cv.model_grp_lasso$min]
-               best.eta.grp_lasso <- cv_BestModel_grp_lasso$linear.predictors[, cv.model_grp_lasso$min]
-               
-               RME.grp_lasso <- sqrt(sum((best.beta.grp_lasso - true.beta)^2)/sim.parameters.GrLasso$n.beta) #RME
-               RMSE.grp_lasso <- sqrt(sum((plogis(best.eta.grp_lasso) - true.mu)^2)/nrow(data_prep)) #RMSE
-               cross_entropy.grp_lasso <- cv.model_grp_lasso$cve[cv.model_grp_lasso$min] #CVE
-               wrong.prediction.rate.grp_lasso <- cv.model_grp_lasso$pe[cv.model_grp_lasso$min] #PE
-               
-               
-               ## results from grpreg
-               start <- Sys.time()
-               cv.model_grpreg <- cv.grpreg(dummy_data[,c(Z.char, ID.char)], dummy_data[,Y.char], family = "binomial",
-                                            penalty = "grLasso", group = c(group, rep(0, length(ID.char))), alpha = 1, 
-                                            nfolds = 5, trace.cv = T)
-               end <- Sys.time()
-               cv.process.time2 <-  difftime(end, start, units = 'mins') #runtime
-               
-               cv_BestModel_grpreg <- cv.model_grpreg$fit
-               best.beta.grpreg <- cv_BestModel_grpreg$beta[2:(1 + sim.parameters.GrLasso$n.beta), cv.model_grpreg$min]
-               best.eta.grpreg <- cv_BestModel_grpreg$linear.predictors[, cv.model_grpreg$min]
-               
-               RME.grpreg <- sqrt(sum((best.beta.grpreg - true.beta)^2)/sim.parameters.GrLasso$n.beta)  #RME
-               RMSE.grpreg <- sqrt(sum((plogis(best.eta.grpreg) - true.mu)^2)/nrow(data_prep))  #RMSE
-               cross_entropy.grpreg <- cv.model_grpreg$cve[cv.model_grpreg$min]  #CVE
-               wrong.prediction.rate.grpreg <- cv.model_grpreg$pe[cv.model_grpreg$min]  #PE
-               
-               
-               result <- multiResultClass()
-               result$Runtime <- round(matrix(c(cv.process.time1, cv.process.time2), nrow = 2), digits = 3)
-               result$RME <- round(matrix(c(RME.grp_lasso, RME.grpreg), nrow = 2), digits = 4)
-               result$RMSE <- round(matrix(c(RMSE.grp_lasso, RMSE.grpreg), nrow = 2), digits = 4)
-               result$cross_entropy <- round(matrix(c(cross_entropy.grp_lasso, cross_entropy.grpreg), nrow = 2), digits = 4)
-               result$wrong_prediction_rate <- round(matrix(c(wrong.prediction.rate.grp_lasso, wrong.prediction.rate.grpreg), nrow = 2), digits = 4)
-               
-               return(result)
-             }
+      Y.char <- 'Y'
+      prov.char <- 'Prov.ID'
+      sim.parameters.GrLasso <- list(m = j, n.beta = 20, n.groups = 4, prop.NonZero.group = 0.6, 
+                                     prop.outlier = 0.05, rho = 0.7)
+      Sim_GrLasso <- Simulation_data_GroupLasso(sim.parameters.GrLasso, unpenalized.beta = F)
+      data_GrLasso <- Sim_GrLasso$sim.data
+      group <- Sim_GrLasso$group
+      
+      true.beta <- Sim_GrLasso$beta  #true beta's for computing RMSE
+      Z.char <- paste0('Z_', 1:sim.parameters.GrLasso$n.beta)
+      data_prep <- fe.data.prep(data_GrLasso, Y.char, Z.char, prov.char, cutoff = 0, check = FALSE)
+      data_prep <- data_prep[data_prep$included == 1, ]
+      true.mu <- data_prep$mu #true mu's for computing RME
+      
+      # results from grLasso
+      start <- Sys.time()
+      cv.model_grp_lasso <- cv.grp.lasso(data_prep, Y.char, Z.char, prov.char, group = group, trace.lambda = T,
+                                         nfolds = 5, trace.cv = F)
+      end <- Sys.time()
+      cv.process.time1 <- difftime(end, start, units = 'mins')  #runtime
+      cv_BestModel_grp_lasso <- cv.model_grp_lasso$fit
+      best.beta.grp_lasso <- cv_BestModel_grp_lasso$beta[, cv.model_grp_lasso$min]
+      best.eta.grp_lasso <- cv_BestModel_grp_lasso$linear.predictors[, cv.model_grp_lasso$min]
+      
+      RME.grp_lasso <- sqrt(sum((best.beta.grp_lasso - true.beta)^2)/sim.parameters.GrLasso$n.beta) #RME
+      RMSE.grp_lasso <- sqrt(sum((plogis(best.eta.grp_lasso) - true.mu)^2)/nrow(data_prep)) #RMSE
+      
+      
+      ## results from grpreg
+      start <- Sys.time()
+      # dummy data for grpreg
+      dummy_data <- dummy_cols(data_prep, select_columns = prov.char, remove_selected_columns = TRUE, 
+                               remove_first_dummy = TRUE)
+      ID.char <- rep(NA, sim.parameters.GrLasso$m - 1)
+      for (i in 1:(sim.parameters.GrLasso$m - 1)){
+        ID.char[i] <- paste0("Prov.ID_", i + 1)
+      }
+      cv.model_grpreg <- cv.grpreg(dummy_data[,c(Z.char, ID.char)], dummy_data[,Y.char], family = "binomial",
+                                   penalty = "grLasso", group = c(group, rep(0, length(ID.char))), alpha = 1, 
+                                   nfolds = 5, trace.cv = T)
+      end <- Sys.time()
+      cv.process.time2 <-  difftime(end, start, units = 'mins') #runtime
+      
+      cv_BestModel_grpreg <- cv.model_grpreg$fit
+      best.beta.grpreg <- cv_BestModel_grpreg$beta[2:(1 + sim.parameters.GrLasso$n.beta), cv.model_grpreg$min]
+      best.eta.grpreg <- cv_BestModel_grpreg$linear.predictors[, cv.model_grpreg$min]
+      
+      RME.grpreg <- sqrt(sum((best.beta.grpreg - true.beta)^2)/sim.parameters.GrLasso$n.beta)  #RME
+      RMSE.grpreg <- sqrt(sum((plogis(best.eta.grpreg) - true.mu)^2)/nrow(data_prep))  #RMSE
+      
+      
+      result <- multiResultClass()
+      result$Runtime <- round(matrix(c(cv.process.time1, cv.process.time2), nrow = 2), digits = 3)
+      result$RME <- round(matrix(c(RME.grp_lasso, RME.grpreg), nrow = 2), digits = 4)
+      result$RMSE <- round(matrix(c(RMSE.grp_lasso, RMSE.grpreg), nrow = 2), digits = 4)
+      #result$cross_entropy <- round(matrix(c(cross_entropy.grp_lasso, cross_entropy.grpreg), nrow = 2), digits = 4)
+      #result$wrong_prediction_rate <- round(matrix(c(wrong.prediction.rate.grp_lasso, wrong.prediction.rate.grpreg), nrow = 2), digits = 4)
+      
+      return(result)
+    }
   stopCluster(cl)
   
   n.data.loop <- length(data.loop)
@@ -575,20 +567,20 @@ for (j in m.sequence){ #outer loop for
   rownames(RMSE) <- c("grLasso", "grpreg")
   colnames(RMSE) <- paste0("Data_", data.loop)
   
-  cross_entropy <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
-  rownames(cross_entropy) <- c("grLasso", "grpreg")
-  colnames(cross_entropy) <- paste0("Data_", data.loop)
+  #cross_entropy <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
+  #rownames(cross_entropy) <- c("grLasso", "grpreg")
+  #colnames(cross_entropy) <- paste0("Data_", data.loop)
   
-  wrong_prediction_rate <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
-  rownames(wrong_prediction_rate) <- c("grLasso", "grpreg")
-  colnames(wrong_prediction_rate) <- paste0("Data_", data.loop)
+  #wrong_prediction_rate <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
+  #rownames(wrong_prediction_rate) <- c("grLasso", "grpreg")
+  #colnames(wrong_prediction_rate) <- paste0("Data_", data.loop)
   
   for (i in data.loop){
     Runtime[, i] <- Model.Comparison[[i]]$Runtime
     RME[, i] <- Model.Comparison[[i]]$RME
     RMSE[, i] <- Model.Comparison[[i]]$RMSE
-    cross_entropy[, i] <- Model.Comparison[[i]]$cross_entropy
-    wrong_prediction_rate[, i] <- Model.Comparison[[i]]$wrong_prediction_rate
+    #cross_entropy[, i] <- Model.Comparison[[i]]$cross_entropy
+    #wrong_prediction_rate[, i] <- Model.Comparison[[i]]$wrong_prediction_rate
   }
   
   Runtime.Mean[, ind] <- round(apply(Runtime, 1, mean), digits = 3)
@@ -600,12 +592,11 @@ for (j in m.sequence){ #outer loop for
   RMSE.Mean[, ind] <- round(apply(RMSE, 1, mean), digits = 3)
   RMSE.sd[, ind] <- round(apply(RMSE, 1, sd), digits = 3)
   
-  cross_entropy.Mean[, ind] <- round(apply(cross_entropy, 1, mean), digits = 3)
-  cross_entropy.sd[, ind] <- round(apply(cross_entropy, 1, sd), digits = 3)
+  #cross_entropy.Mean[, ind] <- round(apply(cross_entropy, 1, mean), digits = 3)
+  #cross_entropy.sd[, ind] <- round(apply(cross_entropy, 1, sd), digits = 3)
   
-  wrong_prediction_rate.Mean[, ind] <- round(apply(wrong_prediction_rate, 1, mean), digits = 3)
-  wrong_prediction_rate.sd[, ind] <- round(apply(wrong_prediction_rate, 1, sd), digits = 3)
-  
+  #wrong_prediction_rate.Mean[, ind] <- round(apply(wrong_prediction_rate, 1, mean), digits = 3)
+  #wrong_prediction_rate.sd[, ind] <- round(apply(wrong_prediction_rate, 1, sd), digits = 3)
 }
 
 
@@ -630,19 +621,19 @@ Runtime.plot <- ggplot(Runtime.figure.df, aes(n.prov, group = factor(model))) +
   geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
   theme(panel.grid = element_blank(), panel.background = element_blank(),
         axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
-        axis.title = element_text(size = 12, family = "serif"),
+  theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
+        axis.title = element_text(size = 13, family = "serif"),
         plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.text = element_text(size = 13, family = "serif")) + 
-  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
-  theme(legend.position = c(0.12, 0.88)) + 
+        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
+  theme(axis.text = element_text(face = "italic", size = 10, family = "serif")) + 
+  theme(legend.position = c(0.20, 0.88)) + 
   theme(legend.key.height= unit(0.5, 'cm'),
         legend.key.width= unit(1.5, 'cm')) +
-  labs(title = "Runtime of the Entire Regularization Path (with 10-fold cross validation)", 
+  labs(title = "Runtime of the Entire Regularization Path (with 10-fold Cross Validation)", 
        x = "Number of providers", 
        y = "Runtime (mins)",
-       caption = "( provider size varies from 100 to 1100 )") +
-  scale_x_continuous(breaks = n.prov) + 
+       caption = "( provider size varies from 100 to 500 )") +
+  scale_x_continuous(breaks = seq(50, 500, 50)) + 
   scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
@@ -666,17 +657,18 @@ RMSE.plot <- ggplot(RMSE.figure.df, aes(n.prov, group = factor(model))) +
   theme(panel.grid = element_blank(), panel.background = element_blank(),
         axis.line = element_line(colour = "black")) + 
   theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
-        axis.title = element_text(size = 12, family = "serif"),
+        axis.title = element_text(size = 13, family = "serif"),
         plot.caption = element_text(size = 10, face = "italic", family = "serif"),
         legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 11, family = "serif")) + 
+        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
   theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
+  theme(legend.position = c(0.85, 0.92)) + 
   theme(legend.key.height= unit(0.5, 'cm'),
         legend.key.width= unit(1.2, 'cm')) + 
   labs(title = "Root Mean Squared Error (RMSE) Comparison", 
        x = "Number of providers", 
        y = "RMSE") +
-  scale_x_continuous(breaks = n.prov) + 
+  scale_x_continuous(breaks = seq(50, 500, 50)) + 
   scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
@@ -699,89 +691,98 @@ RME.plot <- ggplot(RME.figure.df, aes(n.prov, group = factor(model))) +
   geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
   theme(panel.grid = element_blank(), panel.background = element_blank(),
         axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
-        axis.title = element_text(size = 12, family = "serif"),
+  theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
+        axis.title = element_text(size = 13, family = "serif"),
         plot.caption = element_text(size = 10, face = "italic", family = "serif"),
         legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 11, family = "serif")) + 
+        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
   theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
+  theme(legend.position = c(0.85, 0.92)) +
   theme(legend.key.height= unit(0.5, 'cm'),
         legend.key.width= unit(1.2, 'cm')) + 
   labs(title = "Root Model Error (RME) Comparison", 
        x = "Number of providers", 
        y = "RME") +
-  scale_x_continuous(breaks = n.prov) + 
+  scale_x_continuous(breaks = seq(50, 500, 50)) + 
   scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
 
 #### Figure4: cross entropy
-n.prov <- m.sequence
-cross_entropy.Mean.lower <- cross_entropy.Mean - cross_entropy.sd
-cross_entropy.Mean.upper <- cross_entropy.Mean + cross_entropy.sd
+#n.prov <- m.sequence
+#cross_entropy.Mean.lower <- cross_entropy.Mean - cross_entropy.sd
+#cross_entropy.Mean.upper <- cross_entropy.Mean + cross_entropy.sd
 
 
-cross_entropy.figure.df <- data.frame("model" = melt(cross_entropy.Mean)$Var1,
-                                      "n.prov" = rep(n.prov, each = 2),
-                                      "Mean" = melt(cross_entropy.Mean)$value,
-                                      "lower" = melt(cross_entropy.Mean.lower)$value,
-                                      "upper" = melt(cross_entropy.Mean.upper)$value)
+#cross_entropy.figure.df <- data.frame("model" = melt(cross_entropy.Mean)$Var1,
+#                                      "n.prov" = rep(n.prov, each = 2),
+#                                      "Mean" = melt(cross_entropy.Mean)$value,
+#                                      "lower" = melt(cross_entropy.Mean.lower)$value,
+#                                      "upper" = melt(cross_entropy.Mean.upper)$value)
 
-cross_entropy.plot <- ggplot(cross_entropy.figure.df, aes(n.prov, group = factor(model))) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
-  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
-  theme(panel.grid = element_blank(), panel.background = element_blank(),
-        axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
-        axis.title = element_text(size = 12, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 11, family = "serif")) + 
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.2, 'cm')) + 
-  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
-  labs(title = "Cross-entropy Loss Comparison", 
-       x = "Number of providers", 
-       y = "Cross entropy") +
-  scale_x_continuous(breaks = n.prov) + 
-  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
+#cross_entropy.plot <- ggplot(cross_entropy.figure.df, aes(n.prov, group = factor(model))) +
+#  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
+#  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
+#  theme(panel.grid = element_blank(), panel.background = element_blank(),
+#        axis.line = element_line(colour = "black")) + 
+#  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
+#        axis.title = element_text(size = 12, family = "serif"),
+#        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
+#        legend.title = element_text(size = 12, family = "serif"),
+#        legend.text = element_text(size = 11, family = "serif")) + 
+#  theme(legend.key.height= unit(0.5, 'cm'),
+#        legend.key.width= unit(1.2, 'cm')) + 
+#  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
+#  labs(title = "Cross-entropy Loss Comparison", 
+#       x = "Number of providers", 
+#       y = "Cross entropy") +
+#  scale_x_continuous(breaks = n.prov) + 
+#  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
 
 
 
 #### Figure5: wrong prediction rate
-n.prov <- m.sequence
-wrong_prediction_rate.Mean.lower <- wrong_prediction_rate.Mean - wrong_prediction_rate.sd
-wrong_prediction_rate.Mean.upper <- wrong_prediction_rate.Mean + wrong_prediction_rate.sd
+#n.prov <- m.sequence
+#wrong_prediction_rate.Mean.lower <- wrong_prediction_rate.Mean - wrong_prediction_rate.sd
+#wrong_prediction_rate.Mean.upper <- wrong_prediction_rate.Mean + wrong_prediction_rate.sd
 
 
-wrong_prediction_rate.figure.df <- data.frame("model" = melt(wrong_prediction_rate.Mean)$Var1,
-                                              "n.prov" = rep(n.prov, each = 2),
-                                              "Mean" = melt(wrong_prediction_rate.Mean)$value,
-                                              "lower" = melt(wrong_prediction_rate.Mean.lower)$value,
-                                              "upper" = melt(wrong_prediction_rate.Mean.upper)$value)
+#wrong_prediction_rate.figure.df <- data.frame("model" = melt(wrong_prediction_rate.Mean)$Var1,
+#                                              "n.prov" = rep(n.prov, each = 2),
+#                                              "Mean" = melt(wrong_prediction_rate.Mean)$value,
+#                                              "lower" = melt(wrong_prediction_rate.Mean.lower)$value,
+#                                              "upper" = melt(wrong_prediction_rate.Mean.upper)$value)
 
-wrong_prediction_rate.plot <- ggplot(wrong_prediction_rate.figure.df, aes(n.prov, group = factor(model))) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
-  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
-  theme(panel.grid = element_blank(), panel.background = element_blank(),
-        axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
-        axis.title = element_text(size = 12, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 11, family = "serif")) + 
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.2, 'cm')) + 
-  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
-  labs(title = "Prediction Error Rate Comparison", 
-       x = "Number of providers", 
-       y = "Prediction error rate (%)") +
-  scale_x_continuous(breaks = n.prov) + 
-  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
+#wrong_prediction_rate.plot <- ggplot(wrong_prediction_rate.figure.df, aes(n.prov, group = factor(model))) +
+#  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
+#  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
+#  theme(panel.grid = element_blank(), panel.background = element_blank(),
+#        axis.line = element_line(colour = "black")) + 
+#  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
+#        axis.title = element_text(size = 12, family = "serif"),
+#        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
+#        legend.title = element_text(size = 12, family = "serif"),
+#        legend.text = element_text(size = 11, family = "serif")) + 
+#  theme(legend.key.height= unit(0.5, 'cm'),
+#        legend.key.width= unit(1.2, 'cm')) + 
+#  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
+#  labs(title = "Prediction Error Rate Comparison", 
+#       x = "Number of providers", 
+#       y = "Prediction error rate (%)") +
+#  scale_x_continuous(breaks = n.prov) + 
+#  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
+
+
+save(Runtime.figure.df, Runtime.plot, 
+     RMSE.figure.df, RMSE.plot, 
+     RME.figure.df, RME.plot, 
+     file = paste0("Runtime_RMSE_RME", Sys.Date(), ".RData"))
+
+
 
 
 
@@ -993,3 +994,6 @@ MBD.plot <- ggplot(esti.figure, aes(n.beta, group = factor(model))) +
   scale_color_manual(values = c("blue", "red"), name = "", labels = c("beta", "intercept")) + 
   scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("beta", "intercept")) +
   ylim(-1e-9, 1e-9)
+
+
+
