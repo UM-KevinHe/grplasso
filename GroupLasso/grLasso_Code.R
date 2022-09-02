@@ -1,7 +1,8 @@
-grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grlasso"), group = 1:length(Z.char), group.multiplier, 
-                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE, nvar.max = p, 
-                      group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, 
-                      max.iter = 10000, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
+grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char), group.multiplier, 
+                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE, 
+                      nvar.max = p, group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0, 
+                      backtrack = FALSE, tol = 1e-4, max.iter = 10000, returnX = FALSE, trace.lambda = FALSE, 
+                      threads = 1, ...){
   if (!is.null(data$included)){  # data after using preparation function
     data <- data[data$included == 1, ]
   }
@@ -20,19 +21,19 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
   
   initial.group <- group
   if (standardize == T){
-    std.Z <- newZG.Std(data, Z.char, group, group.multiplier)
+    std.Z <- newZG.Std.grplasso(data, Z.char, group, group.multiplier)
     Z <- std.Z$std.Z[, , drop = F]  # standardized covariate matrix
     group <- std.Z$g  # new group order
     group.multiplier <- std.Z$m # new group multiplier
   } else {
-    std.Z <- newZG.Unstd(data, Z.char, group, group.multiplier)
+    std.Z <- newZG.Unstd.grplasso(data, Z.char, group, group.multiplier)
     Z <- std.Z$std.Z[, , drop = F] 
     group <- std.Z$g 
     group.multiplier <- std.Z$m 
   }
+  Y <- newY(data, Y.char)
   
   p <- ncol(Z)
-  Y <- newY(data, Y.char)
   nvar.max <- as.integer(nvar.max)
   group.max <- as.integer(group.max)
   
@@ -46,8 +47,8 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
     } else if (nlambda != round(nlambda)){
       stop("nlambda must be a positive integer", call. = FALSE)
     } 
-    lambda.fit <- set.lambda(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier,
-                             nlambda = nlambda, lambda.min.ratio = lambda.min.ratio)
+    lambda.fit <- set.lambda.grplasso(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier, 
+                                      nlambda = nlambda, lambda.min.ratio = lambda.min.ratio)
     lambda.seq <- lambda.fit$lambda.seq
     beta <- lambda.fit$beta
     gamma.prov <- lambda.fit$gamma
@@ -136,7 +137,7 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, method = c("lasso", "grla
 }
 
 
-cv.grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:ncol(Z), ..., nfolds = 10, 
+cv.grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char), ..., nfolds = 10, 
                          seed, fold, trace.cv = FALSE){
   if (missing(prov.char)){ #single intercept
     prov.char <- "intercept"

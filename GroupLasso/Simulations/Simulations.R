@@ -179,7 +179,7 @@ grpreg.gamma <- rbind(model_grpreg_char$beta[1,],
                         model_grpreg_char$beta[(sim.parameters.GrLasso$n.beta + 2):length(model_grpreg_char$beta[, 1]),])
 
 
-######----------- Cross Validation ------------######
+######----------- 4. Cross Validation ------------######
 set.seed(1)
 Y.char <- 'Y'
 prov.char <- 'Prov.ID'
@@ -238,9 +238,112 @@ cross_entropy.grpreg <- cv.model_grpreg$cve[cv.model_grpreg$min]
 wrong.prediction.rate.grpreg <- cv.model_grpreg$pe[cv.model_grpreg$min]
 
 
+######----------- 5. simple lasso ------------######
+set.seed(123)
+Y.char <- 'Y'
+prov.char <- 'Prov.ID'
+n.beta <- 10
+sim.parameters.Lasso <- list(m = 50, n.beta = n.beta, n.groups = n.beta, prop.NonZero.group = 0.2,
+                             prop.outlier = 0, rho = 0.7)
+Sim_Lasso <- Simulation_data_GroupLasso(sim.parameters.Lasso, unpenalized.beta = F)
+data_Lasso <- Sim_Lasso$sim.data
+true.beta <- Sim_Lasso$beta
+true.gamma <- Sim_Lasso$gamma
+Z.char <- colnames(data_Lasso)[3:(ncol(data_Lasso) - 1)]
+true.mu <- Sim_Lasso$mu
 
 
-######----------- Figure: Entire Regularization Path ------------######
+# dummy data for grpreg
+dummy_data <- dummy_cols(data_Lasso, select_columns = prov.char, remove_selected_columns = TRUE, 
+                         remove_first_dummy = TRUE)
+ID.char <- colnames(dummy_data)[(ncol(dummy_data) - sim.parameters.Lasso$m + 2):ncol(dummy_data)]
+
+
+## 1. ppLasso
+### (1) MM = F
+start <- Sys.time()
+model_pp_lasso1 <- pp.lasso(data_Lasso, Y.char, Z.char, prov.char, MM = F)
+end <- Sys.time()
+process.time1 <- end - start
+print(process.time1)
+
+ppLasso.beta1 <- model_pp_lasso1$beta
+ppLasso.gamma1 <- model_pp_lasso1$gamma
+ppLasso.lambda1 <- model_pp_lasso1$lambda
+ppLasso.loss1 <- model_pp_lasso1$loss
+total.iter1 <- sum(model_pp_lasso1$iter)
+
+### (2) MM = T
+start <- Sys.time()
+model_pp_lasso2 <- pp.lasso(data_Lasso, Y.char, Z.char, prov.char, MM = T)
+end <- Sys.time()
+process.time2 <- end - start
+print(process.time2)
+
+ppLasso.beta2 <- model_pp_lasso2$beta
+ppLasso.gamma2<- model_pp_lasso2$gamma
+ppLasso.lambda2 <- model_pp_lasso2$lambda
+ppLasso.loss2 <- model_pp_lasso2$loss
+total.iter2 <- sum(model_pp_lasso2$iter)
+
+## 2. grpreg
+start <- Sys.time()
+model_grpreg <- grpreg(dummy_data[ ,c(Z.char, ID.char)], dummy_data[,Y.char], family = "binomial", 
+                       penalty = "grLasso", group = c(1:length(Z.char), rep(0, length(ID.char))), 
+                       alpha = 1)
+end <- Sys.time()
+process.time3 <- end - start
+print(process.time3)
+
+grpreg.beta <- model_grpreg$beta[2:(1 + sim.parameters.Lasso$n.beta),]
+
+if (ncol(model_grpreg$beta) == 1){
+  grpreg.beta <- matrix(grpreg.beta, ncol = 1)
+  grpreg.gamma <- c(model_grpreg$beta[1,],
+                    model_grpreg$beta[1,] +
+                      model_grpreg$beta[(sim.parameters.Lasso$n.beta + 2):length(model_grpreg$beta[, 1]),])
+  names(grpreg.gamma) <-  names(table(data_Lasso$Prov.ID))
+  grpreg.gamma <- matrix(grpreg.gamma, ncol = 1)
+  n <- 1
+} else {
+  grpreg.gamma <- rbind(model_grpreg$beta[1,],
+                        model_grpreg$beta[1,] +
+                          model_grpreg$beta[(sim.parameters.Lasso$n.beta + 2):length(model_grpreg$beta[, 1]),])
+  rownames(grpreg.gamma) <- names(table(data_Lasso$Prov.ID))
+}
+
+grpreg.lambda <- model_grpreg$lambda
+grpreg.loss <- model_grpreg$loss
+
+
+## 3. glmnet
+start <- Sys.time()
+model_glmnet <- glmnet(dummy_data[ ,c(Z.char, ID.char)], dummy_data[,Y.char], family = "binomial", 
+                       penalty.factor = c(rep(1, length(Z.char)), rep(0, length(ID.char))), 
+                       alpha = 1)
+end <- Sys.time()
+process.time4 <- end - start
+print(process.time4)
+
+glmnet.beta <- as.matrix(model_glmnet$beta[1:(sim.parameters.Lasso$n.beta),])
+
+## Estimation difference
+# pplasso with MM
+n <- min(ncol(ppLasso.beta1), ncol(grpreg.beta)) - 1
+beta.diff1 <- round(ppLasso.beta1[, 1:n] - grpreg.beta[, 1:n], digits = 4)
+# max(abs(beta.diff1))
+gamma.diff1 <- round(ppLasso.gamma1[, 1:n] - grpreg.gamma[, 1:n], digits = 4)
+
+# pplasso without MM
+n <- min(ncol(ppLasso.beta2), ncol(grpreg.beta)) - 1
+beta.diff2 <- round(ppLasso.beta2[, 1:n] - grpreg.beta[, 1:n], digits = 4)
+# max(abs(beta.diff2))
+gamma.diff2 <- round(ppLasso.gamma2[, 1:n] - grpreg.gamma[, 1:n], digits = 4)
+
+
+
+
+######----------- 6.Figure: Entire Regularization Path ------------######
 
 # 1. Simulated at: 100 providers, totally 10 beta's with 3 groups (1 zero group, 2 penalized non-zero groups)
 library(ggplot2)
@@ -331,7 +434,7 @@ Regularization.path2 <- ggplot(path.figure.df, aes(iter.num, y, group = factor(g
   scale_x_continuous(trans = scales::reverse_trans(), breaks = round(seq(round(max(iter.num), 0), round(min(iter.num), 0), by = - 1), 1))
 Regularization.path2
 
-######----------- Figure: Cross-validation error at entire lambda sequence (Based on Real Data)------------######
+######----------- 7.Figure: Cross-validation error at entire lambda sequence (Based on Real Data)------------######
 data(Birthwt)
 Z <- Birthwt$X
 Y <- matrix(Birthwt$low, nrow = nrow(Z))
@@ -380,7 +483,7 @@ cv.model_grpreg$lambda.min
 plot(cv.model_grpreg)
 
 
-######----------- Real Data Estimation: (Based on "Birthwt") ------------######
+######----------- 8.Real Data Estimation: (Based on "Birthwt") ------------######
 data(Birthwt)
 Z <- Birthwt$X
 Y <- matrix(Birthwt$low, nrow = nrow(Z))
@@ -418,11 +521,9 @@ print(max(abs(gamma.diff)))
 
 
 
-######----------- Time Comparison ------------######
-######----------- Time Comparison ------------######
-######----------- Time Comparison ------------######
 
 
+######----------- Time Comparison ------------######
 # 1. n.beta = 100, n.groups = 20, non.zero.groups = 4, n.provider range from 200 to 3000
 
 multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL){#, cross_entropy = NULL, wrong_prediction_rate = NULL){

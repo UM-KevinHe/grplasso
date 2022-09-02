@@ -101,8 +101,8 @@ SerBIN.residuals <- function(Y, Z, n.prov, gamma.prov, beta){
 } 
 
 # construct lambda sequence & re-initialize beta and gamma
-set.lambda <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier,
-                       nlambda = 100, lambda.min.ratio = 1e-04){
+set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier, 
+                                nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
@@ -198,14 +198,14 @@ reorderG <- function(g, m) {
 
 #Feather-level standardization
 standardize.Z <- function(Z){
-  mysd <- function(x){
-    sqrt(sum((x - mean(x))^2)/length(x))
+  mysd <- function(z){
+    sqrt(sum((z - mean(z))^2)/length(z))
   } 
-  new.X <- scale(as.matrix(Z), scale = apply(as.matrix(Z), 2, mysd))
-  mean.X <- attributes(new.X)$`scaled:center`
-  sd.X <- attributes(new.X)$`scaled:scale`
-  new.X <- new.X[, ,drop = F]
-  res <- list(new.Z = new.X, mean.Z = mean.X, sd.Z = sd.X)
+  new.Z <- scale(as.matrix(Z), scale = apply(as.matrix(Z), 2, mysd))
+  center.Z <- attributes(new.Z)$`scaled:center`
+  scale.Z <- attributes(new.Z)$`scaled:scale`
+  new.Z <- new.Z[, , drop = F]
+  res <- list(new.Z = new.Z, center.Z = center.Z, scale.Z = scale.Z)
   return(res)
 }
 
@@ -250,7 +250,7 @@ orthogonalize <- function(Z, group) {
 # convert orthogonalized beta back to original scales
 unorthogonalize <- function(beta, Z, group) {
   ind <- !sapply(attr(Z, "QL"), is.null)
-  QL <- bdiag(attr(Z, "QL")[ind]) #block diagonal matrix
+  QL <- Matrix::bdiag(attr(Z, "QL")[ind]) #block diagonal matrix
   if (sum(group == 0) > 0){ #some groups are unpenalized
     ind0 <- which(group==0)
     original.beta <- as.matrix(rbind(beta[ind0, , drop = FALSE], QL %*% beta[-ind0, , drop = FALSE]))
@@ -262,13 +262,13 @@ unorthogonalize <- function(beta, Z, group) {
 
 
 # standardize + orthogonalize covariate matrix
-newZG.Std <- function(data, Z.char, g, m){
+newZG.Std.grplasso <- function(data, Z.char, g, m){
   Z <- as.matrix(data[, Z.char, drop = F])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
   } 
   if (length(g) != ncol(Z)) {
-    stop ("Dimensions of group is not compatible with X", call. = FALSE)
+    stop ("Dimensions of group is not compatible with Z", call. = FALSE)
   }
   G <- setupG(g, m) # setup group
   std <- standardize.Z(Z)
@@ -299,13 +299,13 @@ newZG.Std <- function(data, Z.char, g, m){
 }
 
 # Only orthogonalize covariate matrix
-newZG.Unstd <- function(data, Z.char, g, m){
+newZG.Unstd.grplasso <- function(data, Z.char, g, m){
   Z <- as.matrix(data[, Z.char, drop = F])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
   } 
   if (length(g) != ncol(Z)) {
-    stop ("Dimensions of group is not compatible with X", call. = FALSE)
+    stop ("Dimensions of group is not compatible with Z", call. = FALSE)
   }
   G <- setupG(g, m) 
   mysd <- function(x){
