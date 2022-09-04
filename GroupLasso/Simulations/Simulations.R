@@ -18,6 +18,7 @@ source("grLasso_Code.R")
 Rcpp::sourceCpp("Relevant Functions/Relevant_Functions.cpp")
 Rcpp::sourceCpp("grLasso_Code.cpp")
 
+
 ######-----------------------------------------#####
 ######----------- 1. Estimation Comparison: multi-centers ------------######
 set.seed(1)
@@ -724,20 +725,25 @@ Runtime.plot <- ggplot(Runtime.figure.df, aes(n.prov, group = factor(model))) +
         axis.line = element_line(colour = "black")) + 
   theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
         axis.title = element_text(size = 13, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
-  theme(axis.text = element_text(face = "italic", size = 10, family = "serif")) + 
-  theme(legend.position = c(0.20, 0.88)) + 
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.5, 'cm')) +
-  labs(title = "Runtime of the Entire Regularization Path (with 10-fold Cross Validation)", 
+        plot.caption = element_text(size = 11, face = "italic", family = "serif"),
+        legend.text = element_text(size = 12, family = "serif", face = "italic")) + 
+  theme(axis.text = element_text(face = "italic", size = 12, family = "serif")) + 
+  theme(legend.position = c(0.15, 0.9),
+        legend.background = element_rect(fill = "white", color = "black"),
+        legend.title = element_blank()) + 
+  theme(legend.key.height = unit(0.6, 'cm'),
+        legend.key.width = unit(1.2, 'cm'),
+        legend.spacing.y = unit(0, 'cm')) +
+  labs(title = "Comparison of Running Speed: with Grouped Covariates", 
        x = "Number of providers", 
        y = "Runtime (mins)",
-       caption = "( provider size varies from 100 to 500 )") +
-  scale_x_continuous(breaks = seq(50, 500, 50)) + 
+       caption = "( provider size varies from 50 to 400 )") +
+  scale_x_continuous(breaks = m.sequence) + 
   scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
+
+
 
 
 #### Figure2: RMSE
@@ -878,7 +884,9 @@ RME.plot <- ggplot(RME.figure.df, aes(n.prov, group = factor(model))) +
 #  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
 
 
-save(Runtime.figure.df, Runtime.plot, 
+setwd("/Users/shaoyubo/Desktop/Research/UMich_Kevin_He/LASSO_GitFolder/LASSO/grplasso/GroupLasso/Simulations/Figures&Tables/Runtime/GroupLasso")
+save(Runtime.figure.df, Runtime.plot,
+     Runtime.figure.df.subset, Runtime.subset.plot,
      RMSE.figure.df, RMSE.plot, 
      RME.figure.df, RME.plot, 
      file = paste0("Runtime_RMSE_RME", Sys.Date(), ".RData"))
@@ -889,7 +897,7 @@ save(Runtime.figure.df, Runtime.plot,
 
 
 ######----------- 10.Time Comparison: Lasso ------------######
-# n.beta = 20, n.provider range from 50 to 500
+# n.beta = 50, n.provider range from 50 to 500
 multiResultClass2 <- function(Runtime = NULL, total_iter = NULL){
   result <- list(
     Runtime = Runtime,
@@ -901,15 +909,15 @@ multiResultClass2 <- function(Runtime = NULL, total_iter = NULL){
 }
 
 
-m.sequence <- seq(50, 500, 50)
+m.sequence <- seq(50, 400, 50)
 
-Runtime.Mean <- matrix(rep(0, length(m.sequence) * 3), nrow = 3)
+Runtime.Mean <- matrix(rep(0, length(m.sequence) * 4), nrow = 4)
 colnames(Runtime.Mean) <- paste0("n.prov = ", m.sequence)
-rownames(Runtime.Mean) <- c("pplasso with MM", "pplasso without MM", "grpreg")
+rownames(Runtime.Mean) <- c("pplasso with MM", "pplasso without MM", "grpreg", "glmnet")
 
-Runtime.sd <- matrix(rep(0, length(m.sequence) * 3), nrow = 3)
+Runtime.sd <- matrix(rep(0, length(m.sequence) * 4), nrow = 4)
 colnames(Runtime.sd) <- paste0("n.prov = ", m.sequence)
-rownames(Runtime.sd) <- c("pplasso with MM", "pplasso without MM", "grpreg")
+rownames(Runtime.sd) <- c("pplasso with MM", "pplasso without MM", "grpreg", "glmnet")
 
 iter.Mean <- matrix(rep(0, length(m.sequence) * 3), nrow = 3)
 colnames(iter.Mean) <- paste0("n.prov = ", m.sequence)
@@ -924,22 +932,22 @@ ind <- 0
 
 for (j in m.sequence){ 
   ind <- ind + 1
-  cl <- makeCluster(4)
+  cl <- makeCluster(5)
   registerDoParallel(cl) 
   Model.Comparison <- 
-    foreach (i = data.loop, .packages = c("grpreg", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "TmpLasso")) %dopar% {
+    foreach (i = data.loop, .packages = c("grpreg", "glmnet", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "TmpLasso")) %dopar% {
       Y.char <- 'Y'
       prov.char <- 'Prov.ID'
-      sim.parameters.Lasso <- list(m = j, n.beta = 20, n.groups = 20, prop.NonZero.group = 0.2,
+      sim.parameters.Lasso <- list(m = j, n.beta = 50, n.groups = 50, prop.NonZero.group = 0.2,
                                    prop.outlier = 0, rho = 0.7)
-      Sim_Lasso <- Simulation_data_GroupLasso(sim.parameters.Lasso, unpenalized.beta = F)
+      Sim_Lasso <- Simulation_data_GroupLasso(sim.parameters.Lasso, prov.size.mean = 200, unpenalized.beta = F)
       data_Lasso <- Sim_Lasso$sim.data
       Z.char <- colnames(data_Lasso)[3:(ncol(data_Lasso) - 1)]
 
       # results from Lasso with MM
       start <- Sys.time()
       cv.model_grp_lasso1 <- cv.pp.lasso(data_Lasso, Y.char, Z.char, prov.char,
-                                        MM = T, nfolds = 5, trace.cv = F)
+                                        MM = T, nfolds = 10, trace.cv = F)
       end <- Sys.time()
       cv.process.time1 <- difftime(end, start, units = 'mins')  #runtime
       total.iter.pplasso1 <- sum((cv.model_grp_lasso1$fit)$iter)
@@ -947,7 +955,7 @@ for (j in m.sequence){
       # results from Lasso without MM
       start <- Sys.time()
       cv.model_grp_lasso2 <- cv.pp.lasso(data_Lasso, Y.char, Z.char, prov.char,
-                                        MM = F, nfolds = 5, trace.cv = F)
+                                        MM = F, nfolds = 10, trace.cv = F)
       end <- Sys.time()
       cv.process.time2 <- difftime(end, start, units = 'mins')  #runtime
       total.iter.pplasso2 <- sum((cv.model_grp_lasso2$fit)$iter)
@@ -960,14 +968,26 @@ for (j in m.sequence){
       ID.char <- colnames(dummy_data)[(ncol(dummy_data) - sim.parameters.Lasso$m + 2):ncol(dummy_data)]
       cv.model_grpreg <- cv.grpreg(dummy_data[,c(Z.char, ID.char)], dummy_data[,Y.char], family = "binomial",
                                    penalty = "grLasso", group = c(1:length(Z.char), rep(0, length(ID.char))),
-                                   alpha = 1, nfolds = 5, trace = F)
+                                   alpha = 1, nfolds = 10, trace = F)
       end <- Sys.time()
       cv.process.time3 <-  difftime(end, start, units = 'mins') #runtime
       total.iter.grpreg <- sum((cv.model_grpreg$fit)$iter)
-    
+      
+      ## results from glmnet
+      start <- Sys.time()
+      # dummy data for glmnet
+      dummy_data <- dummy_cols(data_Lasso, select_columns = prov.char, remove_selected_columns = TRUE, 
+                               remove_first_dummy = TRUE)
+      ID.char <- colnames(dummy_data)[(ncol(dummy_data) - sim.parameters.Lasso$m + 2):ncol(dummy_data)]
+      cv.model_glmnet <- cv.glmnet(as.matrix(dummy_data[ ,c(Z.char, ID.char)]), dummy_data[,Y.char], family = "binomial", 
+                                   penalty.factor = c(rep(1, length(Z.char)), rep(0, length(ID.char))), 
+                                   alpha = 1, nfolds = 10)
+      end <- Sys.time()
+      cv.process.time4 <-  difftime(end, start, units = 'mins') #runtime
+
       
       result <- multiResultClass2()
-      result$Runtime <- round(matrix(c(cv.process.time1, cv.process.time2, cv.process.time3), nrow = 3), digits = 3)
+      result$Runtime <- round(matrix(c(cv.process.time1, cv.process.time2, cv.process.time3, cv.process.time4), nrow = 4), digits = 3)
       result$total_iter <- round(matrix(c(total.iter.pplasso1, total.iter.pplasso2, total.iter.grpreg), nrow = 3), digits = 4)
       return(result)
     }
@@ -975,8 +995,8 @@ for (j in m.sequence){
   
   n.data.loop <- length(data.loop)
   
-  Runtime <- matrix(rep(0, 3 * n.data.loop), nrow = 3)
-  rownames(Runtime) <- c("pplasso with MM", "pplasso without MM", "grpreg")
+  Runtime <- matrix(rep(0, 4 * n.data.loop), nrow = 4)
+  rownames(Runtime) <- c("pplasso with MM", "pplasso without MM", "grpreg", "glmnet")
   colnames(Runtime) <- paste0("Data_", data.loop)
   
   iter <- matrix(rep(0, 3 * n.data.loop), nrow = 3)
@@ -1005,7 +1025,7 @@ Runtime.Mean.upper <- Runtime.Mean + Runtime.sd
 
 
 Runtime.figure.df <- data.frame("model" = melt(Runtime.Mean)$Var1,
-                                "n.prov" = rep(n.prov, each = 3),
+                                "n.prov" = rep(n.prov, each = 4),
                                 "Mean" = melt(Runtime.Mean)$value,
                                 "lower" = melt(Runtime.Mean.lower)$value,
                                 "upper" = melt(Runtime.Mean.upper)$value)
@@ -1017,20 +1037,23 @@ Runtime.plot <- ggplot(Runtime.figure.df, aes(n.prov, group = factor(model))) +
         axis.line = element_line(colour = "black")) + 
   theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
         axis.title = element_text(size = 13, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
+        plot.caption = element_text(size = 11, face = "italic", family = "serif"),
+        legend.text = element_text(size = 12, family = "serif", face = "italic")) + 
   theme(axis.text = element_text(face = "italic", size = 12, family = "serif")) + 
-  theme(legend.position = c(0.20, 0.88)) + 
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.5, 'cm')) +
-  labs(title = "Comparison of Runtime", 
+  theme(legend.position = c(0.22, 0.85),
+        legend.background = element_rect(fill = "white", color = "black"),
+        legend.title = element_blank()) + 
+  theme(legend.key.height = unit(0.6, 'cm'),
+        legend.key.width = unit(1.2, 'cm'),
+        legend.spacing.y = unit(0, 'cm')) +
+  labs(title = "Comparison of Running Speed: without Grouped Covariates",
        x = "Number of providers", 
        y = "Runtime (mins)",
-       caption = "( provider size varies from 100 to 500 )") +
-  scale_x_continuous(breaks = seq(50, 500, 50)) + 
-  scale_linetype_manual(values = c("solid", "dotdash", "dotted"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) + 
-  scale_color_manual(values = c("blue", "bisque4", "red"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) + 
-  scale_fill_manual(values = c("grey80", "grey85", "grey90"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg"))
+       caption = "( provider size varies from 50 to 400 )") +
+  scale_x_continuous(breaks = m.sequence) + 
+  scale_linetype_manual(values = c("solid", "dotdash", "dotted", "twodash"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg", "glmnet")) + 
+  scale_color_manual(values = c("black", "bisque4", "red", "blue"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg", "glmnet")) + 
+  scale_fill_manual(values = c("grey75", "grey80", "grey85", "grey90"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg", "glmnet"))
 
 
 #### Figure2: iter
@@ -1050,25 +1073,30 @@ iter.plot <- ggplot(iter.figure.df, aes(n.prov, group = factor(model))) +
   geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
   theme(panel.grid = element_blank(), panel.background = element_blank(),
         axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
+  theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
         axis.title = element_text(size = 13, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
+        plot.caption = element_text(size = 11, face = "italic", family = "serif"),
+        legend.text = element_text(size = 11, family = "serif", face = "italic")) + 
   theme(axis.text = element_text(face = "italic", size = 12, family = "serif")) + 
-  theme(legend.position = c(0.85, 0.92)) + 
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.2, 'cm')) + 
+  theme(legend.position = c(0.5, 0.95),
+        legend.background = element_rect(fill = "white", color = "black"),
+        legend.title = element_blank()) + 
+  theme(legend.key.height = unit(0.3, 'cm'),
+        legend.key.width = unit(1.2, 'cm'),
+        legend.direction = "horizontal",
+        legend.spacing.x = unit(0.2, 'cm')) + 
   labs(title = "Comparison of Total Iteration Numbers", 
        x = "Number of providers", 
        y = "Total #iterations",
-       caption = "( provider size varies from 100 to 500 )") +
-  scale_x_continuous(breaks = seq(50, 500, 50)) + 
-  scale_linetype_manual(values = c("solid", "dotdash", "dotted"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) + 
-  scale_color_manual(values = c("bisque4", "blue", "red"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) + 
-  scale_fill_manual(values = c("grey80", "grey85", "grey90"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg"))
-
-setwd("/home/ybshao/GroupLasso/Simulations/Figures&Tables/Runtime/Lasso")
+       caption = "( provider size varies from 50 to 400 )") +
+  scale_x_continuous(breaks = m.sequence) + 
+  scale_linetype_manual(values = c("solid", "dotdash", "dotted"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg")) + 
+  scale_color_manual(values = c("bisque4", "blue", "red"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg")) + 
+  scale_fill_manual(values = c("grey80", "grey85", "grey90"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg")) +
+  ylim(0, 8000)
+  
+  
+setwd("/Users/shaoyubo/Desktop/Research/UMich_Kevin_He/LASSO_GitFolder/LASSO/grplasso/GroupLasso/Simulations/Figures&Tables/Runtime/Lasso")
 save(Runtime.figure.df, Runtime.plot, 
      iter.figure.df, iter.plot,
      file = paste0("Runtime_iter_RME", Sys.Date(), ".RData"))

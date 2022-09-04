@@ -1,0 +1,11 @@
+Package: TmpLasso
+Type: Package
+Title: Check Lasso & GrpLasso code
+Version: 3.0
+Date: 2022-09-01
+Author: Yubo Shao
+Maintainer: Yubo Shao <ybshao@umich.edu>
+Description: This package is only used for checking codes.
+License: GPL (>= 2)
+Imports: Rcpp (>= 1.0.7)
+LinkingTo: Rcpp, RcppArmadillo
