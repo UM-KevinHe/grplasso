@@ -526,12 +526,12 @@ print(max(abs(gamma.diff)))
 
 
 ######----------- 9.Time Comparison: GroupLasso ------------######
-# n.beta = 20, n.groups = 4, n.provider range from 50 to 500
-multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL){#, cross_entropy = NULL, wrong_prediction_rate = NULL){
+# n.beta = 50, n.groups = 4, n.provider range from 50 to 500
+multiResultClass <- function(Runtime = NULL){#, RME = NULL, RMSE = NULL, cross_entropy = NULL, wrong_prediction_rate = NULL){
   result <- list(
-    Runtime = Runtime,
-    RME = RME,
-    RMSE = RMSE#,
+    Runtime = Runtime#,
+    #RME = RME,
+    #RMSE = RMSE#,
     #cross_entropy = cross_entropy,
     #wrong_prediction_rate = wrong_prediction_rate
   )
@@ -541,7 +541,7 @@ multiResultClass <- function(Runtime = NULL, RME = NULL, RMSE = NULL){#, cross_e
 }
 
 
-m.sequence <- seq(50, 500, 20)
+m.sequence <- seq(50, 400, 50)
 
 Runtime.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
 colnames(Runtime.Mean) <- paste0("n.prov = ", m.sequence)
@@ -551,21 +551,21 @@ Runtime.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
 colnames(Runtime.sd) <- paste0("n.prov = ", m.sequence)
 rownames(Runtime.sd) <- c("grLasso", "grpreg")
 
-RME.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(RME.Mean) <- paste0("n.prov = ", m.sequence)
-rownames(RME.Mean) <- c("grLasso", "grpreg")
+#RME.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(RME.Mean) <- paste0("n.prov = ", m.sequence)
+#rownames(RME.Mean) <- c("grLasso", "grpreg")
 
-RME.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(RME.sd) <- paste0("n.prov = ", m.sequence)
-rownames(RME.sd) <- c("grLasso", "grpreg")
+#RME.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(RME.sd) <- paste0("n.prov = ", m.sequence)
+#rownames(RME.sd) <- c("grLasso", "grpreg")
 
-RMSE.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(RMSE.Mean) <- paste0("n.prov = ", m.sequence)
-rownames(RMSE.Mean) <- c("grLasso", "grpreg")
+#RMSE.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(RMSE.Mean) <- paste0("n.prov = ", m.sequence)
+#rownames(RMSE.Mean) <- c("grLasso", "grpreg")
 
-RMSE.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
-colnames(RMSE.sd) <- paste0("n.prov = ", m.sequence)
-rownames(RMSE.sd) <- c("grLasso", "grpreg")
+#RMSE.sd <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
+#colnames(RMSE.sd) <- paste0("n.prov = ", m.sequence)
+#rownames(RMSE.sd) <- c("grLasso", "grpreg")
 
 #cross_entropy.Mean <- matrix(rep(0, length(m.sequence) * 2), nrow = 2)
 #colnames(cross_entropy.Mean) <- paste0("n.prov = ", m.sequence)
@@ -589,13 +589,13 @@ ind <- 0
 
 for (j in m.sequence){ #outer loop for
   ind <- ind + 1
-  cl <- makeCluster(4)
+  cl <- makeCluster(5)
   registerDoParallel(cl) 
   Model.Comparison <- 
-    foreach (i = data.loop, .packages = c("grpreg", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "TmpGrlasso")) %dopar% {
+    foreach (i = data.loop, .packages = c("grpreg", "fastDummies", "RcppArmadillo", "MASS", "Matrix", "TmpLasso")) %dopar% {
       Y.char <- 'Y'
       prov.char <- 'Prov.ID'
-      sim.parameters.GrLasso <- list(m = j, n.beta = 20, n.groups = 4, prop.NonZero.group = 0.6, 
+      sim.parameters.GrLasso <- list(m = j, n.beta = 50, n.groups = 10, prop.NonZero.group = 0.5, 
                                      prop.outlier = 0.05, rho = 0.7)
       Sim_GrLasso <- Simulation_data_GroupLasso(sim.parameters.GrLasso, unpenalized.beta = F)
       data_GrLasso <- Sim_GrLasso$sim.data
@@ -605,20 +605,20 @@ for (j in m.sequence){ #outer loop for
       Z.char <- paste0('Z_', 1:sim.parameters.GrLasso$n.beta)
       data_prep <- fe.data.prep(data_GrLasso, Y.char, Z.char, prov.char, cutoff = 0, check = FALSE)
       data_prep <- data_prep[data_prep$included == 1, ]
-      true.mu <- data_prep$mu #true mu's for computing RME
+      #true.mu <- data_prep$mu #true mu's for computing RME
       
       # results from grLasso
       start <- Sys.time()
       cv.model_grp_lasso <- cv.grp.lasso(data_prep, Y.char, Z.char, prov.char, group = group, trace.lambda = T,
-                                         nfolds = 5, trace.cv = F)
+                                         nfolds = 10, trace.cv = F)
       end <- Sys.time()
       cv.process.time1 <- difftime(end, start, units = 'mins')  #runtime
-      cv_BestModel_grp_lasso <- cv.model_grp_lasso$fit
-      best.beta.grp_lasso <- cv_BestModel_grp_lasso$beta[, cv.model_grp_lasso$min]
-      best.eta.grp_lasso <- cv_BestModel_grp_lasso$linear.predictors[, cv.model_grp_lasso$min]
+      #cv_BestModel_grp_lasso <- cv.model_grp_lasso$fit
+      #best.beta.grp_lasso <- cv_BestModel_grp_lasso$beta[, cv.model_grp_lasso$min]
+      #best.eta.grp_lasso <- cv_BestModel_grp_lasso$linear.predictors[, cv.model_grp_lasso$min]
       
-      RME.grp_lasso <- sqrt(sum((best.beta.grp_lasso - true.beta)^2)/sim.parameters.GrLasso$n.beta) #RME
-      RMSE.grp_lasso <- sqrt(sum((plogis(best.eta.grp_lasso) - true.mu)^2)/nrow(data_prep)) #RMSE
+      #RME.grp_lasso <- sqrt(sum((best.beta.grp_lasso - true.beta)^2)/sim.parameters.GrLasso$n.beta) #RME
+      #RMSE.grp_lasso <- sqrt(sum((plogis(best.eta.grp_lasso) - true.mu)^2)/nrow(data_prep)) #RMSE
       
       
       ## results from grpreg
@@ -632,22 +632,22 @@ for (j in m.sequence){ #outer loop for
       }
       cv.model_grpreg <- cv.grpreg(dummy_data[,c(Z.char, ID.char)], dummy_data[,Y.char], family = "binomial",
                                    penalty = "grLasso", group = c(group, rep(0, length(ID.char))), alpha = 1, 
-                                   nfolds = 5, trace.cv = T)
+                                   nfolds = 10, trace.cv = F)
       end <- Sys.time()
       cv.process.time2 <-  difftime(end, start, units = 'mins') #runtime
       
-      cv_BestModel_grpreg <- cv.model_grpreg$fit
-      best.beta.grpreg <- cv_BestModel_grpreg$beta[2:(1 + sim.parameters.GrLasso$n.beta), cv.model_grpreg$min]
-      best.eta.grpreg <- cv_BestModel_grpreg$linear.predictors[, cv.model_grpreg$min]
+      #cv_BestModel_grpreg <- cv.model_grpreg$fit
+      #best.beta.grpreg <- cv_BestModel_grpreg$beta[2:(1 + sim.parameters.GrLasso$n.beta), cv.model_grpreg$min]
+      #best.eta.grpreg <- cv_BestModel_grpreg$linear.predictors[, cv.model_grpreg$min]
       
-      RME.grpreg <- sqrt(sum((best.beta.grpreg - true.beta)^2)/sim.parameters.GrLasso$n.beta)  #RME
-      RMSE.grpreg <- sqrt(sum((plogis(best.eta.grpreg) - true.mu)^2)/nrow(data_prep))  #RMSE
+      #RME.grpreg <- sqrt(sum((best.beta.grpreg - true.beta)^2)/sim.parameters.GrLasso$n.beta)  #RME
+      #RMSE.grpreg <- sqrt(sum((plogis(best.eta.grpreg) - true.mu)^2)/nrow(data_prep))  #RMSE
       
       
       result <- multiResultClass()
       result$Runtime <- round(matrix(c(cv.process.time1, cv.process.time2), nrow = 2), digits = 3)
-      result$RME <- round(matrix(c(RME.grp_lasso, RME.grpreg), nrow = 2), digits = 4)
-      result$RMSE <- round(matrix(c(RMSE.grp_lasso, RMSE.grpreg), nrow = 2), digits = 4)
+      #result$RME <- round(matrix(c(RME.grp_lasso, RME.grpreg), nrow = 2), digits = 4)
+      #result$RMSE <- round(matrix(c(RMSE.grp_lasso, RMSE.grpreg), nrow = 2), digits = 4)
       #result$cross_entropy <- round(matrix(c(cross_entropy.grp_lasso, cross_entropy.grpreg), nrow = 2), digits = 4)
       #result$wrong_prediction_rate <- round(matrix(c(wrong.prediction.rate.grp_lasso, wrong.prediction.rate.grpreg), nrow = 2), digits = 4)
       
@@ -661,13 +661,13 @@ for (j in m.sequence){ #outer loop for
   rownames(Runtime) <- c("grLasso", "grpreg")
   colnames(Runtime) <- paste0("Data_", data.loop)
   
-  RME <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
-  rownames(RME) <- c("grLasso", "grpreg")
-  colnames(RME) <- paste0("Data_", data.loop)
+  #RME <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
+  #rownames(RME) <- c("grLasso", "grpreg")
+  #colnames(RME) <- paste0("Data_", data.loop)
   
-  RMSE <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
-  rownames(RMSE) <- c("grLasso", "grpreg")
-  colnames(RMSE) <- paste0("Data_", data.loop)
+  #RMSE <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
+  #rownames(RMSE) <- c("grLasso", "grpreg")
+  #colnames(RMSE) <- paste0("Data_", data.loop)
   
   #cross_entropy <- matrix(rep(0, 2 * n.data.loop), nrow = 2)
   #rownames(cross_entropy) <- c("grLasso", "grpreg")
@@ -679,8 +679,8 @@ for (j in m.sequence){ #outer loop for
   
   for (i in data.loop){
     Runtime[, i] <- Model.Comparison[[i]]$Runtime
-    RME[, i] <- Model.Comparison[[i]]$RME
-    RMSE[, i] <- Model.Comparison[[i]]$RMSE
+    #RME[, i] <- Model.Comparison[[i]]$RME
+    #RMSE[, i] <- Model.Comparison[[i]]$RMSE
     #cross_entropy[, i] <- Model.Comparison[[i]]$cross_entropy
     #wrong_prediction_rate[, i] <- Model.Comparison[[i]]$wrong_prediction_rate
   }
@@ -688,11 +688,11 @@ for (j in m.sequence){ #outer loop for
   Runtime.Mean[, ind] <- round(apply(Runtime, 1, mean), digits = 3)
   Runtime.sd[, ind] <- round(apply(Runtime, 1, sd), digits = 3)
   
-  RME.Mean[, ind] <- round(apply(RME, 1, mean), digits = 3)
-  RME.sd[, ind] <- round(apply(RME, 1, sd), digits = 3)
+  #RME.Mean[, ind] <- round(apply(RME, 1, mean), digits = 3)
+  #RME.sd[, ind] <- round(apply(RME, 1, sd), digits = 3)
   
-  RMSE.Mean[, ind] <- round(apply(RMSE, 1, mean), digits = 3)
-  RMSE.sd[, ind] <- round(apply(RMSE, 1, sd), digits = 3)
+  #RMSE.Mean[, ind] <- round(apply(RMSE, 1, mean), digits = 3)
+  #RMSE.sd[, ind] <- round(apply(RMSE, 1, sd), digits = 3)
   
   #cross_entropy.Mean[, ind] <- round(apply(cross_entropy, 1, mean), digits = 3)
   #cross_entropy.sd[, ind] <- round(apply(cross_entropy, 1, sd), digits = 3)
@@ -725,95 +725,92 @@ Runtime.plot <- ggplot(Runtime.figure.df, aes(n.prov, group = factor(model))) +
         axis.line = element_line(colour = "black")) + 
   theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
         axis.title = element_text(size = 13, family = "serif"),
-        plot.caption = element_text(size = 11, face = "italic", family = "serif"),
-        legend.text = element_text(size = 12, family = "serif", face = "italic")) + 
-  theme(axis.text = element_text(face = "italic", size = 12, family = "serif")) + 
-  theme(legend.position = c(0.15, 0.9),
+        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
+        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
+  theme(axis.text = element_text(face = "italic", size = 10, family = "serif")) + 
+  theme(legend.position = c(0.22, 0.82),
         legend.background = element_rect(fill = "white", color = "black"),
         legend.title = element_blank()) + 
   theme(legend.key.height = unit(0.6, 'cm'),
         legend.key.width = unit(1.2, 'cm'),
         legend.spacing.y = unit(0, 'cm')) +
-  labs(title = "Comparison of Running Speed: with Grouped Covariates", 
-       x = "Number of providers", 
-       y = "Runtime (mins)",
-       caption = "( provider size varies from 50 to 400 )") +
-  scale_x_continuous(breaks = m.sequence) + 
+  labs(title = "", 
+       x = "", 
+       y = "") +
+  scale_x_continuous(breaks = seq(50, 400, 50)) + 
   scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
   scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
-
-
 
 
 #### Figure2: RMSE
-n.prov <- m.sequence
-RMSE.Mean.lower <- RMSE.Mean - RMSE.sd
-RMSE.Mean.upper <- RMSE.Mean + RMSE.sd
+#n.prov <- m.sequence
+#RMSE.Mean.lower <- RMSE.Mean - RMSE.sd
+#RMSE.Mean.upper <- RMSE.Mean + RMSE.sd
 
 
-RMSE.figure.df <- data.frame("model" = melt(RMSE.Mean)$Var1,
-                             "n.prov" = rep(n.prov, each = 2),
-                             "Mean" = melt(RMSE.Mean)$value,
-                             "lower" = melt(RMSE.Mean.lower)$value,
-                             "upper" = melt(RMSE.Mean.upper)$value)
+#RMSE.figure.df <- data.frame("model" = melt(RMSE.Mean)$Var1,
+#                             "n.prov" = rep(n.prov, each = 2),
+#                             "Mean" = melt(RMSE.Mean)$value,
+#                             "lower" = melt(RMSE.Mean.lower)$value,
+#                             "upper" = melt(RMSE.Mean.upper)$value)
 
-RMSE.plot <- ggplot(RMSE.figure.df, aes(n.prov, group = factor(model))) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
-  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
-  theme(panel.grid = element_blank(), panel.background = element_blank(),
-        axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
-        axis.title = element_text(size = 13, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
-  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
-  theme(legend.position = c(0.85, 0.92)) + 
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.2, 'cm')) + 
-  labs(title = "Root Mean Squared Error (RMSE) Comparison", 
-       x = "Number of providers", 
-       y = "RMSE") +
-  scale_x_continuous(breaks = seq(50, 500, 50)) + 
-  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
+#RMSE.plot <- ggplot(RMSE.figure.df, aes(n.prov, group = factor(model))) +
+#  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
+#  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
+#  theme(panel.grid = element_blank(), panel.background = element_blank(),
+#        axis.line = element_line(colour = "black")) + 
+#  theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
+#        axis.title = element_text(size = 13, family = "serif"),
+#        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
+#        legend.title = element_text(size = 12, family = "serif"),
+#        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
+#  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
+#  theme(legend.position = c(0.85, 0.92)) + 
+#  theme(legend.key.height= unit(0.5, 'cm'),
+#        legend.key.width= unit(1.2, 'cm')) + 
+#  labs(title = "Root Mean Squared Error (RMSE) Comparison", 
+#       x = "Number of providers", 
+#       y = "RMSE") +
+#  scale_x_continuous(breaks = seq(50, 400, 50)) + 
+#  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
 
 
 #### Figure3: RME
-n.prov <- m.sequence
-RME.Mean.lower <- RME.Mean - RME.sd
-RME.Mean.upper <- RME.Mean + RME.sd
+#n.prov <- m.sequence
+#RME.Mean.lower <- RME.Mean - RME.sd
+#RME.Mean.upper <- RME.Mean + RME.sd
 
 
-RME.figure.df <- data.frame("model" = melt(RME.Mean)$Var1,
-                            "n.prov" = rep(n.prov, each = 2),
-                            "Mean" = melt(RME.Mean)$value,
-                            "lower" = melt(RME.Mean.lower)$value,
-                            "upper" = melt(RME.Mean.upper)$value)
+#RME.figure.df <- data.frame("model" = melt(RME.Mean)$Var1,
+#                            "n.prov" = rep(n.prov, each = 2),
+#                            "Mean" = melt(RME.Mean)$value,
+#                            "lower" = melt(RME.Mean.lower)$value,
+#                            "upper" = melt(RME.Mean.upper)$value)
 
-RME.plot <- ggplot(RME.figure.df, aes(n.prov, group = factor(model))) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
-  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
-  theme(panel.grid = element_blank(), panel.background = element_blank(),
-        axis.line = element_line(colour = "black")) + 
-  theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
-        axis.title = element_text(size = 13, family = "serif"),
-        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
-        legend.title = element_text(size = 12, family = "serif"),
-        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
-  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
-  theme(legend.position = c(0.85, 0.92)) +
-  theme(legend.key.height= unit(0.5, 'cm'),
-        legend.key.width= unit(1.2, 'cm')) + 
-  labs(title = "Root Model Error (RME) Comparison", 
-       x = "Number of providers", 
-       y = "RME") +
-  scale_x_continuous(breaks = seq(50, 500, 50)) + 
-  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
-  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
+#RME.plot <- ggplot(RME.figure.df, aes(n.prov, group = factor(model))) +
+#  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(model)), alpha = 0.5) +
+#  geom_line(aes(y = Mean, color = factor(model), linetype = factor(model)), size = 1)  + 
+#  theme(panel.grid = element_blank(), panel.background = element_blank(),
+#        axis.line = element_line(colour = "black")) + 
+#  theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
+#        axis.title = element_text(size = 13, family = "serif"),
+#        plot.caption = element_text(size = 10, face = "italic", family = "serif"),
+#        legend.title = element_text(size = 12, family = "serif"),
+#        legend.text = element_text(size = 13, family = "serif", face = "bold")) + 
+#  theme(axis.text = element_text(face = "italic", size = 9, family = "serif")) + 
+#  theme(legend.position = c(0.85, 0.92)) +
+#  theme(legend.key.height= unit(0.5, 'cm'),
+#        legend.key.width= unit(1.2, 'cm')) + 
+#  labs(title = "Root Model Error (RME) Comparison", 
+#       x = "Number of providers", 
+#       y = "RME") +
+#  scale_x_continuous(breaks = seq(50, 500, 50)) + 
+#  scale_linetype_manual(values = c("solid", "dotdash"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_color_manual(values = c("blue", "red"), name = "", labels = c("grLasso", "grpreg")) + 
+#  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
 
 #### Figure4: cross entropy
 #n.prov <- m.sequence
@@ -884,12 +881,10 @@ RME.plot <- ggplot(RME.figure.df, aes(n.prov, group = factor(model))) +
 #  scale_fill_manual(values = c("grey85", "grey90"), name = "", labels = c("grLasso", "grpreg"))
 
 
-setwd("/Users/shaoyubo/Desktop/Research/UMich_Kevin_He/LASSO_GitFolder/LASSO/grplasso/GroupLasso/Simulations/Figures&Tables/Runtime/GroupLasso")
-save(Runtime.figure.df, Runtime.plot,
-     Runtime.figure.df.subset, Runtime.subset.plot,
-     RMSE.figure.df, RMSE.plot, 
-     RME.figure.df, RME.plot, 
-     file = paste0("Runtime_RMSE_RME", Sys.Date(), ".RData"))
+save(Runtime.figure.df, Runtime.plot, 
+     #RMSE.figure.df, RMSE.plot, 
+     #RME.figure.df, RME.plot, 
+     file = paste0("Runtime_", Sys.Date(), ".RData"))
 
 
 
@@ -1040,20 +1035,19 @@ Runtime.plot <- ggplot(Runtime.figure.df, aes(n.prov, group = factor(model))) +
         plot.caption = element_text(size = 11, face = "italic", family = "serif"),
         legend.text = element_text(size = 12, family = "serif", face = "italic")) + 
   theme(axis.text = element_text(face = "italic", size = 12, family = "serif")) + 
-  theme(legend.position = c(0.22, 0.85),
+  theme(legend.position = c(0.20, 0.85),
         legend.background = element_rect(fill = "white", color = "black"),
         legend.title = element_blank()) + 
   theme(legend.key.height = unit(0.6, 'cm'),
-        legend.key.width = unit(1.2, 'cm'),
-        legend.spacing.y = unit(0, 'cm')) +
-  labs(title = "Comparison of Running Speed: without Grouped Covariates",
+        legend.key.width = unit(1.2, 'cm')) +
+  labs(title = "Comparison of Running Speed", 
        x = "Number of providers", 
        y = "Runtime (mins)",
        caption = "( provider size varies from 50 to 400 )") +
   scale_x_continuous(breaks = m.sequence) + 
-  scale_linetype_manual(values = c("solid", "dotdash", "dotted", "twodash"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg", "glmnet")) + 
-  scale_color_manual(values = c("black", "bisque4", "red", "blue"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg", "glmnet")) + 
-  scale_fill_manual(values = c("grey75", "grey80", "grey85", "grey90"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg", "glmnet"))
+  scale_linetype_manual(values = c("solid", "dotdash", "dotted", "twodash"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg", "glmnet")) + 
+  scale_color_manual(values = c("black", "bisque4", "red", "blue"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg", "glmnet")) + 
+  scale_fill_manual(values = c("grey75", "grey80", "grey85", "grey90"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg", "glmnet"))
 
 
 #### Figure2: iter
@@ -1076,27 +1070,27 @@ iter.plot <- ggplot(iter.figure.df, aes(n.prov, group = factor(model))) +
   theme(plot.title = element_text(size = 13, face = "bold", family = "serif"),
         axis.title = element_text(size = 13, family = "serif"),
         plot.caption = element_text(size = 11, face = "italic", family = "serif"),
-        legend.text = element_text(size = 11, family = "serif", face = "italic")) + 
+        legend.text = element_text(size = 12, family = "serif", face = "italic")) + 
   theme(axis.text = element_text(face = "italic", size = 12, family = "serif")) + 
   theme(legend.position = c(0.5, 0.95),
         legend.background = element_rect(fill = "white", color = "black"),
         legend.title = element_blank()) + 
-  theme(legend.key.height = unit(0.3, 'cm'),
+  theme(legend.key.height = unit(0.4, 'cm'),
         legend.key.width = unit(1.2, 'cm'),
         legend.direction = "horizontal",
-        legend.spacing.x = unit(0.2, 'cm')) + 
+        legend.spacing.x = unit(0.3, 'cm')) + 
   labs(title = "Comparison of Total Iteration Numbers", 
        x = "Number of providers", 
        y = "Total #iterations",
        caption = "( provider size varies from 50 to 400 )") +
   scale_x_continuous(breaks = m.sequence) + 
-  scale_linetype_manual(values = c("solid", "dotdash", "dotted"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg")) + 
-  scale_color_manual(values = c("bisque4", "blue", "red"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg")) + 
-  scale_fill_manual(values = c("grey80", "grey85", "grey90"), name = "", labels = c("ppLasso: with MM", "ppLasso: without MM", "grpreg")) +
+  scale_linetype_manual(values = c("solid", "dotdash", "dotted"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) + 
+  scale_color_manual(values = c("bisque4", "blue", "red"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) + 
+  scale_fill_manual(values = c("grey80", "grey85", "grey90"), name = "", labels = c("pplasso with MM", "pplasso without MM", "grpreg")) +
   ylim(0, 8000)
   
   
-setwd("/Users/shaoyubo/Desktop/Research/UMich_Kevin_He/LASSO_GitFolder/LASSO/grplasso/GroupLasso/Simulations/Figures&Tables/Runtime/Lasso")
+setwd("/home/ybshao/GroupLasso/Simulations/Figures&Tables/Runtime/Lasso")
 save(Runtime.figure.df, Runtime.plot, 
      iter.figure.df, iter.plot,
      file = paste0("Runtime_iter_RME", Sys.Date(), ".RData"))
