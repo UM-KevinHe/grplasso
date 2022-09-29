@@ -12,7 +12,7 @@ Therefore, we combine the advantages of block ascent Newton method and coordinat
 All the code here has been compressed into a R package. You can download the file named "TmpGrlasso.zip" to your local computer, unzip it and run the following code to install it:
 
 ```{r }
-install.packages(".../TmpGrlasso", repos = NULL, type="source")
+install.packages(".../TmpLasso", repos = NULL, type="source")
 ```
 
 ## Simulation:
@@ -77,18 +77,16 @@ Since the data is randomly simulated, the convergence speed of the algorithms ma
 
 As we mentioned above, the running time is reported by the mean and its standard deviation.
 
-We only provide a naive example here, with provider counts from 50 to 1100. Even with relatively “small” number of providers, our model is already significantly faster than grpreg package. In real world data, the number of providers may reach thousands or tens of thousands, and then the running time of grpreg will be unacceptable.
+We only provide a naive example here, with provider counts from 50 to 400. Even with relatively “small” number of providers, our model is already significantly faster than grpreg package. In real world data, the number of providers may reach thousands or tens of thousands, and then the running time of grpreg will be unacceptable.
 
-<img src="https://drive.google.com/uc?export=view&id=1ugDFN2w3HPGB-1UztibVq0zkMAOszFoM"  width=80% height=80%>
-
-<img src="https://drive.google.com/uc?export=view&id=1Gf_UVuOhchyexQCvXYJHuB3ufmgxbmXu"  width=70% height=70%>
+<img src="https://drive.google.com/uc?export=view&id=1ugDFN2w3HPGB-1UztibVq0zkMAOszFoM"  width=70% height=70%>
 
 
 *Note that the running time of the algorithm excludes the time required by grpreg to convert high-dimensional provider data into dummy variables. But we need to keep in mind that as the number of providers grows, data conversion can be incredibly time and memory consuming.*
 
 #### (2) Model Accuracy:
 
-The accuracy of model is evaluated by root mean square error (RMSE), root model error (RME), cross entropy loss and prediction error rate.
+The accuracy of model is evaluated by root mean square error (RMSE) and root model error (RME).
 
 ##### Root Mean Square Error
 
@@ -98,14 +96,4 @@ The accuracy of model is evaluated by root mean square error (RMSE), root model 
 
 <img src="https://drive.google.com/uc?export=view&id=110jNt6p9NklXbIaWO8AmzsJDRxH_BU5_"  width=80% height=80%>
 
-##### Cross Entropy Loss
-
-<img src="https://drive.google.com/uc?export=view&id=1YeoMEhWGbR6mpAPLHQyHLevfsU0RaCLi"  width=80% height=80%>
-
-##### Prediction Error Rate
-
-<img src="https://drive.google.com/uc?export=view&id=1t3yD_7XnZn5_8l-Ha_ARN3Xx6jogYLZV"  width=80% height=80%>
-
-
-In terms of model accuracy, the figure above shows that our algorithm performs as well as grpreg for different numbers of providers.
 
