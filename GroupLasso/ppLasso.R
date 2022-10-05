@@ -1,9 +1,17 @@
 pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
                      penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
-                     stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.iter = 10000, returnX = FALSE, 
-                     trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
+                     stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
+                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = nvar.max,
+                     returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
   ## penalize.x: if equals 0, variable is unpenalized, else is penalized;
   ## penalized.multiplier: lambda_i = lambda * penalized.multiplier_i
+  ## max.each.iter: maximum number of iterations for each lambda
+  ## max.total.iter: maximum number of total iterations
+  ## actSet: if use active set method. Default is TRUE
+  ## atIter: maximum number of iterations for a new updated active set, default is "max.each.iter", which means we will update the current active set until convergence 
+  ## actVarNum: Each time when updating the active set, the maximum number of variables that are selected into the new active set. Default is "nvar.max" 
+  
+  
   
   if (!is.null(data$included)){
     data <- data[data$included == 1, ]
@@ -69,10 +77,14 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
   K <- as.integer(table(pseudo.group)) #number of features in each group
   K0 <- as.integer(if (min(pseudo.group) == 0) K[1] else 0) 
   K1 <- as.integer(if (min(pseudo.group) == 0) cumsum(K) else c(0, cumsum(K)))  
-  if (K0 == 0){
-    initial.active.variable <- which(K == min(K))[1] - 1  
-  } else {
-    initial.active.variable <- 0
+  
+  initial.active.variable <- -1 ## "-1" means this variable can be any value and we will not use it in our cpp function.
+  if (actSet == TRUE){
+    if (K0 == 0){ #all variables are penalized
+      initial.active.variable <- which(K == min(K))[1] - 1  ## which is actually the first variable
+    }
+  } else {  ## if we don't use active set method, then the initial active set should contain all penalized variables
+    actIter <- max.each.iter
   }
 
   n.prov <- sapply(split(Y, ID), length) 
@@ -80,8 +92,10 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
   beta <- rep(0, ncol(Z))
   # main algorithm
   fit <- pp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, 
-                  penalized.multiplier, max.iter, tol, nullDev, backtrack, MM, bound, initial.active.variable, 
-                  nvar.max, trace.lambda, single.intercept, threads)
+                  penalized.multiplier, max.total.iter, max.each.iter, tol, nullDev, backtrack, MM, bound, 
+                  initial.active.variable, nvar.max, trace.lambda, single.intercept, threads, actSet, 
+                  actIter, actVarNum)
+  
   gamma <- fit$gamma
   beta <- fit$beta
   loss <- fit$Deviance
@@ -99,10 +113,10 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
   df <- df[ind]
   iter <- iter[ind]
   
-  if (iter[1] == max.iter){
+  if (iter[1] == max.total.iter){
     stop("Algorithm failed to converge for any values of lambda", call. = FALSE)
   }
-  if (sum(iter) == max.iter){
+  if (sum(iter) == max.total.iter){
     warning("Algorithm failed to converge for all values of lambda", call. = FALSE)
   }
   

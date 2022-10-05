@@ -1,8 +1,9 @@
 grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char), group.multiplier, 
                       standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE, 
                       nvar.max = p, group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0, 
-                      backtrack = FALSE, tol = 1e-4, max.iter = 10000, returnX = FALSE, trace.lambda = FALSE, 
-                      threads = 1, ...){
+                      backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), 
+                      actSet = TRUE, actIter = max.each.iter, actGroupNum = group.max, returnX = FALSE, 
+                      trace.lambda = FALSE, threads = 1, ...){
   if (!is.null(data$included)){  # data after using preparation function
     data <- data[data$included == 1, ]
   }
@@ -64,16 +65,20 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char),
   K <- as.integer(table(group)) #number of features in each group
   K0 <- as.integer(if (min(group) == 0) K[1] else 0) 
   K1 <- as.integer(if (min(group) == 0) cumsum(K) else c(0, cumsum(K)))  
-  if (K0 == 0){
-    initial.active.group <- which(K == min(K))[1] - 1  
+  
+  initial.active.group <- -1
+  if (actSet == TRUE){
+    if (K0 == 0){
+      initial.active.group <- which(K == min(K))[1] - 1  
+    }
   } else {
-    initial.active.group <- 0
+    actIter <- max.each.iter
   }
   
   # main algorithm
-  fit <- grp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, 
-                   group.multiplier, max.iter, tol, nullDev, backtrack, bound, initial.active.group, 
-                   nvar.max, group.max, trace.lambda, single.intercept, threads)
+  fit <- grp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, group.multiplier, 
+                   max.total.iter, max.each.iter, tol, nullDev, backtrack, bound, initial.active.group, nvar.max, group.max, 
+                   trace.lambda, single.intercept, threads, actSet, actIter, actGroupNum)
   
   gamma <- fit$gamma
   beta <- fit$beta
@@ -92,10 +97,10 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char),
   df <- df[ind]
   iter <- iter[ind]
   
-  if (iter[1] == max.iter){
+  if (iter[1] == max.total.iter){
     stop("Algorithm failed to converge for any values of lambda", call. = FALSE)
   }
-  if (sum(iter) == max.iter){
+  if (sum(iter) == max.total.iter){
     warning("Algorithm failed to converge for all values of lambda", call. = FALSE)
   }
   
