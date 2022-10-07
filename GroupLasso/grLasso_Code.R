@@ -2,8 +2,8 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char),
                       standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE, 
                       nvar.max = p, group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0, 
                       backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), 
-                      actSet = TRUE, actIter = max.each.iter, actGroupNum = group.max, returnX = FALSE, 
-                      trace.lambda = FALSE, threads = 1, ...){
+                      actSet = TRUE, actIter = max.each.iter, actGroupNum = group.max, actSetRemove = F,
+                      returnX = FALSE, trace.lambda = FALSE, threads = 1, ...){
   if (!is.null(data$included)){  # data after using preparation function
     data <- data[data$included == 1, ]
   }
@@ -78,7 +78,7 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char),
   # main algorithm
   fit <- grp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, group.multiplier, 
                    max.total.iter, max.each.iter, tol, nullDev, backtrack, bound, initial.active.group, nvar.max, group.max, 
-                   trace.lambda, single.intercept, threads, actSet, actIter, actGroupNum)
+                   trace.lambda, single.intercept, threads, actSet, actIter, actGroupNum, actSetRemove)
   
   gamma <- fit$gamma
   beta <- fit$beta

@@ -1,8 +1,8 @@
 pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
                      penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
                      stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
-                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = nvar.max,
-                     returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
+                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = nvar.max, 
+                     actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
   ## penalize.x: if equals 0, variable is unpenalized, else is penalized;
   ## penalized.multiplier: lambda_i = lambda * penalized.multiplier_i
   ## max.each.iter: maximum number of iterations for each lambda
@@ -10,6 +10,7 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
   ## actSet: if use active set method. Default is TRUE
   ## atIter: maximum number of iterations for a new updated active set, default is "max.each.iter", which means we will update the current active set until convergence 
   ## actVarNum: Each time when updating the active set, the maximum number of variables that are selected into the new active set. Default is "nvar.max" 
+  ## actSetRemove: Whether we remove the zero betas from the current active set
   
   
   
@@ -94,7 +95,7 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
   fit <- pp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, 
                   penalized.multiplier, max.total.iter, max.each.iter, tol, nullDev, backtrack, MM, bound, 
                   initial.active.variable, nvar.max, trace.lambda, single.intercept, threads, actSet, 
-                  actIter, actVarNum)
+                  actIter, actVarNum, actSetRemove)
   
   gamma <- fit$gamma
   beta <- fit$beta

@@ -224,7 +224,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
                                                         double lambda, int &tol_iter, int max_total_iter, int max_each_iter, vec &penalized_multiplier, int max_n_prov, 
                                                         bool backtrack, bool MM, double bound, double tol, vec &ind_start, vec &active_var, 
                                                         int n_beta, int n_gamma, int n_obs, int n_var, bool single_intercept, int threads,
-                                                        bool actSet, int actIter, int activeVarNum){
+                                                        bool actSet, int actIter, int activeVarNum, bool actSetRemove){
   vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
   double Dev, df, MaxChange_beta, shift;
   double v = 0.25, omega_min = 1e-10;
@@ -403,16 +403,17 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
     cout << "#####---------------------------#####" << endl;
     */
 
-
     if (actSet == true){
       //outer loop: update active set
-      // remove zero beta's from the current active set
-      for (int j = 0; j < n_var; j++){
-        if (active_var(j) == 1) {
-          if (beta(j) == 0){
-            active_var(j) = 0;
+      if (actSetRemove == true) {
+        // remove zero beta's from the current active set
+        for (int j = 0; j < n_var; j++){
+          if (active_var(j) == 1) {
+            if (beta(j) == 0){
+              active_var(j) = 0;
+            }
           }
-        }
+        }        
       }
     
      vec Current_Change_beta(n_var, fill::zeros);  // Store the one-step updates of the beta's that are not in the current active set
@@ -475,7 +476,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
 List pp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &K1, vec &lambda_seq, bool lambda_early_stop,
               double stop_dev_ratio, vec &penalized_multiplier, int max_total_iter, int max_each_iter, double tol, double nullDev, 
               bool backtrack, bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, bool single_intercept, 
-              int threads, bool actSet, int actIter, int activeVarNum) {
+              int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove) {
   int n_obs = Z.n_rows, n_beta = Z.n_cols, n_gamma = n_prov.n_elem, n_lambda = lambda_seq.n_elem, max_n_prov = max(n_prov);
   int n_var = K1.n_elem - 1; // n_var: number of penalized variables
   int tol_iter = 0;
@@ -511,7 +512,7 @@ List pp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &K
       cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
-    auto fit = pp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, max_n_prov, backtrack, MM, bound, tol, ind_start, active_var, n_beta, n_gamma, n_obs, n_var, single_intercept, threads, actSet, actIter, activeVarNum);
+    auto fit = pp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, max_n_prov, backtrack, MM, bound, tol, ind_start, active_var, n_beta, n_gamma, n_obs, n_var, single_intercept, threads, actSet, actIter, activeVarNum, actSetRemove);
     double Dev_l, df_l;
     int iter_l;
     tie(beta, gamma, eta, Dev_l, df_l, iter_l) = fit;
@@ -621,7 +622,7 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
                                                         int &tol_iter, int max_total_iter, int max_each_iter, vec &group_multiplier, int max_n_prov, bool backtrack, 
                                                         double bound, double tol, vec &ind_start, vec &active_group, int n_beta, int n_gamma, 
                                                         int n_obs, int n_group, bool single_intercept, int threads, bool actSet, int actIter, 
-                                                        int activeGroupNum){
+                                                        int activeGroupNum, bool actSetRemove){
   vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
   double Dev, df, MaxChange_beta, shift, lambda_g, v = 0.25;
   int iter = 0;
@@ -757,16 +758,18 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
     */
 
     if (actSet == true){
-      //outer loop: update active set
+      // outer loop: update active set
+      if (actSetRemove == true){
       // remove zero groups from the current active set
-      for (int g = 0; g < n_group; g++){
-        if (active_group(g) == 1) {
-          if (beta(K1(g)) == 0){
-            active_group(g) = 0;
+        for (int g = 0; g < n_group; g++){
+          if (active_group(g) == 1) {
+            if (beta(K1(g)) == 0){
+              active_group(g) = 0;
+            }
           }
         }
       }
-    
+      
       vec Current_len_group(n_group, fill::zeros);  
     
       for (int g = 0; g < n_group; g++) {
@@ -810,7 +813,7 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
 List grp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &K1, vec &lambda_seq, bool lambda_early_stop, 
                double stop_dev_ratio, vec &group_multiplier, int max_total_iter, int max_each_iter, double tol, double nullDev, 
                bool backtrack, double bound, int initial_active_group, double nvar_max, double group_max, bool trace_lambda, 
-               bool single_intercept, int threads, bool actSet, int actIter, int activeGroupNum) {
+               bool single_intercept, int threads, bool actSet, int actIter, int activeGroupNum, bool actSetRemove) {
   int n_obs = Z.n_rows, n_beta = Z.n_cols, n_gamma = n_prov.n_elem, n_lambda = lambda_seq.n_elem, max_n_prov = max(n_prov);
   int n_group = K1.n_elem - 1; // n_group: number of penalized group
   int tol_iter = 0;
@@ -845,7 +848,7 @@ List grp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &
       cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
-    auto fit = grp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, group_multiplier, max_n_prov, backtrack, bound, tol, ind_start, active_group, n_beta, n_gamma, n_obs, n_group, single_intercept, threads, actSet, actIter, activeGroupNum); 
+    auto fit = grp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, group_multiplier, max_n_prov, backtrack, bound, tol, ind_start, active_group, n_beta, n_gamma, n_obs, n_group, single_intercept, threads, actSet, actIter, activeGroupNum, actSetRemove); 
     double Dev_l, df_l;
     int iter_l;
     tie(beta, gamma, eta, Dev_l, df_l, iter_l) = fit;
