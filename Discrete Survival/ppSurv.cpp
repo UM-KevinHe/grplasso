@@ -121,11 +121,10 @@ double gd_Surv_BetaChange(mat &Z, vec &r, vec &eta, vec &gamma, vec &time, vec &
 }
 
 
-tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec gamma, vec beta, vec eta, int K0, vec &K1, vec &sum_failure, 
-                                                        double lambda, int &tol_iter, int max_total_iter, int max_each_iter, vec &penalized_multiplier, 
-                                                        bool backtrack, bool MM, double bound, double tol, vec &active_var, 
-                                                        int n_obs, int n_var, int threads,
-                                                        bool actSet, int actIter, int activeVarNum, bool actSetRemove){
+tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec gamma, vec beta, vec eta, int K0, vec &K1,
+                                              vec &sum_failure, double lambda, int &tol_iter, int max_total_iter, int max_each_iter, vec &penalized_multiplier, 
+                                              bool backtrack, bool MM, double bound, double tol, vec &active_var, int n_obs, int n_var, int threads,
+                                              bool actSet, int actIter, int activeVarNum, bool actSetRemove){
   vec old_beta = beta, old_gamma = gamma, r(n_obs), r_shift, Z_tmp, w(n_obs);
   double df, MaxChange_beta, shift;
   double v = 0.25, omega_min = 1e-10;
