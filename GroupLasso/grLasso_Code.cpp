@@ -223,9 +223,10 @@ double gd_glm_lasso_noMM_BetaChange(mat &Z, vec &r, vec &eta, int j, int n_obs, 
 tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_prov, vec gamma, vec beta, vec eta, int K0, vec &K1,  
                                                         double lambda, int &tol_iter, int max_total_iter, int max_each_iter, vec &penalized_multiplier, int max_n_prov, 
                                                         bool backtrack, bool MM, double bound, double tol, vec &ind_start, vec &active_var, 
-                                                        int n_beta, int n_gamma, int n_obs, int n_var, bool single_intercept, int threads,
+                                                        int n_obs, int n_var, bool single_intercept, int threads,
                                                         bool actSet, int actIter, int activeVarNum, bool actSetRemove){
   vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
+  int n_gamma = gamma.n_elem;
   double Dev, df, MaxChange_beta, shift;
   double v = 0.25, omega_min = 1e-10;
   int iter = 0; //"iter" counts the number of iterations for each lambda
@@ -285,7 +286,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
             d_gamma(i) = score_gamma(i) / info_gamma;  
           }
           u = 1.0; //initial step size "u"
-          loglkd = Loglkd(Y, eta);  
+          loglkd = Loglkd(Y, eta);
           gamma_shift_tmp = u * d_gamma;
           eta_tmp = eta + rep(gamma_shift_tmp, n_prov);
           d_loglkd = Loglkd(Y, eta_tmp) - loglkd;  
@@ -309,7 +310,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
             score_gamma(i) = sum(Yp(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
             info_gamma = sum(pq(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
             info_gamma = std::max(omega_min, std::min(info_gamma, 0.25 * max_n_prov));
-           d_gamma(i) = score_gamma(i) / info_gamma;  
+            d_gamma(i) = score_gamma(i) / info_gamma;  
           }
           gamma = gamma + d_gamma;
           gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound);
@@ -359,7 +360,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
       } else {  //without using MM algorithm
         for (int j = 0; j < K0; j++){  // If K0 is zero, then the whole iteration will be skipped
           // update unpenalized beta
-          for (int i = 0; i < n_obs; i++){
+          for (int i = 0; i < n_obs; i++){ // we should re-calculate p since we are iterating all beta
             p(i) = p_binomial(eta(i)); 
           }
           vec w = p % (1 - p);
@@ -512,7 +513,7 @@ List pp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &K
       cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
-    auto fit = pp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, max_n_prov, backtrack, MM, bound, tol, ind_start, active_var, n_beta, n_gamma, n_obs, n_var, single_intercept, threads, actSet, actIter, activeVarNum, actSetRemove);
+    auto fit = pp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, max_n_prov, backtrack, MM, bound, tol, ind_start, active_var, n_obs, n_var, single_intercept, threads, actSet, actIter, activeVarNum, actSetRemove);
     double Dev_l, df_l;
     int iter_l;
     tie(beta, gamma, eta, Dev_l, df_l, iter_l) = fit;
@@ -620,10 +621,11 @@ double gd_glm_grplasso_BetaChange(mat &Z, vec &r, int g, vec &K1, int n_obs, dou
 // estimataion for one given lambda
 tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_prov, vec gamma, vec beta, vec eta, int K0, vec &K1, double lambda, 
                                                         int &tol_iter, int max_total_iter, int max_each_iter, vec &group_multiplier, int max_n_prov, bool backtrack, 
-                                                        double bound, double tol, vec &ind_start, vec &active_group, int n_beta, int n_gamma, 
+                                                        double bound, double tol, vec &ind_start, vec &active_group, 
                                                         int n_obs, int n_group, bool single_intercept, int threads, bool actSet, int actIter, 
                                                         int activeGroupNum, bool actSetRemove){
   vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
+  int n_gamma = gamma.n_elem;
   double Dev, df, MaxChange_beta, shift, lambda_g, v = 0.25;
   int iter = 0;
 
@@ -848,7 +850,7 @@ List grp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &
       cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
-    auto fit = grp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, group_multiplier, max_n_prov, backtrack, bound, tol, ind_start, active_group, n_beta, n_gamma, n_obs, n_group, single_intercept, threads, actSet, actIter, activeGroupNum, actSetRemove); 
+    auto fit = grp_lasso_fit(Y, Z, n_prov, gamma, beta, eta, K0, K1, lambda, tol_iter, max_total_iter, max_each_iter, group_multiplier, max_n_prov, backtrack, bound, tol, ind_start, active_group, n_obs, n_group, single_intercept, threads, actSet, actIter, activeGroupNum, actSetRemove); 
     double Dev_l, df_l;
     int iter_l;
     tie(beta, gamma, eta, Dev_l, df_l, iter_l) = fit;

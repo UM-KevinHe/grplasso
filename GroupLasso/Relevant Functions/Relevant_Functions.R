@@ -126,6 +126,31 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
   return(ls)
 }
 
+set.lambda.Surv <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier, 
+                            nlambda = 100, lambda.min.ratio = 1e-04){
+  n <- nrow(Z)
+  K <- table(group)
+  K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
+  storage.mode(K1) <- "integer"
+  if (K1[1] != 0) {  ## use Di's code
+    fit <- SerBIN.residuals(Y, Z[, group == 0, drop = F], n.prov, gamma.prov, beta[1:sum(group == 0)])
+    r <- fit$residual
+    beta.initial <- c(fit$beta, rep(0, length(beta) - length(fit$beta)))
+    gamma.initial <- fit$gamma
+  } else {  ## use KM-
+    mean.Y <- sapply(split(Y, ID), mean)
+    n.prov <- sapply(split(Y, ID), length)
+    r <- Y - rep(mean.Y, n.prov) 
+    beta.initial <- beta
+    gamma.initial <- gamma.prov
+  }
+  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
+  lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
+  lambda.seq[1] <- lambda.seq[1] + 1e-5
+  ls <- list(beta = beta.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
+  return(ls)
+}
+
 # set up group information
 # m: group multiplier, default (missing) is the square root of group size of remaining features
 setupG <- function(group, m){ 
