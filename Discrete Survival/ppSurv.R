@@ -1,7 +1,7 @@
 pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
                      penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
                      stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
-                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = nvar.max, 
+                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1), 
                      actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
 
   ## data structure:  
@@ -36,7 +36,6 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
   sum.failure <- fit$n.event
   KM.baseline.hazard <- c(fit$cumhaz[1], fit$cumhaz[2:length(fit$cumhaz)] - fit$cumhaz[1:(length(fit$cumhaz) - 1)])
   
-  
   if (standardize == T){
     std.Z <- newZG.Std.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
     Z <- std.Z$std.Z[, , drop = F]  # standardized covariate matrix
@@ -56,20 +55,19 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
 
   # gamma start from KM estimator
   KM.baseline.hazard.add.small <- KM.baseline.hazard
-  KM.baseline.hazard.add.small[which(KM.baseline.hazard.add.small == 0)] <- 1e-6
+  KM.baseline.hazard.add.small[which(KM.baseline.hazard.add.small == 0)] <- 1e-10
   gamma <- log(KM.baseline.hazard.add.small/(1 - KM.baseline.hazard.add.small))  
   beta <- rep(0, ncol(Z))
   
-  
-  #####--- Need Change --#####
   if (missing(lambda)) {
     if (nlambda < 2) {
       stop("nlambda must be at least 2", call. = FALSE)
     } else if (nlambda != round(nlambda)){
       stop("nlambda must be a positive integer", call. = FALSE)
     } 
-    lambda.fit <- set.lambda.grplasso(Y, Z, ID, pseudo.group, n.prov, gamma, beta, penalized.multiplier,
-                                      nlambda = nlambda, lambda.min.ratio = lambda.min.ratio)
+    lambda.fit <- set.lambda.Surv(delta.obs, Z, time, gamma, beta, pseudo.group, 
+                                  penalized.multiplier, nlambda = nlambda, 
+                                  lambda.min.ratio = lambda.min.ratio)
     lambda.seq <- lambda.fit$lambda.seq
     beta <- lambda.fit$beta
     gamma <- lambda.fit$gamma
@@ -77,7 +75,6 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
     nlambda <- length(lambda)  # Note: lambda can be a single value
     lambda.seq <- as.vector(sort(lambda, decreasing = TRUE))
   }
-  #####--- Need Change --#####
   
   K <- as.integer(table(pseudo.group)) #number of features in each group
   K0 <- as.integer(if (min(pseudo.group) == 0) K[1] else 0) 
@@ -91,7 +88,6 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
   } else {  ## if we don't use active set method, then the initial active set should contain all penalized variables
     actIter <- max.each.iter
   }
-
   
   # main algorithm
   fit <- pp_Surv_lasso(delta.obs, max.timepoint, Z, time, gamma, beta, K0, K1, sum.failure, lambda.seq, 
@@ -114,9 +110,9 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
   df <- df[ind]
   iter <- iter[ind]
   
-  if (iter[1] == max.total.iter){
-    stop("Algorithm failed to converge for any values of lambda", call. = FALSE)
-  }
+  #if (iter[1] == max.total.iter){
+  #  stop("Algorithm failed to converge for any values of lambda", call. = FALSE)
+  #}
   if (sum(iter) == max.total.iter){
     warning("Algorithm failed to converge for all values of lambda", call. = FALSE)
   }
@@ -145,7 +141,7 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
   result <- structure(list(beta = beta, 
                            gamma = gamma,
                            lambda = lambda,
-                           linear.predictors = eta,
+                           linear.components = eta,  #eta =  X * beta
                            df = df, 
                            iter = iter,
                            penalized.multiplier = penalized.multiplier,

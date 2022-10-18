@@ -1,7 +1,7 @@
 pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
                      penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
                      stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
-                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = nvar.max, 
+                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1), 
                      actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
   ## penalize.x: if equals 0, variable is unpenalized, else is penalized;
   ## penalized.multiplier: lambda_i = lambda * penalized.multiplier_i

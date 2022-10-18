@@ -98,7 +98,7 @@ SerBIN.residuals <- function(Y, Z, n.prov, gamma.prov, beta){
   colnames(response.residual) <- "response residuals"
   ls <- list(beta = beta, gamma = gamma.prov, residual = response.residual)
   return(ls)
-} 
+}
 
 # construct lambda sequence & re-initialize beta and gamma
 set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier, 
@@ -126,30 +126,51 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
   return(ls)
 }
 
-set.lambda.Surv <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier, 
+# "DiscSurv.residuals" is used for computing the sum of response residuals within each individual
+DiscSurv.residuals <- function(delta.obs, Z, time, gamma, beta){
+  fit <- NR_logit(as.matrix(time), as.matrix(Z), as.matrix(delta.obs), as.matrix(gamma),
+                  as.matrix(beta), tol = 1e-4, max_iter = 1e4)
+  gamma <- as.numeric(fit$beta_t)
+  beta <- as.numeric(fit$beta_v)
+  eta <- as.matrix(Z) %*% as.matrix(beta)
+  residuals <- DiscSurv_residuals(nrow(Z), delta.obs, time, gamma, eta)
+  colnames(residuals) <- "Within person residuals"
+  ls <- list(beta = beta, gamma = gamma, residual = residuals)
+  return(ls)
+}
+
+
+set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multiplier, 
                             nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
   storage.mode(K1) <- "integer"
   if (K1[1] != 0) {  ## use Di's code
-    fit <- SerBIN.residuals(Y, Z[, group == 0, drop = F], n.prov, gamma.prov, beta[1:sum(group == 0)])
+    fit <- DiscSurv.residuals(delta.obs, Z[, group == 0, drop = F], time, gamma, beta[1:sum(group == 0)])
     r <- fit$residual
     beta.initial <- c(fit$beta, rep(0, length(beta) - length(fit$beta)))
     gamma.initial <- fit$gamma
-  } else {  ## use KM-
-    mean.Y <- sapply(split(Y, ID), mean)
-    n.prov <- sapply(split(Y, ID), length)
-    r <- Y - rep(mean.Y, n.prov) 
+  } else {  ## use KM results
+    plogis.gamma <- plogis(gamma)
+    r <- rep(0, n)
+    for (i in 1:n){
+      r[i] <- delta.obs[i] - sum(plogis.gamma[1:time[i]])
+    }
     beta.initial <- beta
-    gamma.initial <- gamma.prov
+    gamma.initial <- gamma
   }
-  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
+  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/sum(time)
   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
   lambda.seq[1] <- lambda.seq[1] + 1e-5
   ls <- list(beta = beta.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
   return(ls)
 }
+
+
+
+
+
 
 # set up group information
 # m: group multiplier, default (missing) is the square root of group size of remaining features

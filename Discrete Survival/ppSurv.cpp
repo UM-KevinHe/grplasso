@@ -82,6 +82,18 @@ double Z_max_grLasso(mat &x, vec &r, vec &K, vec &m){ // "K": a vector contains 
   return(z_max);
 }
 
+// [[Rcpp::export]]
+vec DiscSurv_residuals(int n_obs, vec &delta_obs, vec &time, vec &gamma, vec &eta){
+  vec residuals(n_obs);
+  for (int j = 0; j < n_obs; j++){  //j: individual
+    for (int i = 0; i < time(j); i++){ //i: time point
+      residuals(j) += p_binomial_Surv(gamma(i), eta(j));
+    }
+  } 
+  residuals = -residuals + delta_obs;
+  return(residuals);
+}
+
 
 
 // Function1: with logit-link
@@ -123,7 +135,7 @@ double gd_Surv_BetaChange(mat &Z, vec &r, vec &eta, vec &gamma, vec &time, vec &
 
 tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec gamma, vec beta, vec eta, int K0, vec &K1,
                                               vec &sum_failure, double lambda, int &tol_iter, int max_total_iter, int max_each_iter, vec &penalized_multiplier, 
-                                              bool backtrack, bool MM, double bound, double tol, vec &active_var, int n_obs, int n_var, int threads,
+                                              bool backtrack, bool MM, double bound, double tol, vec &active_var, int n_obs, int expand_n_obs, int n_var, int threads,
                                               bool actSet, int actIter, int activeVarNum, bool actSetRemove){
   vec old_beta = beta, old_gamma = gamma, r(n_obs), r_shift, Z_tmp, w(n_obs);
   double df, MaxChange_beta, shift;
@@ -135,7 +147,6 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
     int inner_loop_iter = 0; // count the number of iterations for a new updated active set
     R_CheckUserInterrupt();
     // inner loop: update variables in the current active set
-
     while (tol_iter < max_total_iter && iter < max_each_iter && inner_loop_iter < actIter) {
       // the maximum number of inner iterations is "actIter", and after that we will update the current active set;
       R_CheckUserInterrupt();
@@ -145,19 +156,27 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
       inner_loop_iter++;
       MaxChange_beta = 0;
 
+      //vec count_sum_failure(max_timepoint, fill::zeros);
+
       // 1. update gamma
       // initial score and fisher information matrix of gamma
-      vec score_gamma = sum_failure, info_gamma(max_timepoint, fill::zeros),  d_gamma(max_timepoint, fill::zeros); 
+      vec score_gamma = - sum_failure, info_gamma(max_timepoint, fill::zeros), d_gamma(max_timepoint, fill::zeros); 
       if (backtrack == true) {
         vec gamma_tmp, eta_tmp(n_obs);
         double loglkd, d_loglkd, u = 1.0, k, s = 0.01, t = 0.8;
         for (int j = 0; j < n_obs; j++){  //j: individual
           for (int i = 0; i < time(j); i++){ //i: time point
             p_gamma = p_binomial_Surv(gamma(i), eta(j));
-            score_gamma(i) -= p_gamma;
-            info_gamma(i) += p_gamma * (1 - p_gamma);
+            score_gamma(i) += p_gamma;
+            info_gamma(i) -= p_gamma * (1 - p_gamma); //a diagonal matrix
+            /*
+            if ((i + 1) == time(j) && delta_obs(j) == 1){
+              count_sum_failure(i) += 1;
+            }
+            */
           }
         }
+
         /*
         for (int i = 0; i < max_timepoint; i++){
           info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
@@ -185,8 +204,8 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
         for (int j = 0; j < n_obs; j++){ 
           for (int i = 0; i < time(j); i++){
             p_gamma = p_binomial_Surv(gamma(i), eta(j));
-            score_gamma(i) -= p_gamma;
-            info_gamma(i) += p_gamma * (1 - p_gamma);
+            score_gamma(i) += p_gamma;
+            info_gamma(i) -= p_gamma * (1 - p_gamma);
           }
         }
         /*
@@ -203,7 +222,6 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
         gamma = gamma + d_gamma;
         gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound); 
       } 
-
 
       // p_eta: 把每个人所有时间点的exp/1+exp加起来;
       // w: 把每个人所有时间点的exp/(1+exp)^2加起来;
@@ -232,8 +250,8 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           w.replace(0, omega_min); 
         }
       }
-      vec score_eta = -p_eta + delta_obs;
-      r = score_eta / w; 
+      vec score_eta = p_eta - delta_obs;
+      r = - score_eta / w; 
 
       uvec update_order_unpenalized = randperm(K0);  // Randomized coordinate descent for unpenalized covariate 
 
@@ -281,8 +299,8 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
                 w(j) += p_temp * (1 - p_temp);
               }
             }
-          }            
-          gd_Surv(beta, Z, r, eta, gamma, time, old_beta, w, update_column_index, n_obs, lambda_m, df, MaxChange_beta);
+          }      
+          gd_Surv(beta, Z, r, eta, gamma, time, old_beta, w, update_column_index, expand_n_obs, lambda_m, df, MaxChange_beta);
         }
       }
 
@@ -321,10 +339,10 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
               }
             }
           }            
-          Current_Change_beta(p) = gd_Surv_BetaChange(Z, r, eta, gamma, time, w, p, n_obs, lambda_m);
+          Current_Change_beta(p) = gd_Surv_BetaChange(Z, r, eta, gamma, time, w, p, expand_n_obs, lambda_m);
         }
       }
-      
+
       int if_add_new = 0;
       uvec descend_beta_change_index = sort_index(Current_Change_beta, "descend");
       vec descend_beta_change = sort(Current_Change_beta, "descend");
@@ -337,12 +355,15 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           break;
         }
       } 
+
+
       if (if_add_new == 0){
         break;
       }
     } else {
       break; 
     }
+
   }
 
   return make_tuple(beta, gamma, eta, df, iter);
@@ -356,6 +377,15 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
   int n_obs = Z.n_rows, n_beta = Z.n_cols, n_gamma = gamma.n_elem, n_lambda = lambda_seq.n_elem;
   int n_var = K1.n_elem - 1; // n_var: number of penalized variables
   int tol_iter = 0;
+
+  int expand_n_obs = 0; // 展开后的数据个数
+  for (int j = 0; j < n_obs; j++){
+    for (int i = 0; i < time(j); i++){ 
+      expand_n_obs += 1;
+    }
+  }
+
+  //cout << expand_n_obs << endl;
   
   mat beta_matrix(n_beta, n_lambda, fill::zeros), gamma_matrix(n_gamma, n_lambda, fill::zeros); // parameter estimation
   mat eta_matrix(n_obs, n_lambda, fill::zeros); // linear predictor
@@ -381,7 +411,8 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
     }
     double lambda = lambda_seq(l);
 
-    auto fit = pp_Surv_fit(delta_obs, max_timepoint, Z, time, gamma, beta, eta, K0, K1, sum_failure, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, backtrack, MM, bound, tol, active_var, n_obs, n_var, threads, actSet, actIter, activeVarNum, actSetRemove);
+    auto fit = pp_Surv_fit(delta_obs, max_timepoint, Z, time, gamma, beta, eta, K0, K1, sum_failure, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, backtrack, MM, bound, tol, active_var, n_obs, expand_n_obs, n_var, threads, actSet, actIter, activeVarNum, actSetRemove);
+    
     double df_l;
     int iter_l;
     tie(beta, gamma, eta, df_l, iter_l) = fit;
@@ -404,12 +435,12 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
       }
     }
 
-    //if the current number of variables has already reached nvar_max, then the number of selected variables for the remaining lambda must >= nvar_max.
+    //if the current number of penalized variables has already reached nvar_max, then the number of selected variables for the remaining lambda must >= nvar_max.
     if (nv > nvar_max || tol_iter == max_total_iter) { 
       if (tol_iter == max_total_iter) {
         cout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
       } else {
-        cout << "Algorithm has selected the maximum number of variables, stops..." << endl;
+        cout << "Algorithm has selected the maximum number of penalized variables, stops..." << endl;
       }
       // the estimating process for the remaining lambda will be skipped
       for (int ll = (l + 1); ll < n_lambda; ll++){

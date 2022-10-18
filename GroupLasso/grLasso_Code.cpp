@@ -228,7 +228,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
   vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
   int n_gamma = gamma.n_elem;
   double Dev, df, MaxChange_beta, shift;
-  double v = 0.25, omega_min = 1e-10;
+  double v = 0.25, omega_min = 1e-15;
   int iter = 0; //"iter" counts the number of iterations for each lambda
   vec inner_product_Z = inner_product(Z);
 
@@ -541,7 +541,7 @@ List pp_lasso(vec &Y, mat &Z, vec &n_prov, vec &gamma, vec &beta, int K0, vec &K
       if (tol_iter == max_total_iter) {
         cout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
       } else {
-        cout << "Algorithm has selected the maximum number of variables, stops..." << endl;
+        cout << "Algorithm has selected the maximum number of penalized variables, stops..." << endl;
       }
       // the estimating process for the remaining lambda will be skipped
       for (int ll = (l + 1); ll < n_lambda; ll++){

@@ -2,7 +2,7 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char),
                       standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE, 
                       nvar.max = p, group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0, 
                       backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), 
-                      actSet = TRUE, actIter = max.each.iter, actGroupNum = group.max, actSetRemove = F,
+                      actSet = TRUE, actIter = max.each.iter, actGroupNum = sum(unique(group) != 0), actSetRemove = F,
                       returnX = FALSE, trace.lambda = FALSE, threads = 1, ...){
   if (!is.null(data$included)){  # data after using preparation function
     data <- data[data$included == 1, ]
