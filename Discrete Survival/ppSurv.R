@@ -1,8 +1,8 @@
-pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
-                     penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
-                     stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
-                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1), 
-                     actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
+pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-3, 
+                    penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
+                    stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
+                    max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1), 
+                    actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
 
   ## data structure:  
   ##   status         Z1         Z2         Z3 Z4 Z5 Z6   time
@@ -152,3 +152,98 @@ pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda
   }
   return(result)
 }
+
+
+
+cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, length(Z.char)), ..., nfolds = 10, 
+                       seed, fold, trace.cv = FALSE){
+  # "...": additional arguments to "grp.lasso"
+  # "fold": a vector that specifies the fold that observations belongs to
+  fit.args <- list(...)
+  fit.args$data <- data
+  fit.args$Event.char <- Event.char
+  fit.args$Z.char <- Z.char
+  fit.args$Time.char <- Time.char
+  fit.args$penalize.x <- penalize.x
+  fit.args$returnX <- TRUE
+  
+  fit <- do.call("pp.Surv", fit.args)  #fit the entire model
+  
+  # get standardized Z
+  ZG <- fit$returnX
+  Z <- ZG$std.Z
+  delta.obs <- as.matrix(data[, Event.char])
+  returnX <- list(...)$returnX
+  if (is.null(returnX) || !returnX){ 
+    fit$returnX <- NULL
+  } 
+  
+  #setup folds
+  if (!missing(seed)) {
+    set.seed(seed)
+  }
+  
+  n.obs <- length(delta.obs)
+  
+  if (missing(fold)){ # make sure each fold contains same proportion of censor and failure
+    ind1 <- which(delta.obs == 1)
+    ind0 <- which(delta.obs == 0)
+    n1 <- length(ind1)
+    n0 <- length(ind0)
+    fold1 <- 1:n1 %% nfolds  # assign observations to different folds
+    fold0 <- (n1 + 1:n0) %% nfolds
+    fold1[fold1 == 0] <- nfolds # set fold "0" to fold max
+    fold0[fold0 == 0] <- nfolds
+    fold <- integer(n.obs) 
+    fold[delta.obs == 1] <- sample(fold1)
+    fold[delta.obs == 0] <- sample(fold0)
+  } else {
+    nfolds <- max(fold)
+  }
+  
+  data.small <- cbind(fold, data[, c(Event.char, Time.char)])
+  expand.fold <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, eventColumn = Event.char, timeAsFactor = TRUE)$fold
+  
+  
+  # Do Cross-Validation
+  E <- Y <- matrix(NA, nrow = sum(data[, Time.char]), ncol = length(fit$lambda)) # stored as expanded matrix
+  original.count.gamma <- length(unique(data[, Time.char])) 
+  
+  cv.args <- list(...)
+  cv.args$lambda <- fit$lambda
+  cv.args$group <- ZG$g
+  cv.args$group.multiplier <- ZG$m
+  
+  for (i in 1:nfolds) {
+    if (trace.cv == TRUE){
+      cat("Starting CV fold #", i, sep = "", "...\n")
+    }
+    res <- cvf.ppSurv(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args)
+    Y[expand.fold == i, 1:res$nl] <- res$yhat
+    E[expand.fold == i, 1:res$nl] <- res$loss
+  }
+  
+  # Eliminate saturated lambda values, if any
+  ind <- which(apply(is.finite(E), 2, all))
+  E <- E[, ind, drop=FALSE]
+  Y <- Y[, ind]
+  lambda <- fit$lambda[ind]
+  
+  cve <- apply(E, 2, mean)  # mean cross entropy loss within each lambda value
+  cvse <- apply(E, 2, sd) / sqrt(n.obs) # standardized loss
+  min <- which.min(cve)  #find index of lambda with minimum cve
+  pe <- apply(PE[, ind], 2, mean)  # mean predict class error
+  
+  result <- structure(list(cve = cve, 
+                           cvse = cvse, 
+                           lambda = lambda, 
+                           fit = fit, #model with entire data
+                           pe = pe,
+                           fold = fold, 
+                           min = min, 
+                           lambda.min = lambda[min]),
+                      class = "cv.ppSurv")
+  return(result)
+}
+
+

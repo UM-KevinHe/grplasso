@@ -139,7 +139,6 @@ DiscSurv.residuals <- function(delta.obs, Z, time, gamma, beta){
   return(ls)
 }
 
-
 set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multiplier, 
                             nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
@@ -166,10 +165,6 @@ set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multip
   ls <- list(beta = beta.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
   return(ls)
 }
-
-
-
-
 
 
 # set up group information
@@ -458,13 +453,41 @@ coef.gr_ppLasso <- function(object, lambda, which=1:length(object$lambda), drop 
   return(coef)
 }
 
+coef.ppSurv <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
+  if (!missing(lambda)) {
+    if (any(lambda > max(object$lambda) | lambda < min(object$lambda))){
+      stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)
+    } 
+    ind <- approx(object$lambda, seq(object$lambda), lambda)$y 
+    l <- floor(ind)
+    r <- ceiling(ind)
+    w <- ind %% 1
+    # linearly interpolate between two lambda
+    beta <- (1 - w) * object$beta[, l, drop = FALSE] + w * object$beta[, r, drop = FALSE]
+    gamma <- (1 - w) * object$gamma[, l, drop = FALSE] + w * object$gamma[, r, drop = FALSE]
+    colnames(beta) <- round(lambda, 4)
+    colnames(gamma) <- round(lambda, 4)
+  } else {  #specify lambda value as index
+    beta <- object$beta[, which, drop = FALSE]
+    gamma <- object$gamma[, which, drop = FALSE]
+  }
+  if (drop == TRUE){
+    beta <- drop(beta)
+    gamma <- drop(gamma)
+    coef <- list(gamma = gamma, beta = beta)
+  } else {
+    coef <- list(gamma = gamma, beta = beta)
+  }
+  return(coef)
+}
+
 predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
                                type = c("response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){
   beta <- coef.gr_ppLasso(object, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.gr_ppLasso(object, lambda = lambda, which = which, drop = FALSE)$gamma
   
   if (type == "vars"){
-    return(drop(apply(beta!=0, 2, FUN = which)))
+    return(drop(apply(beta != 0, 2, FUN = which)))
   }
   
   if (type == "groups") {
@@ -476,7 +499,7 @@ predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 
   }
   
   if (type == "nvars") {
-    v <- as.data.frame(apply(beta != 0, 2, FUN = which))
+    v <- as.list(apply(beta != 0, 2, FUN = which))
     nvars <- sapply(v, length)
     return(nvars)
   }
@@ -514,7 +537,60 @@ predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 
   }
 }
 
-cvf <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
+
+predict.ppSurv <- function(object, data.i, Z.char, Time.char, lambda, which = 1:length(object$lambda),
+                           type = c("response", "vars", "nvars"),  ...){
+  beta <- coef.ppSurv(object, lambda = lambda, which = which, drop = FALSE)$beta
+  gamma <- coef.ppSurv(object, lambda = lambda, which = which, drop = FALSE)$gamma
+  
+  if (type == "vars"){
+    return(drop(apply(beta != 0, 2, FUN = which)))
+  }
+  
+  if (type == "nvars") {
+    v <- as.list(apply(beta != 0, 2, FUN = which))
+    nvars <- sapply(v, length)
+    return(nvars)
+  }
+  
+  # predict response
+  if (missing(data.i) | is.null(data.i)) {
+    stop("Must supply data for predictions", call. = FALSE)
+  }
+  
+  if (type == "response") {
+    # need data expansion
+    n.obs <- nrow(data.i)
+    eta <- as.matrix(data.i[, Z.char, drop = F]) %*% beta  # "eta" is a matrix; "gamma" is also a matrix 
+    sum.time <- sum(data.i[, Time.char, drop = F])
+    time <- as.matrix(data.i[, Time.char, drop = F])
+    nlambda <- ncol(eta)
+    pred.prob <- predict_linear_predictor(nlambda, n.obs, sum.time, time, gamma, eta)  # return a matrix
+    return(pred.prob)
+  }
+}
+
+
+
+cvf.pplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
+  cv.args$data <- data[fold != i, , drop = FALSE]
+  cv.args$Y.char <- Y.char
+  cv.args$Z.char <- Z.char
+  cv.args$prov.char <- prov.char
+  
+  fit.i <- do.call("pp.lasso", cv.args)
+  
+  data.i <- data[fold == i, , drop = FALSE]
+  Y.i <- data.i[, Y.char]
+  yhat.i <- matrix(predict(fit.i, data.i, Z.char, prov.char, type = "response"), nrow(data.i)) #y-hat matrix across all given lambda
+  loss <- loss.grp.lasso(Y.i, yhat.i)  ## cross entropy loss
+  pe <- (yhat.i < 0.5) == Y.i  # wrong prediction
+  list(loss = loss, pe = pe, nl = length(fit.i$lambda), yhat = yhat.i)
+}
+
+
+
+cvf.grplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
   cv.args$data <- data[fold != i, , drop = FALSE]
   cv.args$Y.char <- Y.char
   cv.args$Z.char <- Z.char
@@ -532,11 +608,64 @@ cvf <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
 
 
 
+cvf.ppSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args){
+  cv.args$data <- data[fold != i, , drop = FALSE]
+  cv.args$Event.char <- Event.char
+  cv.args$Z.char <- Z.char
+  cv.args$Time.char <- Time.char
+  
+  # some time point might lost within one sub data set, so we need to reorder time
+  #count.gamma <- length(unique(cv.args$data[, Time.char]))
+  #if (count.gamma != original.count.gamma){
+  #  timepoint.increase <- sort(unique(data[, Time.char]))
+  #  # new time start from 1, and time points are {1, 2, 3, ...}
+  #  for (i in 1:count.gamma){
+  #    data[, Time.char][which(data[, Time.char] == timepoint.increase[i])] <- i
+  #  }
+  #}
+
+  fit.i <- do.call("pp.Surv", cv.args)  #fit the discrete survival model using one training data set
+  data.i <- data[fold == i, , drop = FALSE]
+  yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response") # y-hat matrix across all given lambda; data has been expanded
+  
+  data.small <- data.i[, c(Event.char, Time.char)]
+  Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, eventColumn = Event.char, timeAsFactor = TRUE)$y
+  
+  loss <- loss.pp.Surv(Y.i, yhat.i)  ## cross entropy loss
+  list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
+}
+
+
 loss.grp.lasso <- function(Y.i, yhat.i){
   yhat.i[yhat.i < 0.00001] <- 0.00001
   yhat.i[yhat.i > 0.99999] <- 0.99999
   
-  if (is.matrix(yhat.i)) {
+  if (is.matrix(yhat.i) == T) {
+    val <- matrix(NA, nrow = nrow(yhat.i), ncol = ncol(yhat.i))
+    if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
+      val[Y.i == 1,] <- - 2 * log(yhat.i[Y.i == 1, , drop = FALSE])
+    }
+    if (sum(Y.i == 0)){
+      val[Y.i == 0,] <- -2 * log(1 - yhat.i[Y.i == 0, , drop = FALSE])
+    } 
+  } else {
+    val <- double(length(Y.i))  # a zero vector
+    if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
+      val[Y.i == 1] <- - 2 * log(yhat.i[Y.i == 1])
+    }
+    if (sum(Y.i == 0)){
+      val[Y.i == 0] <- -2 * log(1 - yhat.i[Y.i == 0])
+    } 
+  }
+  return(val)
+}
+
+
+loss.pp.Surv <- function(Y.i, yhat.i){
+  yhat.i[yhat.i < 0.00001] <- 0.00001
+  yhat.i[yhat.i > 0.99999] <- 0.99999
+  
+  if (is.matrix(yhat.i) == T) {
     val <- matrix(NA, nrow = nrow(yhat.i), ncol = ncol(yhat.i))
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
       val[Y.i == 1,] <- - 2 * log(yhat.i[Y.i == 1, , drop = FALSE])

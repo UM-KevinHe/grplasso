@@ -159,13 +159,13 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
 
 
 cv.pp.lasso <- function(data, Y.char, Z.char, prov.char, penalize.x = rep(1, length(Z.char)), ..., nfolds = 10, 
-                         seed, fold, trace.cv = FALSE){
+                        seed, fold, trace.cv = FALSE){
   if (missing(prov.char)){ #single intercept
     prov.char <- "intercept"
     data$intercept <- matrix(1, nrow = nrow(data))
   }
   
-  # "...": additional arguments to "grp.lasso"
+  # "...": additional arguments to "pp.lasso"
   # "fold": a vector that specifies the fold that observations belongs to
   fit.args <- list(...)
   fit.args$data <- data
@@ -222,7 +222,7 @@ cv.pp.lasso <- function(data, Y.char, Z.char, prov.char, penalize.x = rep(1, len
       cat("Starting CV fold #", i, sep="","...\n")
     }
     
-    res <- cvf(i, data, Y.char, Z.char, prov.char, fold, cv.args)
+    res <- cvf.pplasso(i, data, Y.char, Z.char, prov.char, fold, cv.args)
     Y[fold == i, 1:res$nl] <- res$yhat
     E[fold == i, 1:res$nl] <- res$loss
     PE[fold == i, 1:res$nl] <- res$pe  # wrong predict class

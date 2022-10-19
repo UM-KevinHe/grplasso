@@ -206,7 +206,7 @@ cv.grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.cha
       cat("Starting CV fold #", i, sep="","...\n")
     }
     
-    res <- cvf(i, data, Y.char, Z.char, prov.char, fold, cv.args)
+    res <- cvf.grplasso(i, data, Y.char, Z.char, prov.char, fold, cv.args)
     Y[fold == i, 1:res$nl] <- res$yhat
     E[fold == i, 1:res$nl] <- res$loss
     PE[fold == i, 1:res$nl] <- res$pe  # wrong predict class

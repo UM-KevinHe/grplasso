@@ -52,6 +52,7 @@ double p_binomial_Surv(double &gamma, double &eta) {
   return(1/(1+exp(-gamma - eta)));
 }
 
+
 //soft-thresholding operator
 double Soft_thres(double z, double l) {
   if (z > l) {
@@ -94,7 +95,20 @@ vec DiscSurv_residuals(int n_obs, vec &delta_obs, vec &time, vec &gamma, vec &et
   return(residuals);
 }
 
-
+// [[Rcpp::export]]
+mat predict_linear_predictor(int n_lambda, int n_obs, int expand_n_obs, vec &time, mat &gamma, mat &eta) {
+  mat predict_linear_predictor(expand_n_obs, n_lambda);
+  for (int l = 0; l < n_lambda; l++){
+    int sum_index = 0;
+    for (int j = 0; j < n_obs; j++){  //j: individual
+      for (int i = 0; i < time(j); i++){ //i: time point
+        predict_linear_predictor(sum_index, l) = p_binomial_Surv(gamma(i, l), eta(j, l));
+        sum_index += 1;
+      }
+    } 
+  }
+  return(predict_linear_predictor);
+}
 
 // Function1: with logit-link
 // update penalized beta
