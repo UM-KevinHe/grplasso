@@ -128,10 +128,10 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
 
 # "DiscSurv.residuals" is used for computing the sum of response residuals within each individual
 DiscSurv.residuals <- function(delta.obs, Z, time, gamma, beta){
-  fit <- NR_logit(as.matrix(time), as.matrix(Z), as.matrix(delta.obs), as.matrix(gamma),
-                  as.matrix(beta), tol = 1e-4, max_iter = 1e4)
-  gamma <- as.numeric(fit$beta_t)
-  beta <- as.numeric(fit$beta_v)
+  fit <- NR_residuals(as.matrix(time), as.matrix(Z), as.matrix(delta.obs), as.matrix(gamma),
+                      as.matrix(beta), tol = 1e-4, max_iter = 1e4)  #cpp functions
+  gamma <- as.numeric(fit$gamma)
+  beta <- as.numeric(fit$beta)
   eta <- as.matrix(Z) %*% as.matrix(beta)
   residuals <- DiscSurv_residuals(nrow(Z), delta.obs, time, gamma, eta)
   colnames(residuals) <- "Within person residuals"

@@ -1,4 +1,4 @@
-pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-3, 
+pp.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
                     penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
                     stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
                     max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1), 
@@ -184,21 +184,34 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
   }
   
   n.obs <- length(delta.obs)
+  original.count.gamma <- length(unique(data[, Time.char])) 
   
-  if (missing(fold)){ # make sure each fold contains same proportion of censor and failure
-    ind1 <- which(delta.obs == 1)
-    ind0 <- which(delta.obs == 0)
-    n1 <- length(ind1)
-    n0 <- length(ind0)
-    fold1 <- 1:n1 %% nfolds  # assign observations to different folds
-    fold0 <- (n1 + 1:n0) %% nfolds
-    fold1[fold1 == 0] <- nfolds # set fold "0" to fold max
-    fold0[fold0 == 0] <- nfolds
-    fold <- integer(n.obs) 
-    fold[delta.obs == 1] <- sample(fold1)
-    fold[delta.obs == 0] <- sample(fold0)
-  } else {
-    nfolds <- max(fold)
+  for (s in 1:100){
+    if (missing(fold)){ # make sure each fold contains same proportion of censor and failure
+      ind1 <- which(delta.obs == 1)
+      ind0 <- which(delta.obs == 0)
+      n1 <- length(ind1)
+      n0 <- length(ind0)
+      fold1 <- 1:n1 %% nfolds  # assign observations to different folds
+      fold0 <- (n1 + 1:n0) %% nfolds
+      fold1[fold1 == 0] <- nfolds # set fold "0" to fold max
+      fold0[fold0 == 0] <- nfolds
+      fold <- integer(n.obs) 
+      fold[delta.obs == 1] <- sample(fold1)
+      fold[delta.obs == 0] <- sample(fold0)
+    } else {
+      nfolds <- max(fold)
+    }
+    
+    #check if some time points have lost within one subset
+    len <- rep(NA, nfolds)
+    for (i in 1:nfolds){
+      len[i] <- length(unique(data[fold != i, Time.char])) != original.count.gamma
+    }
+    
+    if (sum(len) == 0) {
+      break
+    }
   }
   
   data.small <- cbind(fold, data[, c(Event.char, Time.char)])
@@ -207,7 +220,6 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
   
   # Do Cross-Validation
   E <- Y <- matrix(NA, nrow = sum(data[, Time.char]), ncol = length(fit$lambda)) # stored as expanded matrix
-  original.count.gamma <- length(unique(data[, Time.char])) 
   
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
@@ -232,15 +244,13 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
   cve <- apply(E, 2, mean)  # mean cross entropy loss within each lambda value
   cvse <- apply(E, 2, sd) / sqrt(n.obs) # standardized loss
   min <- which.min(cve)  #find index of lambda with minimum cve
-  pe <- apply(PE[, ind], 2, mean)  # mean predict class error
   
   result <- structure(list(cve = cve, 
                            cvse = cvse, 
                            lambda = lambda, 
                            fit = fit, #model with entire data
-                           pe = pe,
                            fold = fold, 
-                           min = min, 
+                           min = min,
                            lambda.min = lambda[min]),
                       class = "cv.ppSurv")
   return(result)

@@ -109,6 +109,80 @@ List SerBIN(vec &Y, mat &Z, vec &n_prov, vec gamma, vec beta) {
     loglkd += d_loglkd;
     crit = norm(v*d_beta, "inf");
   }
-  List ret = List::create(_["gamma"]=gamma, _["beta"]=beta);
+  List ret = List::create(_["gamma"] = gamma, _["beta"] = beta);
   return ret;
+}
+
+tuple<vec, vec, vec, mat, mat> Update_logit(vec t, mat X, vec delta_obs, vec gamma, vec beta, int max_t, int c, int r){
+  vec score_gamma(max_t, fill::zeros);
+  vec score_beta(c, fill::zeros);
+  vec info_gamma(max_t, fill::zeros);
+  mat info_beta(c, c, fill::zeros);
+  mat info_betagamma(max_t, c, fill::zeros);
+
+  for (int i = 0 ; i < r ; i++){ 
+    for (int s = 1 ; s <= t(i) ; s++){ 
+        double lambda = 1/(1 + exp(-gamma(s-1) - dot(X.row(i), beta))); 
+        score_gamma(s-1) = score_gamma(s-1) - lambda;
+        score_beta = score_beta - lambda * X.row(i).t(); 
+        info_gamma(s-1) = info_gamma(s-1) + lambda * (1 - lambda);
+        info_beta = info_beta + (lambda * (1 - lambda)) * (X.row(i).t() * X.row(i));
+        info_betagamma.row(s-1) = info_betagamma.row(s-1) + (lambda * (1-lambda)) * X.row(i);
+        if (t(i) == s && delta_obs(i) == 1){ 
+          score_gamma(s-1) = score_gamma(s-1) + 1;
+          score_beta = score_beta + X.row(i).t();
+        }    
+    }
+  }
+
+  return make_tuple(score_gamma, score_beta, info_gamma, info_beta, info_betagamma);
+}
+
+// [[Rcpp::export]]
+List NR_residuals(vec t, mat X, vec delta_obs, vec gamma, vec beta, double tol, int max_iter){
+  int r = X.n_rows;
+  int c = X.n_cols;
+  int max_t = t.max();
+  
+  vec gamma2 = gamma;
+  vec beta2 = beta;
+  vec beta_change(c);
+  mat A_inv(max_t, max_t, fill::zeros);
+  vec A(max_t, fill::zeros);
+  mat B(max_t, c, fill::zeros);
+  mat C(c, c, fill::zeros);
+  mat schur(c, c, fill::zeros);
+  vec score_gamma(max_t, fill::zeros);
+  vec score_beta(c, fill::zeros);
+
+  auto update = Update_logit(t, X, delta_obs, gamma, beta, max_t, c, r);
+  int iter = 0;
+
+  for (int i = 0 ; i <= max_iter; i++){
+    iter++;
+    R_CheckUserInterrupt();
+    double MaxChange_beta = 0; 
+    tie(score_gamma, score_beta, A, C, B) = update;
+    A = 1/A;
+    A_inv = diagmat(A);
+    schur = (C - (B.t()) * (A_inv) * (B)).i();
+    gamma2 = gamma + (A_inv + A_inv * B * schur * (B.t()) * A_inv) * score_gamma - A_inv * B * schur * score_beta;
+    beta2 = beta + schur * score_beta-schur * (B.t())* A_inv * score_gamma;
+    beta_change = beta2 - beta;
+    gamma = gamma2;
+    beta = beta2;
+
+    for (i = 0; i < c; i++){
+      if (fabs(beta_change(i)) > MaxChange_beta) {
+          MaxChange_beta = fabs(beta_change(i));
+      }
+    }
+    if(MaxChange_beta < tol){ 
+      break;
+    }
+    update = Update_logit(t, X, delta_obs, gamma, beta, max_t, c, r); 
+  }
+
+  List result = List::create(_["beta"] = beta, _["gamma"] = gamma, _["iter"] = iter);
+  return result;
 }
