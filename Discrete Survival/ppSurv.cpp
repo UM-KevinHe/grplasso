@@ -6,7 +6,7 @@
 #include <omp.h>
 #include <chrono>
 
- 
+
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
@@ -116,7 +116,7 @@ void gd_Surv(vec &beta, mat &Z, vec &r, vec &eta, vec &gamma, vec &time, vec &ol
   double beta_initial = w_crossprod(Z, r, w, p)/weighted_inner_product(Z, w, p) + old_beta(p);   
   double threshold = n_obs * lambda/weighted_inner_product(Z, w, p);
   double len = Soft_thres(beta_initial, threshold); 
-
+  
   if (len != old_beta(p)){ // if beta has changed, then update eta and r
     beta(p) = len;
     double beta_change = beta(p) - old_beta(p);
@@ -156,7 +156,7 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
   double v = 0.25, omega_min = 1e-10;
   double p_gamma;
   int iter = 0; //"iter" counts the number of iterations for each lambda
-
+  
   while (tol_iter < max_total_iter && iter < max_each_iter) { //"tol_iter" counts the number of iterations for the entire lambda sequence
     int inner_loop_iter = 0; // count the number of iterations for a new updated active set
     R_CheckUserInterrupt();
@@ -169,9 +169,9 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
       iter++;
       inner_loop_iter++;
       MaxChange_beta = 0;
-
+      
       //vec count_sum_failure(max_timepoint, fill::zeros);
-
+      
       // 1. update gamma
       // initial score and fisher information matrix of gamma
       vec score_gamma = - sum_failure, info_gamma(max_timepoint, fill::zeros), d_gamma(max_timepoint, fill::zeros); 
@@ -183,24 +183,20 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
             p_gamma = p_binomial_Surv(gamma(i), eta(j));
             score_gamma(i) += p_gamma;
             info_gamma(i) -= p_gamma * (1 - p_gamma); //a diagonal matrix
-            /*
-            if ((i + 1) == time(j) && delta_obs(j) == 1){
-              count_sum_failure(i) += 1;
-            }
-            */
           }
         }
-
+        
         /*
-        for (int i = 0; i < max_timepoint; i++){
-          info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
-        }
-        */
+         for (int i = 0; i < max_timepoint; i++){
+         info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
+         }
+         */
         int nProcessors = threads; 
         omp_set_num_threads(nProcessors);
         #pragma omp parallel for schedule(static)
         for (int i = 0; i < max_timepoint; i++){
-          d_gamma(i) = score_gamma(i)/info_gamma(i);
+          double tmp_info_gamma = info_gamma(i);
+          d_gamma(i) = score_gamma(i)/std::min(-omega_min, tmp_info_gamma);
         }
         loglkd = Loglkd_Surv(n_obs, delta_obs, time, gamma, eta); //eta = Z\beta. It will not change when only update gamma
         gamma_tmp = u * d_gamma + gamma;
@@ -223,26 +219,27 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           }
         }
         /*
-        for (int i = 0; i < max_timepoint; i++){
-          info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
-        }
-        */
+         for (int i = 0; i < max_timepoint; i++){
+         info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
+         }
+         */
         int nProcessors = threads;
         omp_set_num_threads(nProcessors);
         #pragma omp parallel for schedule(static)
         for (int i = 0; i < max_timepoint; i++){
-          d_gamma(i) = score_gamma(i)/info_gamma(i);
+          double tmp_info_gamma = info_gamma(i);
+          d_gamma(i) = score_gamma(i)/std::min(-omega_min, tmp_info_gamma);
         }
         gamma = gamma + d_gamma;
         gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound); 
       } 
-
+      
       // p_eta: 把每个人所有时间点的exp/1+exp加起来;
       // w: 把每个人所有时间点的exp/(1+exp)^2加起来;
       vec p_eta(n_obs, fill::zeros);
-
+      
       // 2. update beta
-
+      
       //initial pseudo residual vector
       if (MM == true){ // surrogate function use W = 0.25 * diag{k1, k2, ..., kn}, which is a n*n matrix
         for (int j = 0; j < n_obs; j++){  //j: individual
@@ -266,9 +263,9 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
       }
       vec score_eta = p_eta - delta_obs;
       r = - score_eta / w; 
-
+      
       uvec update_order_unpenalized = randperm(K0);  // Randomized coordinate descent for unpenalized covariate 
-
+      
       // 2.1 update unpenalized beta
       // 事实上两个方法都相当于GLM lasso不用MM的解法，只是二阶导不同(但都不是vI)
       for (int p = 0; p < K0; p++){  // only need w (we don't need compute "p_eta")
@@ -294,7 +291,7 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
         eta += Z.col(update_order_unpenalized(p)) * shift;  //eta = Z\beta
         df++;
       }
-
+      
       // 2.2 update penalized beta
       uvec update_order_penalized = randperm(n_var);
       for (int p = 0; p < n_var; p++) {
@@ -317,14 +314,14 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           gd_Surv(beta, Z, r, eta, gamma, time, old_beta, w, update_column_index, expand_n_obs, lambda_m, df, MaxChange_beta);
         }
       }
-
+      
       old_gamma = gamma;
       old_beta = beta;
       if (MaxChange_beta < tol){ 
         break;
       }
     }
-
+    
     if (actSet == true){
       if (actSetRemove == true) {
         for (int p = 0; p < n_var; p++){
@@ -335,7 +332,7 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           }
         }        
       }
-
+      
       vec Current_Change_beta(n_var, fill::zeros); 
       for (int p = 0; p < n_var; p++) {
         if (active_var(p) == 0){
@@ -356,11 +353,11 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           Current_Change_beta(p) = gd_Surv_BetaChange(Z, r, eta, gamma, time, w, p, expand_n_obs, lambda_m);
         }
       }
-
+      
       int if_add_new = 0;
       uvec descend_beta_change_index = sort_index(Current_Change_beta, "descend");
       vec descend_beta_change = sort(Current_Change_beta, "descend");
-
+      
       for (int i = 0; i < activeVarNum; i++){
         if (descend_beta_change(i)!= 0){ 
           if_add_new++;
@@ -369,17 +366,17 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           break;
         }
       } 
-
-
+      
+      
       if (if_add_new == 0){
         break;
       }
     } else {
       break; 
     }
-
+    
   }
-
+  
   return make_tuple(beta, gamma, eta, df, iter);
 }
 
@@ -391,14 +388,14 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
   int n_obs = Z.n_rows, n_beta = Z.n_cols, n_gamma = gamma.n_elem, n_lambda = lambda_seq.n_elem;
   int n_var = K1.n_elem - 1; // n_var: number of penalized variables
   int tol_iter = 0;
-
+  
   int expand_n_obs = 0; // 展开后的数据个数
   for (int j = 0; j < n_obs; j++){
     for (int i = 0; i < time(j); i++){ 
       expand_n_obs += 1;
     }
   }
-
+  
   //cout << expand_n_obs << endl;
   
   mat beta_matrix(n_beta, n_lambda, fill::zeros), gamma_matrix(n_gamma, n_lambda, fill::zeros); // parameter estimation
@@ -414,17 +411,17 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
   } else {
     active_var.ones(); 
   }
-
+  
   // initialize eta
   vec eta = Z * beta;
-
+  
   for (int l = 0; l < n_lambda; l++){
     R_CheckUserInterrupt();
     if (trace_lambda == true){
       cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
-
+    
     auto fit = pp_Surv_fit(delta_obs, max_timepoint, Z, time, gamma, beta, eta, K0, K1, sum_failure, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, backtrack, MM, bound, tol, active_var, n_obs, expand_n_obs, n_var, threads, actSet, actIter, activeVarNum, actSetRemove);
     
     double df_l;
@@ -435,20 +432,20 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
     eta_matrix.col(l) = eta;
     df_vec(l) = df_l;
     iter_vec(l) = iter_l;
-
+    
     // check whether the iteration number for the current lambda has reached the maximum
     if (iter_l == max_each_iter) { 
       cout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
     }
-
+    
     // check whether the entire lambda sequence should stop
     int nv = 0;
     for (int j = 0; j < n_var; j++){
       if (beta(K1(j)) != 0){
-         nv++;
+        nv++;
       }
     }
-
+    
     //if the current number of penalized variables has already reached nvar_max, then the number of selected variables for the remaining lambda must >= nvar_max.
     if (nv > nvar_max || tol_iter == max_total_iter) { 
       if (tol_iter == max_total_iter) {
@@ -462,7 +459,7 @@ List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &ga
       }
       break;  //break lambda sequence
     }
-
+    
   }
   
   List result = List::create(_["gamma"] = gamma_matrix, _["beta"] = beta_matrix, _["Eta"] = eta_matrix, _["Df"] = df_vec, _["iter"] = iter_vec);

@@ -1,18 +1,21 @@
 # grLasso
-Fast Lasso Regularization Paths for Logistic Regression Models with Grouped Covariates
+Fast Lasso Regularization Paths for Generalized Linear Models and Discrete Survival Models
 
 ## Overview
 Provier profiling has been recognized as a useful tool in monitoring health care quality an improving medical cost-effectiveness. However, as the number of providers increase rapidly, existing packages are no longer able to handle such a large amount of data. For example, both glmnet and grpreg need an unpredictable amount time to convert provider information into thousands of dummy variables. And it can take hours or even days to solve such high-dimensional data by using decent algorithms.
 
 Therefore, we combine the advantages of block ascent Newton method and coordinate descent algorithm and propose a new algorithm to deal with such computational challenges. Simulaiton studies show that our algorithm performs as well as grpreg package in low-dimension provider settings, and as the provider dimensions increase, our algorithm will be much faster than existing packages.
 
+Since the likelihood functions of the discrete survival models are very similar to that of the GLM, our proposed algorithm can be directly extended to solve discrete survival models. In this case, we further optimized our algorithm in order to avoid expanding the original time-to-event data just as existing glm algorithms do. The improvement in speed is huge. When the number of discrete time points is relatively large, the number of observations in expanded data will increase several times or even tens of times compared with the original data.
+
 
 ## Usage:
 
-All the code here has been compressed into a R package. You can download the file named "TmpGrlasso.zip" to your local computer, unzip it and run the following code to install it:
+All the code here has been compressed into a temporary R package. You can download the file named "TmpDiscSurv.zip" (for discrete survival models) and "TmpGlmLasso.zip" (for GLMs) to your local computer, unzip it and run the following code to install it:
 
 ```{r }
-install.packages(".../TmpLasso", repos = NULL, type="source")
+install.packages(".../TmpDiscSurv", repos = NULL, type = "source")
+install.packages(".../TmpGlmLasso", repos = NULL, type = "source")
 ```
 
 ## Simulation:

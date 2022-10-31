@@ -182,7 +182,6 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
   if (!missing(seed)) {
     set.seed(seed)
   }
-  
   n.obs <- length(delta.obs)
   original.count.gamma <- length(unique(data[, Time.char])) 
   
@@ -211,15 +210,17 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
     
     if (sum(len) == 0) {
       break
-    }
+    }# else {
+    #  print(paste0("attempt ", s, " failed..."))
+    #}
   }
   
   data.small <- cbind(fold, data[, c(Event.char, Time.char)])
   expand.fold <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, eventColumn = Event.char, timeAsFactor = TRUE)$fold
   
-  
   # Do Cross-Validation
   E <- Y <- matrix(NA, nrow = sum(data[, Time.char]), ncol = length(fit$lambda)) # stored as expanded matrix
+  original.count.gamma <- length(unique(data[, Time.char])) 
   
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
@@ -250,7 +251,7 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
                            lambda = lambda, 
                            fit = fit, #model with entire data
                            fold = fold, 
-                           min = min,
+                           min = min, 
                            lambda.min = lambda[min]),
                       class = "cv.ppSurv")
   return(result)
