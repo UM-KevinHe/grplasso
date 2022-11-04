@@ -225,7 +225,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
                                                         bool backtrack, bool MM, double bound, double tol, vec &ind_start, vec &active_var, 
                                                         int n_obs, int n_var, bool single_intercept, int threads,
                                                         bool actSet, int actIter, int activeVarNum, bool actSetRemove){
-  vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
+  vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift;
   int n_gamma = gamma.n_elem;
   double Dev, df, MaxChange_beta, shift;
   double v = 0.25, omega_min = 1e-15;
@@ -624,7 +624,7 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
                                                         double bound, double tol, vec &ind_start, vec &active_group, 
                                                         int n_obs, int n_group, bool single_intercept, int threads, bool actSet, int actIter, 
                                                         int activeGroupNum, bool actSetRemove){
-  vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift, Z_tmp;
+  vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift;
   int n_gamma = gamma.n_elem;
   double Dev, df, MaxChange_beta, shift, lambda_g, v = 0.25;
   int iter = 0;

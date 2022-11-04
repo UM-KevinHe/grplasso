@@ -20,14 +20,14 @@ setwd("/home/ybshao/Discrete Survival")
 #sourceCpp("Discrete_logit_NR_Di.cpp")
 
 set.seed(100)
-n <- 1000
+n <- 100
 #p <- 100 #total number of covariate
-p <- 10
+p <- 3
 cens_upper <- 10
 Z.char <- paste0('Z', 1:p)
 #beta <- c(round(runif(10, -2, 2), digits = 3), rep(0, p - 10))
 beta <- c(round(runif(p, -2, 2), digits = 3))
-n.days <- 10
+n.days <- 5
 # assume baseline hazard follows weibull(lambda, gamma) distribution:
 lam <- 0.1
 ga <- 1.2
@@ -38,6 +38,10 @@ data <- sim.disc(beta, day_effect, n, Z.char, cens_upper)
 #f.c <- colSums(table(data$time, data$status))
 table(data$time, data$status)
 #f.c[1]/(sum(f.c))
+
+data <- as.data.frame(matrix(c(1,1,0,1,0,1,0,
+                               1,2,2,3,4,5,5), nrow = 7))
+colnames(data) <- c("status", "time")
 
 #dim(data)
 #table(data$time)
