@@ -157,10 +157,9 @@ double gd_Surv_BetaChange(mat &Z, vec &r, vec &eta, vec &time, vec &w, int p, in
 
 
 tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &n_prov, vec gamma, vec beta, vec alpha, vec eta, 
-                                              int K0, vec &K1, vec &sum_failure, vec failure_each_center, double lambda, int &tol_iter, int max_total_iter, 
-                                              int max_each_iter, 
-                                              vec &penalized_multiplier, bool backtrack, bool MM, double bound, double tol, vec &ind_start, vec &active_var, int n_obs, 
-                                              int n_var, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove){
+                                                    int K0, vec &K1, vec &sum_failure, vec failure_each_center, double lambda, int &tol_iter, int max_total_iter, 
+                                                    int max_each_iter, vec &penalized_multiplier, bool backtrack, bool MM, double bound, double tol, vec &ind_start, 
+                                                    vec &active_var, int n_obs, int n_var, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove){
   vec old_beta = beta, old_alpha = alpha, r(n_obs), r_shift, w(n_obs);
   int n_alpha = alpha.n_elem;
   int nProcessors = threads; 
@@ -184,7 +183,7 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
       // 1. update gamma (time effect)
       // initial score and fisher information matrix of gamma
       // "sum_failure": a vector contains the total number of failures at each time point (donnot need to consider which center one obs belongs to)
-
+      
       vec score_gamma = - sum_failure, info_gamma(max_timepoint, fill::zeros), d_gamma(max_timepoint, fill::zeros); 
       if (backtrack == true) {
         vec gamma_tmp, eta_tmp(n_obs);
@@ -197,7 +196,7 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
           }
         }
         omp_set_num_threads(nProcessors);
-        #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
         for (int i = 0; i < max_timepoint; i++){
           double tmp_info_gamma = info_gamma(i);
           d_gamma(i) = score_gamma(i)/std::min(-omega_min, tmp_info_gamma);
@@ -224,7 +223,7 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
         }
         int nProcessors = threads;
         omp_set_num_threads(nProcessors);
-        #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
         for (int i = 0; i < max_timepoint; i++){
           double tmp_info_gamma = info_gamma(i);
           d_gamma(i) = score_gamma(i)/std::min(-omega_min, tmp_info_gamma);
@@ -249,7 +248,7 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
         vec alpha_shift_tmp, eta_tmp(n_obs);
         double loglkd, d_loglkd, u2 = 1.0, k2, s2 = 0.01, t2 = 0.8;
         omp_set_num_threads(nProcessors);
-        #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
         for (int i = 0; i < n_alpha; i++) {
           score_alpha(i) = sum(p_obs(span(ind_start(i), ind_start(i) + n_prov(i) - 1))); 
           double tmp_info_alpha = -sum(pq_obs(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
@@ -276,7 +275,7 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
         eta += rep(alpha_shift, n_prov);
       } else {
         omp_set_num_threads(nProcessors);
-        #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
         for (int i = 0; i < n_alpha; i++) {
           score_alpha(i) = sum(p_obs(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
           double tmp_info_alpha = -sum(pq_obs(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
@@ -291,7 +290,7 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
         vec alpha_shift = alpha - old_alpha;
         eta += rep(alpha_shift, n_prov);
       }
-
+      
       // 3. update beta
       // p_eta: 把每个人所有时间点的exp/1+exp加起来;
       // w: 把每个人所有时间点的exp/(1+exp)^2加起来;
@@ -438,10 +437,9 @@ tuple<vec, vec, vec, vec, double, int> pp_Surv2_fit(vec &delta_obs, int max_time
 
 // [[Rcpp::export]]
 List pp_Surv2_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &n_prov, vec &time, vec &gamma, vec &beta, vec &alpha, int K0, vec &K1, 
-                   vec &sum_failure, vec failure_each_center, 
-                   vec &lambda_seq, vec &penalized_multiplier, int max_total_iter, int max_each_iter, double tol, bool backtrack, 
-                   bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, int threads, bool actSet, 
-                   int actIter, int activeVarNum, bool actSetRemove) {
+                    vec &sum_failure, vec failure_each_center, vec &lambda_seq, vec &penalized_multiplier, int max_total_iter, 
+                    int max_each_iter, double tol, bool backtrack, bool MM, double bound, int initial_active_var, double nvar_max, 
+                    bool trace_lambda, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove) {
   int n_obs = Z.n_rows, n_beta = Z.n_cols, n_gamma = gamma.n_elem, n_alpha = alpha.n_elem, n_lambda = lambda_seq.n_elem;
   int n_var = K1.n_elem - 1; // n_var: number of penalized variables
   int tol_iter = 0;
@@ -465,7 +463,7 @@ List pp_Surv2_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &n_prov, vec 
   for (int i = 1; i < n_alpha; i++) {
     ind_start(i) = ind_start(i - 1) + n_prov(i - 1);
   }
-
+  
   // initialize eta: eta_{kj} = alpha_k + Z_{kj} * beta
   vec eta = rep(alpha, n_prov) + Z * beta;
   

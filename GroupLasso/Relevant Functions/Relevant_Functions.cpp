@@ -165,7 +165,12 @@ List NR_residuals(vec t, mat X, vec delta_obs, vec gamma, vec beta, double tol, 
     tie(score_gamma, score_beta, A, C, B) = update;
     A = 1/A;
     A_inv = diagmat(A);
+    
+    cout << "before:" << endl;
+    
     schur = (C - (B.t()) * (A_inv) * (B)).i();
+    
+    cout << "after:" << endl;
     gamma2 = gamma + (A_inv + A_inv * B * schur * (B.t()) * A_inv) * score_gamma - A_inv * B * schur * score_beta;
     beta2 = beta + schur * score_beta-schur * (B.t())* A_inv * score_gamma;
     beta_change = beta2 - beta;

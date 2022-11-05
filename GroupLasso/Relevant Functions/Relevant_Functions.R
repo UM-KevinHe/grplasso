@@ -159,10 +159,43 @@ set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multip
     beta.initial <- beta
     gamma.initial <- gamma
   }
-  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/sum(time)
+  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
   lambda.seq[1] <- lambda.seq[1] + 1e-5
   ls <- list(beta = beta.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
+  return(ls)
+}
+
+set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, prov.char, group, group.multiplier, 
+                             nlambda = 100, lambda.min.ratio = 1e-04){
+  n <- nrow(Z)
+  K <- table(group)
+  K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
+  storage.mode(K1) <- "integer"
+  if (K1[1] != 0) {  ## use Di's code
+    dummy_time <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
+    new.Z <- cbind(Z[, group == 0, drop = F], dummy_time)
+    beta.new <- c(beta[1:sum(group == 0)], alpha.prov[2:(ncol(dummy_time) + 1)])
+    fit <- DiscSurv.residuals(delta.obs, new.Z, time, gamma, beta.new)
+    r <- fit$residual
+    
+    beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0)))
+    alpha.initial <- c(alpha.prov[1], fit$beta[(1 + sum(group == 0)):length(fit$beta)])
+    gamma.initial <- fit$gamma
+  } else {  ## only time and center
+    new.Z <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
+    beta.new <- alpha.prov[2:(ncol(new.Z) + 1)]
+    fit <- DiscSurv.residuals(delta.obs, new.Z, time, gamma, beta.new)
+    r <- fit$residual
+    
+    beta.initial <- beta
+    alpha.initial <- c(alpha.prov[1], fit$beta)
+    gamma.initial <- fit$gamma
+  }
+  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
+  lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
+  lambda.seq[1] <- lambda.seq[1] + 1e-5
+  ls <- list(beta = beta.initial, alpha = alpha.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
   return(ls)
 }
 
@@ -425,7 +458,7 @@ newY <- function(data, Y.char){
   return(y)
 }
 
-coef.gr_ppLasso <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
+coef.ppLasso <- coef.gr_ppLasso <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
   if (!missing(lambda)) {
     if (any(lambda > max(object$lambda) | lambda < min(object$lambda))){
       stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)
@@ -479,6 +512,41 @@ coef.ppSurv <- function(object, lambda, which=1:length(object$lambda), drop = TR
     coef <- list(gamma = gamma, beta = beta)
   }
   return(coef)
+}
+
+predict.ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
+                            type = c("response", "class", "vars", "nvars"),  ...){
+  beta <- coef.ppLasso(object, lambda = lambda, which = which, drop = FALSE)$beta
+  gamma <- coef.ppLasso(object, lambda = lambda, which = which, drop = FALSE)$gamma
+  
+  if (type == "vars"){
+    return(drop(apply(beta != 0, 2, FUN = which)))
+  }
+  
+  if (type == "nvars") {
+    v <- as.list(apply(beta != 0, 2, FUN = which))
+    nvars <- sapply(v, length)
+    return(nvars)
+  }
+  
+  # predict response
+  if (missing(data) | is.null(data)) {
+    stop("Must supply data for predictions", call. = FALSE)
+  }
+  
+  Prov.id <- data[, prov.char, drop = F]
+  obs.prov.effect <- t(apply(Prov.id, 1, function(x) gamma[x, ]))
+  
+  eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + obs.prov.effect
+  
+  pred.prob <- plogis(eta)
+  if (type == "response") {
+    return(pred.prob)
+  }
+  
+  if (type == "class") {
+    return(1 * (eta > 0))
+  }
 }
 
 predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
