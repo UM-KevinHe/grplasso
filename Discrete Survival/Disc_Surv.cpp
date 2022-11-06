@@ -147,7 +147,7 @@ double gd_Surv_BetaChange(mat &Z, vec &r, vec &eta, vec &time, vec &w, int p, in
 }
 
 
-tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec gamma, vec beta, vec eta, int K0, vec &K1,
+tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec gamma, vec beta, vec eta, int K0, vec &K1,
                                               vec &sum_failure, double lambda, int &tol_iter, int max_total_iter, int max_each_iter, vec &penalized_multiplier, 
                                               bool backtrack, bool MM, double bound, double tol, vec &active_var, int n_obs, int n_var, int threads,
                                               bool actSet, int actIter, int activeVarNum, bool actSetRemove){
@@ -217,6 +217,7 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
             info_gamma(i) -= p_gamma * (1 - p_gamma);
           }
         }
+        
         /*
          for (int i = 0; i < max_timepoint; i++){
          info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
@@ -229,6 +230,11 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
           double tmp_info_gamma = info_gamma(i);
           d_gamma(i) = score_gamma(i)/std::min(-omega_min, tmp_info_gamma);
         }
+        
+        cout << "score_gamma: " << score_gamma << endl;
+        cout << "info_gamma: " << info_gamma << endl;
+        cout << "d_gamma: " << d_gamma << endl;
+        
         gamma = gamma + d_gamma;
         gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound); 
       } 
@@ -379,7 +385,7 @@ tuple<vec, vec, vec, double, int> pp_Surv_fit(vec &delta_obs, int max_timepoint,
 }
 
 // [[Rcpp::export]]
-List pp_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &gamma, vec &beta, int K0, vec &K1, vec &sum_failure, 
+List Disc_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &gamma, vec &beta, int K0, vec &K1, vec &sum_failure, 
                    vec &lambda_seq, vec &penalized_multiplier, int max_total_iter, int max_each_iter, double tol, bool backtrack, 
                    bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, int threads, bool actSet, 
                    int actIter, int activeVarNum, bool actSetRemove) {

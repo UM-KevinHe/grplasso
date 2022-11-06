@@ -1,19 +1,19 @@
-pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
-                    penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
-                    stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
-                    max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1), 
-                    actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
+Disc.Surv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
+                      penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, nvar.max = p, 
+                      stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, 
+                      max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, 
+                      actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, 
+                      threads = 1, MM = FALSE, ...){
 
   ## data structure:  
-  ##   Prov.ID        Z_1         Z_2        Z_3        Z_4        Z_5 time status
-  ## 1       1  1.0343958 0.003741411  1.4221614 -0.8159581 0.43875657   10      0
-  ## 2       1  0.2061218 1.079745297 -0.5828745  0.6271257 0.09106685    5      1
-  ## 3       1 -0.6566084 0.153930186 -0.3639364  0.3772989 0.53571441   10      0
-  ## 4       1  0.3758861 0.332605759  0.5301672  1.1472704 0.18038985    5      1
-  ## 5       1  0.4798284 0.295880942  0.9460193  0.8258463 1.92481395   10      0
-  ## 6       1  0.3853669 1.009904976  1.1096166  1.3584786 1.72384165   10      0
+  ##   status         Z1         Z2         Z3 Z4 Z5 Z6   time
+  ##        0 -0.9144950 -1.9930845 -2.1065963  0  1  1    5.9
+  ##        0 -0.8693130  0.4488433  0.7767090  1  1  1    1.3
+  ##        1  0.8318571  1.0570449  1.9481646  1  0  0    1.1
+  ##        1  0.0822508  1.2584988  2.3215286  0  0  0    1.8
+  ##        1  1.1215585 -0.2789035 -0.4760478  1  0  0    0.3
+  ##        1 -0.7457385 -0.6656072 -0.6108483  1  0  0    1.1
   ##  Event.char = "status"
-  ##  prov.char = "
   ##  Z.char = c("Z1", "Z2", "Z3", "Z4", "Z5", "Z6")  
   ##  Time.char = "time"
   
@@ -27,21 +27,15 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
   }
   max.timepoint <- length(timepoint.increase)  # the number of gamma that we need
   
-  data <- data[order(factor(data[, prov.char])), ] 
-  ID <- as.matrix(data[, prov.char]) # ID vector
-  colnames(ID) <- prov.char 
-  
   pseudo.group <- 1:length(Z.char)    #each variable forms a group
   if (min(penalize.x) == 0){
     pseudo.group[penalize.x == 0] = 0 # set unpenalized variables
   } 
   
-  # failure at each time point
-  fit <- survival::survfit(Surv(data[, Time.char], data[, Event.char]) ~ 1)
+  #计算每个时间点的failure人数
+  fit <- survival::survfit(survival::Surv(data[, Time.char], data[, Event.char]) ~ 1)
   sum.failure <- fit$n.event
   KM.baseline.hazard <- c(fit$cumhaz[1], fit$cumhaz[2:length(fit$cumhaz)] - fit$cumhaz[1:(length(fit$cumhaz) - 1)])
-  
-  failure.each.center <- tapply(data$status, data$Prov.ID, sum)
   
   if (standardize == T){
     std.Z <- newZG.Std.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
@@ -65,8 +59,6 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
   KM.baseline.hazard.add.small[which(KM.baseline.hazard.add.small == 0)] <- 1e-10
   gamma <- log(KM.baseline.hazard.add.small/(1 - KM.baseline.hazard.add.small))  
   beta <- rep(0, ncol(Z))
-  n.prov <- sapply(split(delta.obs, ID), length) 
-  alpha.prov <- rep(log(mean(delta.obs)/(1 - mean(delta.obs))), length(n.prov))
   
   if (missing(lambda)) {
     if (nlambda < 2) {
@@ -74,12 +66,11 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
     } else if (nlambda != round(nlambda)){
       stop("nlambda must be a positive integer", call. = FALSE)
     } 
-    lambda.fit <- set.lambda.Surv2(delta.obs, Z, time, ID, gamma, beta, alpha.prov, prov.char, 
-                                   pseudo.group, penalized.multiplier, nlambda = nlambda,
-                                   lambda.min.ratio = lambda.min.ratio)
+    lambda.fit <- set.lambda.Surv(delta.obs, Z, time, gamma, beta, pseudo.group, 
+                                  penalized.multiplier, nlambda = nlambda, 
+                                  lambda.min.ratio = lambda.min.ratio)
     lambda.seq <- lambda.fit$lambda.seq
     beta <- lambda.fit$beta
-    alpha <- lambda.fit$alpha
     gamma <- lambda.fit$gamma
   } else {
     nlambda <- length(lambda)  # Note: lambda can be a single value
@@ -100,13 +91,10 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
   }
   
   # main algorithm
-  fit <- pp_Surv2_lasso(delta.obs, max.timepoint, Z, n.prov, time, gamma, beta, alpha,  K0, K1, sum.failure, failure.each.center, 
-                        lambda.seq, penalized.multiplier, max.total.iter, max.each.iter, tol, backtrack, MM, bound, initial.active.variable, 
-                        nvar.max, trace.lambda, threads, actSet, actIter, actVarNum, actSetRemove)
-  
-  
-  
-  
+  fit <- Disc_Surv_lasso(delta.obs, max.timepoint, Z, time, gamma, beta, K0, K1, sum.failure, lambda.seq, 
+                       penalized.multiplier, max.total.iter, max.each.iter, tol, 
+                       backtrack, MM, bound, initial.active.variable, nvar.max, trace.lambda, threads, 
+                       actSet, actIter, actVarNum, actSetRemove)
   
   gamma <- fit$gamma
   beta <- fit$beta
@@ -132,6 +120,7 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
   
   
   # Original scale
+  beta <- unorthogonalize(beta, std.Z$std.Z, pseudo.group)
   rownames(beta) <- colnames(Z)
   if (std.Z$reorder == TRUE){  # original order of beta
     beta <- beta[std.Z$ord.inv, , drop = F]
@@ -159,7 +148,7 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
                            iter = iter,
                            penalized.multiplier = penalized.multiplier,
                            penalize.x = penalize.x),
-                      class = "ppSurv")  #define a list for prediction
+                      class = "DiscSurv")  #define a list for prediction
   if (returnX == TRUE){
     result$returnX <- std.Z
   }
@@ -168,9 +157,9 @@ pp.Surv2 <- function(data, Event.char, prov.char, Z.char, Time.char, standardize
 
 
 
-cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, length(Z.char)), ..., nfolds = 10, 
+cv.Disc.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, length(Z.char)), ..., nfolds = 10, 
                        seed, fold, trace.cv = FALSE){
-  # "...": additional arguments to "grp.lasso"
+  # "...": additional arguments to "Disc.Surv"
   # "fold": a vector that specifies the fold that observations belongs to
   fit.args <- list(...)
   fit.args$data <- data
@@ -180,7 +169,7 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
   fit.args$penalize.x <- penalize.x
   fit.args$returnX <- TRUE
   
-  fit <- do.call("pp.Surv", fit.args)  #fit the entire model
+  fit <- do.call("Disc.Surv", fit.args)  #fit the entire model
   
   # get standardized Z
   ZG <- fit$returnX
@@ -244,7 +233,7 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
     if (trace.cv == TRUE){
       cat("Starting CV fold #", i, sep = "", "...\n")
     }
-    res <- cvf.ppSurv(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args)
+    res <- cvf.DiscSurv(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args)
     Y[expand.fold == i, 1:res$nl] <- res$yhat
     E[expand.fold == i, 1:res$nl] <- res$loss
   }
@@ -266,7 +255,7 @@ cv.pp.Surv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, 
                            fold = fold, 
                            min = min, 
                            lambda.min = lambda[min]),
-                      class = "cv.ppSurv")
+                      class = "cv.DiscSurv")
   return(result)
 }
 

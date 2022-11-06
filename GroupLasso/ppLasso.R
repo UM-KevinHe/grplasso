@@ -88,9 +88,6 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
     actIter <- max.each.iter
   }
 
-  n.prov <- sapply(split(Y, ID), length) 
-  gamma.prov <- rep(log(mean(Y)/(1 - mean(Y))), length(n.prov))
-  beta <- rep(0, ncol(Z))
   # main algorithm
   fit <- pp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, 
                   penalized.multiplier, max.total.iter, max.each.iter, tol, nullDev, backtrack, MM, bound, 
@@ -123,6 +120,7 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
   
   
   # Original scale
+  beta <- unorthogonalize(beta, std.Z$std.Z, pseudo.group)
   rownames(beta) <- colnames(Z)
   if (std.Z$reorder == TRUE){  # original order of beta
     beta <- beta[std.Z$ord.inv, , drop = F]

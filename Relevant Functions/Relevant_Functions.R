@@ -486,7 +486,7 @@ coef.ppLasso <- coef.gr_ppLasso <- function(object, lambda, which=1:length(objec
   return(coef)
 }
 
-coef.ppSurv <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
+coef.DiscSurv <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
   if (!missing(lambda)) {
     if (any(lambda > max(object$lambda) | lambda < min(object$lambda))){
       stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)
@@ -606,10 +606,10 @@ predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 
 }
 
 
-predict.ppSurv <- function(object, data.i, Z.char, Time.char, lambda, which = 1:length(object$lambda),
-                           type = c("response", "vars", "nvars"),  ...){
-  beta <- coef.ppSurv(object, lambda = lambda, which = which, drop = FALSE)$beta
-  gamma <- coef.ppSurv(object, lambda = lambda, which = which, drop = FALSE)$gamma
+predict.DiscSurv <- function(object, data.i, Z.char, Time.char, lambda, which = 1:length(object$lambda),
+                             type = c("response", "vars", "nvars"), ...){
+  beta <- coef.DiscSurv(object, lambda = lambda, which = which, drop = FALSE)$beta
+  gamma <- coef.DiscSurv(object, lambda = lambda, which = which, drop = FALSE)$gamma
   
   if (type == "vars"){
     return(drop(apply(beta != 0, 2, FUN = which)))
@@ -676,7 +676,7 @@ cvf.grplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
 
 
 
-cvf.ppSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args){
+cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args){
   cv.args$data <- data[fold != i, , drop = FALSE]
   cv.args$Event.char <- Event.char
   cv.args$Z.char <- Z.char
@@ -692,14 +692,14 @@ cvf.ppSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.co
   #  }
   #}
 
-  fit.i <- do.call("pp.Surv", cv.args)  #fit the discrete survival model using one training data set
+  fit.i <- do.call("Disc.Surv", cv.args)  #fit the discrete survival model using one training data set
   data.i <- data[fold == i, , drop = FALSE]
   yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response") # y-hat matrix across all given lambda; data has been expanded
   
   data.small <- data.i[, c(Event.char, Time.char)]
   Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, eventColumn = Event.char, timeAsFactor = TRUE)$y
   
-  loss <- loss.pp.Surv(Y.i, yhat.i)  ## cross entropy loss
+  loss <- loss.Disc.Surv(Y.i, yhat.i)  ## cross entropy loss
   list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
 }
 
@@ -729,7 +729,7 @@ loss.grp.lasso <- function(Y.i, yhat.i){
 }
 
 
-loss.pp.Surv <- function(Y.i, yhat.i){
+loss.Disc.Surv <- function(Y.i, yhat.i){
   yhat.i[yhat.i < 0.00001] <- 0.00001
   yhat.i[yhat.i > 0.99999] <- 0.99999
   

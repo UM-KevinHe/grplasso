@@ -695,7 +695,7 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
             score_gamma(i) = sum(Yp(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
             info_gamma = sum(pq(span(ind_start(i), ind_start(i) + n_prov(i) - 1)));
             info_gamma = std::max(omega_min, std::min(info_gamma, 0.25 * max_n_prov));
-           d_gamma(i) = score_gamma(i) / info_gamma;  
+            d_gamma(i) = score_gamma(i) / info_gamma;  
           }
           gamma = gamma + d_gamma;
           gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound);
