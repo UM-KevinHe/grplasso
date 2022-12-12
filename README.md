@@ -1,28 +1,34 @@
 # grLasso
-Fast Lasso Regularization Paths for Generalized Linear Models and Discrete Survival Models
+Fast Lasso Regularization Paths for Data with a Large number of Health Care Providers}
 
 ## Overview
-Provier profiling has been recognized as a useful tool in monitoring health care quality an improving medical cost-effectiveness. However, as the number of providers increase rapidly, existing packages are no longer able to handle such a large amount of data. For example, both glmnet and grpreg need an unpredictable amount time to convert provider information into thousands of dummy variables. And it can take hours or even days to solve such high-dimensional data by using decent algorithms.
+The increasing availability of large-scale datasets collected by national registries has provided extraordinary opportunities for biomedical research. However, as the number of health care providers included escalates along with the sample size, many commonly used statistical tools for high-dimensional variable selection that are designed for general purposes are no longer computationally efficient, especially when the magnitude of the number of providers is comparable with or far exceeds the dimension of risk factors.
 
-Therefore, we combine the advantages of block ascent Newton method and coordinate descent algorithm and propose a new algorithm to deal with such computational challenges. Simulaiton studies show that our algorithm performs as well as grpreg package in low-dimension provider settings, and as the provider dimensions increase, our algorithm will be much faster than existing packages.
-
-Since the likelihood functions of the discrete survival models are very similar to that of the GLM, our proposed algorithm can be directly extended to solve discrete survival models. In this case, we further optimized our algorithm in order to avoid expanding the original time-to-event data just as existing glm algorithms do. The improvement in speed is huge. When the number of discrete time points is relatively large, the number of observations in expanded data will increase several times or even tens of times compared with the original data.
+Here, we propose an efficient statistical tool for conducting variable selection on data containing a large number of center effects. Our proposed solution is motivated by Block Ascent Newton introduced by Dr.He(2013) and can be seen as an extension of the (block) coordinate descent algorithm introduced by Dr.Breheny(2015) and Dr.Friedman(2010). For GLM problems, center effects and penalized parameters of risk factors are updated by an iterative procedure. In the outer layer of each iteration, the unpenalized center effects are updated by Newton's method, then the coefficients of risk factors are updated using the subdifferential-based (block) coordinate descent method based on the updated center effect in the inner layer. For discrete survival models, an additional middle layer was used to update the required estimate of baseline hazard over different time points without data expansion. Because of the special structure of data, the efficiency of using the Newton method to update the center effect and baseline hazard is much higher than that of the coordinate descent method, consequently, our proposed algorithm can markedly reduce the processing time and memory required. 
 
 
 ## Usage:
 
-All the code here has been compressed into a temporary R package. You can download the file named "TmpDiscSurv.zip" (for discrete survival models) and "TmpGlmLasso.zip" (for GLMs) to your local computer, unzip it and run the following code to install it:
+The code has been compressed into a temporary R package. You can download the file named "ppSurv.zip" (for discrete survival models) and "ppLasso.zip" (for GLMs) to your local computer, unzip it and run the following code to install it:
 
 ```{r }
-install.packages(".../TmpDiscSurv", repos = NULL, type = "source")
-install.packages(".../TmpGlmLasso", repos = NULL, type = "source")
+install.packages(".../ppLasso", repos = NULL, type = "source")
+install.packages(".../ppSurv", repos = NULL, type = "source")
 ```
 
 ## Simulation:
 
-### 1. Fixed Effects Model vs. Pooled Model:
+### 1. Running time:
 
-<img src="https://drive.google.com/uc?export=view&id=1aS_KUCU8c7SowdIXjZPDeEhsorP2_FAh"  width=75% height=75%>
+Below we compare the running speed of our statistical tool to existing efficient statistical tools. Under each simulation setting, we simulated 20 data and show the mean running time and standard deviation. The running time is measured based on the 10-fold cross-validation across the whole regularization path. Experiments were conducted on Intel Xeon Gold 6230 processor with base frequency 2.10 GHz and Memory 192GB. Both ppSurv and pplasso were implemented using Rcpp and RcppArmadillo
+
+(1) Time to convergence under the different number of centers for logistic regression model without (left) or with (right) grouped variable. We simulate the number of transplant centers ranging from 50 to 400, and include 50 risk factors with 10 of them having non-zero effects.
+
+<img src="https://drive.google.com/uc?export=view&id=1DxDzemevXOEJ6uNpuaV2zDLe2HC46ThU"  width=75% height=75%>
+
+(2) Time to convergence under the different number of centers for discrete survival logistic models with 30 (left) and 50 (right) discrete time points. The baseline hazard follows the Weibull distribution. Due to the limitation of computing power, we only show the comparison between algorithms under a moderate size of data (100 centers) as an illustrating example.
+
+<img src="https://drive.google.com/uc?export=view&id=1t84q9vhesW34ushvfy360CcVekhPE9IK"  width=75% height=75%>
 
 
 
@@ -30,13 +36,9 @@ install.packages(".../TmpGlmLasso", repos = NULL, type = "source")
 
 #### (1) Regularization path of model without unpenalized groups
 
-Ten risk factors were randomly assigned to three groups. One group has true zero effect on the outcome.
-
 <img src="https://drive.google.com/uc?export=view&id=1qL_72lY9ajn-qdN7y3iCI9DRKEdQczZW"  width=75% height=75%>
 
 #### (2) Regularization path of model with unpenalized groups
-
-Ten risk factors were randomly assigned to four groups. Among the four groups of variables, the true effect of one group on outcome was 0. Among the three groups with a non-zero real effect on outcome, we randomly chose one group to not be penalized.
 
 <img src="https://drive.google.com/uc?export=view&id=1UlxAT7nXw5qB3O4d0DOYIpympKiGxD-H"  width=75% height=75%>
 
@@ -45,58 +47,9 @@ Ten risk factors were randomly assigned to four groups. Among the four groups of
 
 Here, we use the "Birthwt" data provided with the grpreg package to show how cross-validation can be used to select the best regularization parameter. Currently, we use cross entropy loss as our selection criterion.
 
-
 [You can find a detailed description of this data here](https://www.rdocumentation.org/packages/grpreg/versions/3.4.0/topics/Birthwt)
 
 <img src="https://drive.google.com/uc?export=view&id=1XgdVbr3fjXp97nqeQA4EkKqWLAGrZhhK"  width=75% height=75%>
 
-
-## Comparison with grpreg:
-
-
-### With only one provider (intercept)
-
-In this section, we will compare the running speed and Estimation difference of our algorithm with grpreg.
-
-The number of risk factors ranges from 4 to 50. For each number of risk factors, 10 different datasets were generated. Sample size of each dataset follows *Poisson*(4000). 
-
-#### (1) Running Speed:
-
-<img src="https://drive.google.com/uc?export=view&id=1MV9T0r8lOzQlz1GsWG59zSVTKyUIPRMX"  width=80% height=80%>
-
-#### (2) Estimation difference:
-
-<img src="https://drive.google.com/uc?export=view&id=13kKehyF41Xcw6ASH4ZWso2i2UHlB0zZe"  width=80% height=80%>
-
-### With multiple providers
-
-In this section, we will compare the running speed and model accuracy of our algorithm with grpreg.
-
-The number of providers ranges from 50 to 1100. For each number of providers, we simulated 50 risk factors and randomly assigned them to 10 different groups (each group had 5 risk factors). For the sake of sparsity, only the first 2 groups had non-zero real effects, and the remaining 8 groups had zero real effects on the outcome.
-
-Since the data is randomly simulated, the convergence speed of the algorithms may vary under different data, so the time of a single run may not increase strictly with the increase of provider size. Therefore, we randomly generated 10 datasets for each number of providers, which contained the same number of risk factors but with different effects. We will finally evaluate the performance of the model under the corresponding number of providers by mean and standard deviation.
-
-#### (1) Running Speed:
-
-As we mentioned above, the running time is reported by the mean and its standard deviation.
-
-We only provide a naive example here, with provider counts from 50 to 400. Even with relatively “small” number of providers, our model is already significantly faster than grpreg package. In real world data, the number of providers may reach thousands or tens of thousands, and then the running time of grpreg will be unacceptable.
-
-<img src="https://drive.google.com/uc?export=view&id=1ugDFN2w3HPGB-1UztibVq0zkMAOszFoM"  width=70% height=70%>
-
-
-*Note that the running time of the algorithm excludes the time required by grpreg to convert high-dimensional provider data into dummy variables. But we need to keep in mind that as the number of providers grows, data conversion can be incredibly time and memory consuming.*
-
-#### (2) Model Accuracy:
-
-The accuracy of model is evaluated by root mean square error (RMSE) and root model error (RME).
-
-##### Root Mean Square Error
-
-<img src="https://drive.google.com/uc?export=view&id=13n3E81ig_7iUSnB63tAtgjKq5ig_gVlu"  width=80% height=80%>
-
-##### Root Model Error
-
-<img src="https://drive.google.com/uc?export=view&id=110jNt6p9NklXbIaWO8AmzsJDRxH_BU5_"  width=80% height=80%>
 
 
