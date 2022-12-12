@@ -34,12 +34,12 @@ Below we compare the running speed of our statistical tool to existing efficient
 
 ### 2. Regularization Coefficient Paths:
 
-#### (1) Regularization path of model without unpenalized groups
+#### (1) Regularization path of model with unpenalized groups
 
 ![Regularization_Path_unpenalize](https://user-images.githubusercontent.com/93620754/207072941-47c1f5ab-c7d7-4a28-9df8-9af9ec0b05aa.png)
 
 
-#### (2) Regularization path of model with unpenalized groups
+#### (2) Regularization path of model without unpenalized groups
 
 ![Regularization_Path_penalize](https://user-images.githubusercontent.com/93620754/207072975-d2106f33-f030-4bb7-ac1a-88470ada2787.png)
 
