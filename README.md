@@ -1,5 +1,5 @@
 # grLasso
-Fast Lasso Regularization Paths for Data with a Large number of Health Care Providers}
+Fast Lasso Regularization Paths for Data with a Large number of Health Care Providers.
 
 ## Overview
 The increasing availability of large-scale datasets collected by national registries has provided extraordinary opportunities for biomedical research. However, as the number of health care providers included escalates along with the sample size, many commonly used statistical tools for high-dimensional variable selection that are designed for general purposes are no longer computationally efficient, especially when the magnitude of the number of providers is comparable with or far exceeds the dimension of risk factors.
