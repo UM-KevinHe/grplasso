@@ -24,23 +24,24 @@ Below we compare the running speed of our statistical tool to existing efficient
 
 (1) Time to convergence under the different number of centers for logistic regression model without (left) or with (right) grouped variable. We simulate the number of transplant centers ranging from 50 to 400, and include 50 risk factors with 10 of them having non-zero effects.
 
-<img src="https://drive.google.com/uc?export=view&id=1DxDzemevXOEJ6uNpuaV2zDLe2HC46ThU"  width=75% height=75%>
+![Runtime_ppLasso](https://user-images.githubusercontent.com/93620754/207072629-38c87d5a-963f-488f-89c4-5f45dddc0e53.png)
+
 
 (2) Time to convergence under the different number of centers for discrete survival logistic models with 30 (left) and 50 (right) discrete time points. The baseline hazard follows the Weibull distribution. Due to the limitation of computing power, we only show the comparison between algorithms under a moderate size of data (100 centers) as an illustrating example.
 
-<img src="https://drive.google.com/uc?export=view&id=1t84q9vhesW34ushvfy360CcVekhPE9IK"  width=75% height=75%>
-
+![Runtime_ppSurv](https://user-images.githubusercontent.com/93620754/207072650-54c2c38a-9ff3-4f07-b17d-8b81e45bd7fc.png)
 
 
 ### 2. Regularization Coefficient Paths:
 
 #### (1) Regularization path of model without unpenalized groups
 
-<img src="https://drive.google.com/uc?export=view&id=1qL_72lY9ajn-qdN7y3iCI9DRKEdQczZW"  width=75% height=75%>
+![Regularization_Path_unpenalize](https://user-images.githubusercontent.com/93620754/207072941-47c1f5ab-c7d7-4a28-9df8-9af9ec0b05aa.png)
+
 
 #### (2) Regularization path of model with unpenalized groups
 
-<img src="https://drive.google.com/uc?export=view&id=1UlxAT7nXw5qB3O4d0DOYIpympKiGxD-H"  width=75% height=75%>
+![Regularization_Path_penalize](https://user-images.githubusercontent.com/93620754/207072975-d2106f33-f030-4bb7-ac1a-88470ada2787.png)
 
 
 ### 3.  Cross entropy Loss by cross validation:
@@ -49,7 +50,6 @@ Here, we use the "Birthwt" data provided with the grpreg package to show how cro
 
 [You can find a detailed description of this data here](https://www.rdocumentation.org/packages/grpreg/versions/3.4.0/topics/Birthwt)
 
-<img src="https://drive.google.com/uc?export=view&id=1XgdVbr3fjXp97nqeQA4EkKqWLAGrZhhK"  width=75% height=75%>
-
+![Cross_Entropy_Loss](https://user-images.githubusercontent.com/93620754/207073019-37e6da80-f07b-4f4a-a766-442e3ed41dc9.png)
 
 
