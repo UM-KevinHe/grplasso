@@ -100,7 +100,7 @@ vec DiscSurv_residuals(int n_obs, vec &delta_obs, vec &time, vec &gamma, vec &et
       residuals(j) += p_binomial_Surv(gamma(i), eta(j));
     }
   } 
-  residuals = -residuals + delta_obs;
+  residuals = - residuals + delta_obs;
   return(residuals);
 }
 
@@ -299,7 +299,7 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
       // w: 把每个人所有时间点的exp/(1+exp)^2加起来;
       vec p_eta(n_obs, fill::zeros);
       
-      //initial pseudo residual vector
+      //initialize pseudo residual
       if (MM == true){ // surrogate function use W = 0.25 * diag{m1, m2, ..., mn}, which is a n*n matrix
         for (int j = 0; j < n_obs; j++){  //j: individual
           for (int i = 0; i < time(j); i++){ //i: time point
@@ -326,7 +326,8 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
       // 3.1 update unpenalized beta
       uvec update_order_unpenalized = randperm(K0);  // Randomized coordinate descent for unpenalized covariate 
 
-      for (int p = 0; p < K0; p++){  // only need w (we don't need compute "p_eta")
+      for (int p = 0; p < K0; p++){ 
+        /*  "w" doesn't change with beta within current iteration
         if (MM == true){
           for (int j = 0; j < n_obs; j++){
             w(j) = v * time(j);
@@ -340,6 +341,8 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
             }
           }
         }
+        */
+
         shift = w_crossprod(Z, r, w, update_order_unpenalized(p))/weighted_inner_product(Z, w, update_order_unpenalized(p)); 
         if (fabs(shift) > MaxChange_beta) {
           MaxChange_beta = fabs(shift);
@@ -356,6 +359,7 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
         int update_column_index = K1(update_order_penalized(p));
         if (active_var(update_order_penalized(p)) == 1){
           double lambda_m = lambda * penalized_multiplier(update_order_penalized(p));
+          /*
           if (MM == true){
             for (int j = 0; j < n_obs; j++){
               w(j) = v * time(j);
@@ -368,7 +372,8 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
                 w(j) += p_temp * (1 - p_temp);
               }
             }
-          }      
+          }
+          */      
           gd_Surv(beta, Z, r, eta, time, old_beta, w, update_column_index, n_obs, lambda_m, df, MaxChange_beta);
         }
       }
@@ -395,6 +400,7 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
       for (int p = 0; p < n_var; p++) {
         if (active_var(p) == 0){
           double lambda_m = lambda * penalized_multiplier(p);
+          /*
           if (MM == true){
             for (int j = 0; j < n_obs; j++){
               w(j) = v * time(j);
@@ -407,7 +413,8 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
                 w(j) += p_temp * (1 - p_temp);
               }
             }
-          }            
+          }  
+          */          
           Current_Change_beta(p) = gd_Surv_BetaChange(Z, r, eta, time, w, p, n_obs, lambda_m);
         }
       }
@@ -432,7 +439,6 @@ tuple<vec, vec, vec, vec, double, int> pp_DiscSurv_fit(vec &delta_obs, int max_t
     } else {
       break; 
     }
-    
   }
   
   return make_tuple(beta, gamma, alpha, eta, df, iter);

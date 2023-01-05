@@ -159,16 +159,10 @@ void gd_glm_lasso_MM(vec &beta, mat &Z, vec &r, vec &eta, vec &old_beta, vec &in
   }
 }
 
-
-// update penalized beta (simple lasso without MM algorithm)
-void gd_glm_lasso_noMM(vec &beta, mat &Z, vec &r, vec &eta, vec &old_beta, int j, int n_obs, double lambda, double &df, double &MaxChange_beta){
-  vec p(n_obs);
-  for (int i = 0; i < n_obs; i++){
-    p(i) = p_binomial(eta(i)); 
-  }
-  vec w = p % (1 - p);  
-  double beta_initial = w_crossprod(Z, r, w, j)/weighted_inner_product(Z, w, j) + old_beta(j);   
-  double threshold = n_obs * lambda/weighted_inner_product(Z, w, j);
+void gd_glm_lasso_noMM(vec &beta, vec &w, mat &Z, vec &r, vec &eta, vec &old_beta, int j, int n_obs, double lambda, double &df, double &MaxChange_beta){
+  double w_z_square = weighted_inner_product(Z, w, j);
+  double beta_initial = w_crossprod(Z, r, w, j)/w_z_square + old_beta(j);  
+  double threshold = n_obs * lambda/w_z_square;
   double len = Soft_thres(beta_initial, threshold); 
 
   if (len != old_beta(j)){ // if beta has changed, then update eta and r
@@ -228,9 +222,9 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
   vec old_beta = beta, old_gamma = gamma, p(n_obs), r(n_obs), r_shift;
   int n_gamma = gamma.n_elem;
   double Dev, df, MaxChange_beta, shift;
-  double v = 0.25, omega_min = 1e-15;
+  double v = 0.25, omega_min = 1e-20;
   int iter = 0; //"iter" counts the number of iterations for each lambda
-  vec inner_product_Z = inner_product(Z);
+  vec inner_product_Z = inner_product(Z), w(n_obs);
 
   while (tol_iter < max_total_iter && iter < max_each_iter) { //"tol_iter" counts the number of iterations for the entire lambda sequence
     int inner_loop_iter = 0; // count the number of iterations for a new updated active set
@@ -246,6 +240,7 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
       inner_loop_iter++;
       MaxChange_beta = 0;
 
+      
       for (int i = 0; i < n_obs; i++){
         p(i) = p_binomial(eta(i)); 
       }
@@ -258,11 +253,11 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
           eta += shift;
           r -= shift;
         } else {
-          vec w = p % (1 - p);
+          w = p % (1 - p); //initial "w" for current iteration; "w" here doesn't change during within current iteration!
           if (any(w == 0)) {
             w.replace(0, omega_min); 
           }
-          r = (Y - p)/w;
+          r = (Y - p)/w;  //initial pseudo residual
           shift = vec_crossprod(w, r)/sum(w);
           gamma += shift;
           eta += shift;
@@ -312,20 +307,22 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
             info_gamma = std::max(omega_min, std::min(info_gamma, 0.25 * max_n_prov));
             d_gamma(i) = score_gamma(i) / info_gamma;  
           }
+
           gamma = gamma + d_gamma;
           gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound);
           vec gamma_shift = gamma - old_gamma;
           eta += rep(gamma_shift, n_prov);
         }
 
+        //initialize "w" and pseudo residual "r"  if using Newton Method to update gamma
         for (int i = 0; i < n_obs; i++){
           p(i) = p_binomial(eta(i)); 
         }
-        //initial pseudo residual vector if using Newton Method to update gamma effect
+
         if (MM == true){
           r = (Y - p)/v; 
         } else {
-          vec w = p % (1 - p);
+          w = p % (1 - p); //again, "w" here doesn't change during within current iteration!
           if (any(w == 0)) {
             w.replace(0, omega_min); 
           }
@@ -359,11 +356,6 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
         }
       } else {  //without using MM algorithm
         for (int j = 0; j < K0; j++){  // If K0 is zero, then the whole iteration will be skipped
-          // update unpenalized beta
-          for (int i = 0; i < n_obs; i++){ // we should re-calculate p since we are iterating all beta
-            p(i) = p_binomial(eta(i)); 
-          }
-          vec w = p % (1 - p);
           shift = w_crossprod(Z, r, w, update_order_unpenalized(j))/weighted_inner_product(Z, w, update_order_unpenalized(j));
           if (fabs(shift) > MaxChange_beta) {
             MaxChange_beta = fabs(shift);
@@ -379,30 +371,19 @@ tuple<vec, vec, vec, double, double, int> pp_lasso_fit(vec &Y, mat &Z, vec &n_pr
           int update_column_index = K1(update_order_penalized(j));
           if (active_var(update_order_penalized(j)) == 1){
             double lambda_m = lambda * penalized_multiplier(update_order_penalized(j));            
-            gd_glm_lasso_noMM(beta, Z, r, eta, old_beta, update_column_index, n_obs, lambda_m, df, MaxChange_beta);
+            gd_glm_lasso_noMM(beta, w, Z, r, eta, old_beta, update_column_index, n_obs, lambda_m, df, MaxChange_beta);
           }
         }
+
       }
 
       old_gamma = gamma;
       old_beta = beta;
-      //cout << "MaxChange_beta (inner): " << MaxChange_beta << endl;
 
       if (MaxChange_beta < tol){ // if beta's in the current active set has converged, then jump out of inner loop.
         break;
       }
     }
-
-    /* the following chunk is for checking my code...
-    cout << "check active set..." << endl;
-    for (int i = 0; i < n_var; i++){
-      if (active_var(i) == 1){
-        cout << i << " ";
-      }
-    }    
-    cout << endl;
-    cout << "#####---------------------------#####" << endl;
-    */
 
     if (actSet == true){
       //outer loop: update active set
@@ -712,8 +693,6 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
       //auto t2 = high_resolution_clock::now();
       //duration<double, std::milli> ms_double1 = t2 - t1; 
       //cout << "<#> Update Gamma:" << ms_double1.count() << "ms\n";
-
-      //auto t3 = high_resolution_clock::now();
       uvec update_order_unpenalized = randperm(K0);  // Randomized coordinate descent for unpenalized covariate
       for (int j = 0; j < K0; j++){  // If K0 is zero, then the whole iteration will be skipped
         shift = mean_crossprod(Z, r, update_order_unpenalized(j), n_obs);
@@ -725,21 +704,12 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
         eta += Z.col(update_order_unpenalized(j)) * shift;  
         df++;
       }
-      //auto t4 = high_resolution_clock::now();
-      //duration<double, std::milli> ms_double2 = t4 - t3; 
-      //cout << "<<##>> Update Unpenalized Beta:" << ms_double2.count() << "ms\n";
-
-      //auto t5 = high_resolution_clock::now();
       for (int g = 0; g < n_group; g++){
         if (active_group(g) == 1){
           lambda_g = lambda * group_multiplier(g);
           gd_glm_grplasso(beta, Z, r, eta, old_beta, g, K1, n_obs, lambda_g, df, MaxChange_beta);
         }
       }
-      //auto t6 = high_resolution_clock::now();
-      //duration<double, std::milli> ms_double3 = t6 - t5; 
-      //cout << "<<<###>>> Update Penalized Beta:" << ms_double3.count() << "ms\n";
-
       old_gamma = gamma;
       old_beta = beta;
 
@@ -747,17 +717,6 @@ tuple<vec, vec, vec, double, double, int> grp_lasso_fit(vec &Y, mat &Z, vec &n_p
         break;
       }
     }
-
-    /* the following chunk is for checking my code...
-    cout << "check active group..." << endl;
-    for (int g = 0; g < n_group; g++){
-      if (active_group(g) == 1){
-        cout << g << " ";
-      }
-    }    
-    cout << endl;
-    cout << "#####---------------------------#####" << endl;
-    */
 
     if (actSet == true){
       // outer loop: update active set

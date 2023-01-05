@@ -218,11 +218,6 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
           }
         }
         
-        /*
-         for (int i = 0; i < max_timepoint; i++){
-         info_gamma(i) = std::max(omega_min, std::min(info_gamma(i), 0.25 * time(i))); 
-         }
-         */
         int nProcessors = threads;
         omp_set_num_threads(nProcessors);
         #pragma omp parallel for schedule(static)
@@ -230,10 +225,6 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
           double tmp_info_gamma = info_gamma(i);
           d_gamma(i) = score_gamma(i)/std::min(-omega_min, tmp_info_gamma);
         }
-        
-        cout << "score_gamma: " << score_gamma << endl;
-        cout << "info_gamma: " << info_gamma << endl;
-        cout << "d_gamma: " << d_gamma << endl;
         
         gamma = gamma + d_gamma;
         gamma = clamp(gamma, median(gamma) - bound, median(gamma) + bound); 
@@ -244,9 +235,8 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
       vec p_eta(n_obs, fill::zeros);
       
       // 2. update beta
-      
-      //initial pseudo residual vector
-      if (MM == true){ // surrogate function use W = 0.25 * diag{k1, k2, ..., kn}, which is a n*n matrix
+      //initialize pseudo residual
+      if (MM == true){ // surrogate function use w = 0.25 * diag{k1, k2, ..., kn}, which is a n*n matrix
         for (int j = 0; j < n_obs; j++){  //j: individual
           for (int i = 0; i < time(j); i++){ //i: time point
             p_eta(j) += p_binomial_Surv(gamma(i), eta(j));
@@ -273,7 +263,9 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
       
       // 2.1 update unpenalized beta
       // 事实上两个方法都相当于GLM lasso不用MM的解法，只是二阶导不同(但都不是vI)
-      for (int p = 0; p < K0; p++){  // only need w (we don't need compute "p_eta")
+      for (int p = 0; p < K0; p++){  
+        
+        /*  "w" doesn't change with beta within current iteration
         if (MM == true){
           for (int j = 0; j < n_obs; j++){
             w(j) = v * time(j);
@@ -287,6 +279,8 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
             }
           }
         }
+        */
+
         shift = w_crossprod(Z, r, w, update_order_unpenalized(p))/weighted_inner_product(Z, w, update_order_unpenalized(p)); 
         if (fabs(shift) > MaxChange_beta) {
           MaxChange_beta = fabs(shift);
@@ -303,6 +297,7 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
         int update_column_index = K1(update_order_penalized(p));
         if (active_var(update_order_penalized(p)) == 1){
           double lambda_m = lambda * penalized_multiplier(update_order_penalized(p));
+          /*
           if (MM == true){
             for (int j = 0; j < n_obs; j++){
               w(j) = v * time(j);
@@ -316,6 +311,7 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
               }
             }
           }      
+          */
           gd_Surv(beta, Z, r, eta, time, old_beta, w, update_column_index, n_obs, lambda_m, df, MaxChange_beta);
         }
       }
@@ -341,6 +337,7 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
       for (int p = 0; p < n_var; p++) {
         if (active_var(p) == 0){
           double lambda_m = lambda * penalized_multiplier(p);
+          /*
           if (MM == true){
             for (int j = 0; j < n_obs; j++){
               w(j) = v * time(j);
@@ -353,7 +350,8 @@ tuple<vec, vec, vec, double, int> Disc_Surv_fit(vec &delta_obs, int max_timepoin
                 w(j) += p_temp * (1 - p_temp);
               }
             }
-          }            
+          }   
+          */         
           Current_Change_beta(p) = gd_Surv_BetaChange(Z, r, eta, time, w, p, n_obs, lambda_m);
         }
       }
@@ -417,7 +415,7 @@ List Disc_Surv_lasso(vec &delta_obs, int max_timepoint, mat &Z, vec &time, vec &
     }
     double lambda = lambda_seq(l);
     
-    auto fit = pp_Surv_fit(delta_obs, max_timepoint, Z, time, gamma, beta, eta, K0, K1, sum_failure, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, backtrack, MM, bound, tol, active_var, n_obs, n_var, threads, actSet, actIter, activeVarNum, actSetRemove);
+    auto fit = Disc_Surv_fit(delta_obs, max_timepoint, Z, time, gamma, beta, eta, K0, K1, sum_failure, lambda, tol_iter, max_total_iter, max_each_iter, penalized_multiplier, backtrack, MM, bound, tol, active_var, n_obs, n_var, threads, actSet, actIter, activeVarNum, actSetRemove);
     
     double df_l;
     int iter_l;

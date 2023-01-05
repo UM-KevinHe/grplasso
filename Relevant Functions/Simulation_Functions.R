@@ -80,6 +80,11 @@ Simulation_data_GroupLasso <- function(ls, prov.size.mean = 80, unpenalized.beta
   return(Sim.result)
 }
 
+
+##################---------Discrete Survival----------##################
+
+#ls <- list(n.center = 10, n.beta = 10, n.time.point = 10, n.groups = 10, prop.outlier.center = 0, prop.NonZero.group = 1) 
+
 sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8,
                      prov.size.mean = 80, unpenalized.beta = F, prop.unpenalized.beta = 0,
                      rho = 0.8, baseline.Hazard.r = 1.2, baseline.Hazard.lambda = 0.01) {
@@ -95,8 +100,8 @@ sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8,
   
   
   # "alpha" denotes the center effect
-  alpha <- rnorm(K, log(4/11), 0.4)
-  alpha[sample.int(K, n.outlier.center)] <- log(4/11) + (2 * rbinom(n.outlier.center, 1, 0.5) - 1) * rnorm(n.outlier.center, mean = 4 * 0.4, sd = 0.5 * 0.4)
+  alpha <- rnorm(K, 0, 1)
+  alpha[sample.int(K, n.outlier.center)] <- (2 * rbinom(n.outlier.center, 1, 0.5) - 1) * rnorm(n.outlier.center, mean = 4 * 0.4, sd = 0.5 * 0.4)
   
   n.NonZero.groups <- ceiling(ls$n.groups * ls$prop.NonZero.group)
   beta <- rep(0, ls$n.beta)
@@ -132,7 +137,7 @@ sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8,
   alpha.dis <- rep(alpha, prov.size)
   prov <- rep(1:K, prov.size) # provider IDs
   rZ <- function(i, rho, n.beta)  #conditional distribution of Z_ij given gamma_i
-    MASS::mvrnorm(n = prov.size[i], mu = ((alpha[i] - log(4/11)) * rho / 0.4) * matrix(1, nrow = n.beta),
+    MASS::mvrnorm(n = prov.size[i], mu = ((alpha[i] - 0) * rho / 1) * matrix(1, nrow = n.beta),
                   Sigma = diag(1 - rho, n.beta) + (rho - rho^2) * matrix(1, ncol = n.beta, nrow = n.beta))
   
   n.beta.continuous <- floor(prop.continuous * ls$n.beta) # number of continuous variable
@@ -158,7 +163,7 @@ sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8,
   for (x in tail(gamma,-1)) { # tail(gamma, -1) exclude the first element of time effect
     day <- day + 1 # move to the next day
     idx.atrisk <- c(1:N)[-idx.out]  # remove people already failure   
-    probs <- plogis(x + (as.matrix(Z[idx.atrisk, ]) %*% beta)) # x now is the baseline hazard at "day"'s time
+    probs <- plogis(x + (alpha.dis[idx.atrisk] + as.matrix(Z[idx.atrisk, ]) %*% beta)) # x now is the baseline hazard at "day"'s time
     idx.event <- idx.atrisk[rbinom(length(probs), 1, probs) == 1]  #some at risk people have large hazard, such that failure
     status[idx.event] <- 1 # new failure index
     days.to.event[idx.event] <- day #which day failure
