@@ -4,7 +4,7 @@ fe.data.prep <- function(data, Y.char, Z.char, prov.char, cutoff=10, check=TRUE)
     message("Checking absence of variables ... ")
     Y.ind <- match(Y.char, names(data))
     if (is.na(Y.ind)) {
-      stop(paste("Response variable '", Y.char, "' NOT found!", sep=""),call.=F) 
+      stop(paste("Response variable '", Y.char, "' NOT found!", sep=""),call.=F)
     }
     Z.ind <- match(Z.char, names(data))
     if (sum(is.na(Z.ind)) > 0) {
@@ -44,9 +44,9 @@ fe.data.prep <- function(data, Y.char, Z.char, prov.char, cutoff=10, check=TRUE)
     if (sum(abs(cor[upper.tri(cor)])>threshold.cor) > 0) {
       cor[lower.tri(cor,diag=T)] <- 0
       ind <- which(abs(cor)>threshold.cor)
-      pairs <- sapply(ind, function(ind) c(rownames(cor)[ind%%NROW(cor)], 
+      pairs <- sapply(ind, function(ind) c(rownames(cor)[ind%%NROW(cor)],
                                            colnames(cor)[ind%/%NROW(cor)+1]))
-      warning("The following ", NCOL(pairs), 
+      warning("The following ", NCOL(pairs),
               " pair(s) of covariates are highly correlated (correlation > ",
               threshold.cor,"): ", immediate.=T, call.=F)
       invisible(apply(pairs,2,function(col) message('("',paste(col, collapse='", "'),'")')))
@@ -63,20 +63,20 @@ fe.data.prep <- function(data, Y.char, Z.char, prov.char, cutoff=10, check=TRUE)
     }
     message("Checking VIF of covariates completed!")
   }
-  data <- data[order(factor(data[,prov.char])),] 
-  prov.size <- as.integer(table(data[,prov.char])) 
+  data <- data[order(factor(data[,prov.char])),]
+  prov.size <- as.integer(table(data[,prov.char]))
   prov.size.long <- rep(prov.size,prov.size)
-  data$included <- 1 * (prov.size.long > cutoff) 
+  data$included <- 1 * (prov.size.long > cutoff)
   warning(sum(prov.size<=cutoff)," out of ",length(prov.size),
           " providers considered small and filtered out!",immediate.=T,call.=F)
-  prov.list <- unique(data[data$included==1,prov.char])  
-  prov.no.readm <-     
+  prov.list <- unique(data[data$included==1,prov.char])
+  prov.no.readm <-
     prov.list[sapply(split(data[data$included==1,Y.char], factor(data[data$included==1,prov.char])),sum)==0]
   data$no.readm <- 0
   data$no.readm[data[,prov.char] %in% c(prov.no.readm)] <- 1
   message(paste(length(prov.no.readm),"out of",length(prov.list),
                 "remaining providers with no readmission within 30 days."))
-  prov.all.readm <-    
+  prov.all.readm <-
     prov.list[sapply(split(1-data[data$included==1,Y.char],factor(data[data$included==1,prov.char])),sum)==0]
   data$all.readm <- 0
   data$all.readm[data[,prov.char]%in%c(prov.all.readm)] <- 1
@@ -84,13 +84,13 @@ fe.data.prep <- function(data, Y.char, Z.char, prov.char, cutoff=10, check=TRUE)
                 "remaining providers with all readmissions within 30 days."))
   message(paste0("After screening, ", round(sum(data[data$included==1,Y.char])/length(data[data$included==1,Y.char])*100,2),
                  "% of all discharges were readmitted within 30 days."))
-  return(data) 
+  return(data)
 }
 
 # "SerBIN" for computing response residuals
 SerBIN.residuals <- function(Y, Z, n.prov, gamma.prov, beta){
   fit <- SerBIN(Y, Z, n.prov, gamma.prov, beta)
-  gamma.prov <- as.numeric(fit$gamma); 
+  gamma.prov <- as.numeric(fit$gamma);
   beta <- as.numeric(fit$beta)
   gamma.obs <- rep(gamma.prov, n.prov)
   Pred <- as.numeric(plogis(gamma.obs+Z %*% beta))
@@ -101,7 +101,7 @@ SerBIN.residuals <- function(Y, Z, n.prov, gamma.prov, beta){
 }
 
 # construct lambda sequence & re-initialize beta and gamma
-set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier, 
+set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier,
                                 nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
@@ -115,7 +115,7 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
   } else {
     mean.Y <- sapply(split(Y, ID), mean)
     n.prov <- sapply(split(Y, ID), length)
-    r <- Y - rep(mean.Y, n.prov) 
+    r <- Y - rep(mean.Y, n.prov)
     beta.initial <- beta
     gamma.initial <- gamma.prov
   }
@@ -139,7 +139,7 @@ DiscSurv.residuals <- function(delta.obs, Z, time, gamma, beta){
   return(ls)
 }
 
-set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multiplier, 
+set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multiplier,
                             nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
@@ -166,7 +166,7 @@ set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multip
   return(ls)
 }
 
-set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, prov.char, group, group.multiplier, 
+set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, prov.char, group, group.multiplier,
                              nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
@@ -178,7 +178,7 @@ set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, pr
     beta.new <- c(beta[1:sum(group == 0)], alpha.prov[2:(ncol(dummy_time) + 1)])
     fit <- DiscSurv.residuals(delta.obs, new.Z, time, gamma, beta.new)
     r <- fit$residual
-    
+
     beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0)))
     alpha.initial <- c(alpha.prov[1], fit$beta[(1 + sum(group == 0)):length(fit$beta)])
     gamma.initial <- fit$gamma
@@ -187,7 +187,7 @@ set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, pr
     beta.new <- alpha.prov[2:(ncol(new.Z) + 1)]
     fit <- DiscSurv.residuals(delta.obs, new.Z, time, gamma, beta.new)
     r <- fit$residual
-    
+
     beta.initial <- beta
     alpha.initial <- c(alpha.prov[1], fit$beta)
     gamma.initial <- fit$gamma
@@ -202,7 +202,7 @@ set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, pr
 
 # set up group information
 # m: group multiplier, default (missing) is the square root of group size of remaining features
-setupG <- function(group, m){ 
+setupG <- function(group, m){
   group.factor <- factor(group)
   if (any(levels(group.factor) == '0')) {
     g <- as.integer(group.factor) - 1
@@ -235,7 +235,7 @@ subsetG <- function(g, nz) { # nz: index of non-constant features
   new <- g[nz] # only include non-constant columns
   dropped <- setdiff(g, new)  # If the entire group has been dropped
   if (length(dropped) > 0) {
-    lev <- lev[-dropped] # remaining group 
+    lev <- lev[-dropped] # remaining group
     m <- m[-dropped]
     group.factor <- factor(new) #remaining group factor
     new <- as.integer(group.factor) - 1 * any(levels(group.factor) == '0')  #new group index
@@ -274,7 +274,7 @@ reorderG <- function(g, m) {
 standardize.Z <- function(Z){
   mysd <- function(z){
     sqrt(sum((z - mean(z))^2)/length(z))
-  } 
+  }
   new.Z <- scale(as.matrix(Z), scale = apply(as.matrix(Z), 2, mysd))
   center.Z <- attributes(new.Z)$`scaled:center`
   scale.Z <- attributes(new.Z)$`scaled:scale`
@@ -301,14 +301,14 @@ orthogonalize <- function(Z, group) {
   orthog.Z <- matrix(0, nrow = nrow(Z), ncol = ncol(Z))
   colnames(orthog.Z) <- z.names
   # unpenalized group will not be orthogonalized
-  orthog.Z[, which(group == 0)] <- Z[, which(group == 0)] 
-  
+  orthog.Z[, which(group == 0)] <- Z[, which(group == 0)]
+
   # SVD and generate orthogonalized X
   for (j in seq_along(integer(J))) {
     ind <- which(group == j)
     if (length(ind) == 0) { # skip 0-length group
       next
-    } 
+    }
     SVD <- svd(Z[, ind, drop = FALSE], nu = 0)  # Q matrix (orthonormal matrix of eigenvectors)
     r <- which(SVD$d > 1e-10)  #remove extremely small singular values
     QL[[j]] <- sweep(SVD$v[, r, drop = FALSE], 2, sqrt(n)/SVD$d[r], "*") # Q * Lambda^{-1/2}
@@ -340,7 +340,7 @@ newZG.Std.grplasso <- function(data, Z.char, g, m){
   Z <- as.matrix(data[, Z.char, drop = F])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
-  } 
+  }
   if (length(g) != ncol(Z)) {
     stop ("Dimensions of group is not compatible with Z", call. = FALSE)
   }
@@ -377,15 +377,15 @@ newZG.Unstd.grplasso <- function(data, Z.char, g, m){
   Z <- as.matrix(data[, Z.char, drop = F])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
-  } 
+  }
   if (length(g) != ncol(Z)) {
     stop ("Dimensions of group is not compatible with Z", call. = FALSE)
   }
-  G <- setupG(g, m) 
+  G <- setupG(g, m)
   mysd <- function(x){
     sqrt(sum((x - mean(x))^2)/length(x))
-  } 
-  scale <- apply(as.matrix(Z), 2, mysd)  
+  }
+  scale <- apply(as.matrix(Z), 2, mysd)
   nz <- which(scale > 1e-6) #remove constant columns
   if (length(nz) != ncol(Z)) {
     std.Z <- Z[, nz, drop = F]
@@ -415,14 +415,14 @@ newY <- function(data, Y.char){
   y <- data[, Y.char]
   if (is.data.frame(y)){
     y <- as.matrix(y)
-  } 
+  }
   if (is.matrix(y)) {
     d <- dim(y)
     y <- t(y)
   } else {
     d <- c(length(y), 1)
   }
-  
+
   # Convert fuzzy binomial data
   if (typeof(y) != "logical") {
     tab <- table(y)
@@ -435,63 +435,35 @@ newY <- function(data, Y.char){
       }
     }
   }
-  
+
   # Convert to double, if necessary
   if (typeof(y) != "double") {
     tryCatch(storage.mode(y) <- "double", warning = function(w) {stop("Y must be numeric or able to be coerced to numeric", call. = FALSE)})
   }
   if (any(is.na(y))){
     stop("Missing data (NA's) detected in outcome Y!", call. = FALSE)
-  } 
-  
+  }
+
   # Handle multi
   if (is.matrix(y)) {
     if (ncol(y) > 1) {
       if (is.null(colnames(y))){
         paste("Y", 1:ncol(y), sep = "")
-      } 
+      }
     }
     attributes(y) <- NULL
   }
-  
+
   attr(y, "m") <- d[2]
   return(y)
-}
-
-coef.ppLasso <- coef.gr_ppLasso <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
-  if (!missing(lambda)) {
-    if (any(lambda > max(object$lambda) | lambda < min(object$lambda))){
-      stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)
-    } 
-    ind <- approx(object$lambda, seq(object$lambda), lambda)$y 
-    l <- floor(ind)
-    r <- ceiling(ind)
-    w <- ind %% 1
-    # linearly interpolate between two lambda
-    beta <- (1 - w) * object$beta[, l, drop = FALSE] + w * object$beta[, r, drop = FALSE]
-    gamma <- (1 - w) * object$gamma[, l, drop = FALSE] + w * object$gamma[, r, drop = FALSE]
-    colnames(beta) <- round(lambda, 4)
-    colnames(gamma) <- round(lambda, 4)
-  } else {  #specify lambda value as index
-    beta <- object$beta[, which, drop = FALSE]
-    gamma <- object$gamma[, which, drop = FALSE]
-  }
-  if (drop == TRUE){
-    beta <- drop(beta)
-    gamma <- drop(gamma)
-    coef <- list(gamma = gamma, beta = beta)
-  } else {
-    coef <- list(gamma = gamma, beta = beta)
-  }
-  return(coef)
 }
 
 coef.DiscSurv <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
   if (!missing(lambda)) {
     if (any(lambda > max(object$lambda) | lambda < min(object$lambda))){
       stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)
-    } 
-    ind <- approx(object$lambda, seq(object$lambda), lambda)$y 
+    }
+    ind <- approx(object$lambda, seq(object$lambda), lambda)$y
     l <- floor(ind)
     r <- ceiling(ind)
     w <- ind %% 1
@@ -514,122 +486,30 @@ coef.DiscSurv <- function(object, lambda, which=1:length(object$lambda), drop = 
   return(coef)
 }
 
-predict.ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
-                            type = c("response", "class", "vars", "nvars"),  ...){
-  beta <- coef.ppLasso(object, lambda = lambda, which = which, drop = FALSE)$beta
-  gamma <- coef.ppLasso(object, lambda = lambda, which = which, drop = FALSE)$gamma
-  
-  if (type == "vars"){
-    return(drop(apply(beta != 0, 2, FUN = which)))
-  }
-  
-  if (type == "nvars") {
-    v <- as.list(apply(beta != 0, 2, FUN = which))
-    nvars <- sapply(v, length)
-    return(nvars)
-  }
-  
-  # predict response
-  if (missing(data) | is.null(data)) {
-    stop("Must supply data for predictions", call. = FALSE)
-  }
-  
-  Prov.id <- data[, prov.char, drop = F]
-  obs.prov.effect <- t(apply(Prov.id, 1, function(x) gamma[x, ]))
-  
-  eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + obs.prov.effect
-  
-  pred.prob <- plogis(eta)
-  if (type == "response") {
-    return(pred.prob)
-  }
-  
-  if (type == "class") {
-    return(1 * (eta > 0))
-  }
-}
-
-predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
-                               type = c("response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){
-  beta <- coef.gr_ppLasso(object, lambda = lambda, which = which, drop = FALSE)$beta
-  gamma <- coef.gr_ppLasso(object, lambda = lambda, which = which, drop = FALSE)$gamma
-  
-  if (type == "vars"){
-    return(drop(apply(beta != 0, 2, FUN = which)))
-  }
-  
-  if (type == "groups") {
-    if (ncol(beta) == 1) {
-      return(unique(object$group[beta != 0]))
-    } else {
-      return(drop(apply(beta != 0, 2, function(x) unique(object$group[x]))))
-    } 
-  }
-  
-  if (type == "nvars") {
-    v <- as.list(apply(beta != 0, 2, FUN = which))
-    nvars <- sapply(v, length)
-    return(nvars)
-  }
-  
-  if (type == "ngroups") {
-    g <- as.data.frame(apply(beta != 0, 2, function(x) unique(object$group[x])))
-    ngroups <- sapply(g, length)
-    if (length(ngroups) == 1){
-      names(ngroups) <- colnames(beta)
-    }
-    return(ngroups)
-  }
-  
-  if (type == "beta.norm"){
-    return(drop(apply(beta, 2, function(x) tapply(x, object$group, function(x){sqrt(sum(x^2))}))))
-  }
-  
-  # predict response
-  if (missing(data) | is.null(data)) {
-    stop("Must supply data for predictions", call. = FALSE)
-  }
-  
-  Prov.id <- data[, prov.char, drop = F]
-  obs.prov.effect <- t(apply(Prov.id, 1, function(x) gamma[x, ]))
-  
-  eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + obs.prov.effect
-  
-  pred.prob <- plogis(eta)
-  if (type == "response") {
-    return(pred.prob)
-  }
-  
-  if (type == "class") {
-    return(1 * (eta > 0))
-  }
-}
-
-
 predict.DiscSurv <- function(object, data.i, Z.char, Time.char, lambda, which = 1:length(object$lambda),
                              type = c("response", "vars", "nvars"), ...){
   beta <- coef.DiscSurv(object, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.DiscSurv(object, lambda = lambda, which = which, drop = FALSE)$gamma
-  
+
   if (type == "vars"){
     return(drop(apply(beta != 0, 2, FUN = which)))
   }
-  
+
   if (type == "nvars") {
     v <- as.list(apply(beta != 0, 2, FUN = which))
     nvars <- sapply(v, length)
     return(nvars)
   }
-  
+
   # predict response
   if (missing(data.i) | is.null(data.i)) {
     stop("Must supply data for predictions", call. = FALSE)
   }
-  
+
   if (type == "response") {
     # need data expansion
     n.obs <- nrow(data.i)
-    eta <- as.matrix(data.i[, Z.char, drop = F]) %*% beta  # "eta" is a matrix; "gamma" is also a matrix 
+    eta <- as.matrix(data.i[, Z.char, drop = F]) %*% beta  # "eta" is a matrix; "gamma" is also a matrix
     sum.time <- sum(data.i[, Time.char, drop = F])
     time <- as.matrix(data.i[, Time.char, drop = F])
     nlambda <- ncol(eta)
@@ -645,9 +525,9 @@ cvf.pplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
   cv.args$Y.char <- Y.char
   cv.args$Z.char <- Z.char
   cv.args$prov.char <- prov.char
-  
+
   fit.i <- do.call("pp.lasso", cv.args)
-  
+
   data.i <- data[fold == i, , drop = FALSE]
   Y.i <- data.i[, Y.char]
   yhat.i <- matrix(predict(fit.i, data.i, Z.char, prov.char, type = "response"), nrow(data.i)) #y-hat matrix across all given lambda
@@ -663,9 +543,9 @@ cvf.grplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
   cv.args$Y.char <- Y.char
   cv.args$Z.char <- Z.char
   cv.args$prov.char <- prov.char
-  
+
   fit.i <- do.call("grp.lasso", cv.args)
-  
+
   data.i <- data[fold == i, , drop = FALSE]
   Y.i <- data.i[, Y.char]
   yhat.i <- matrix(predict(fit.i, data.i, Z.char, prov.char, type = "response"), nrow(data.i)) #y-hat matrix across all given lambda
@@ -681,7 +561,7 @@ cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.
   cv.args$Event.char <- Event.char
   cv.args$Z.char <- Z.char
   cv.args$Time.char <- Time.char
-  
+
   # some time point might lost within one sub data set, so we need to reorder time
   #count.gamma <- length(unique(cv.args$data[, Time.char]))
   #if (count.gamma != original.count.gamma){
@@ -695,10 +575,10 @@ cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.
   fit.i <- do.call("Disc.Surv", cv.args)  #fit the discrete survival model using one training data set
   data.i <- data[fold == i, , drop = FALSE]
   yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response") # y-hat matrix across all given lambda; data has been expanded
-  
+
   data.small <- data.i[, c(Event.char, Time.char)]
   Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, eventColumn = Event.char, timeAsFactor = TRUE)$y
-  
+
   loss <- loss.Disc.Surv(Y.i, yhat.i)  ## cross entropy loss
   list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
 }
@@ -707,7 +587,7 @@ cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.
 loss.grp.lasso <- function(Y.i, yhat.i){
   yhat.i[yhat.i < 0.00001] <- 0.00001
   yhat.i[yhat.i > 0.99999] <- 0.99999
-  
+
   if (is.matrix(yhat.i) == T) {
     val <- matrix(NA, nrow = nrow(yhat.i), ncol = ncol(yhat.i))
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
@@ -715,7 +595,7 @@ loss.grp.lasso <- function(Y.i, yhat.i){
     }
     if (sum(Y.i == 0)){
       val[Y.i == 0,] <- -2 * log(1 - yhat.i[Y.i == 0, , drop = FALSE])
-    } 
+    }
   } else {
     val <- double(length(Y.i))  # a zero vector
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
@@ -723,7 +603,7 @@ loss.grp.lasso <- function(Y.i, yhat.i){
     }
     if (sum(Y.i == 0)){
       val[Y.i == 0] <- -2 * log(1 - yhat.i[Y.i == 0])
-    } 
+    }
   }
   return(val)
 }
@@ -732,7 +612,7 @@ loss.grp.lasso <- function(Y.i, yhat.i){
 loss.Disc.Surv <- function(Y.i, yhat.i){
   yhat.i[yhat.i < 0.00001] <- 0.00001
   yhat.i[yhat.i > 0.99999] <- 0.99999
-  
+
   if (is.matrix(yhat.i) == T) {
     val <- matrix(NA, nrow = nrow(yhat.i), ncol = ncol(yhat.i))
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
@@ -740,7 +620,7 @@ loss.Disc.Surv <- function(Y.i, yhat.i){
     }
     if (sum(Y.i == 0)){
       val[Y.i == 0,] <- -2 * log(1 - yhat.i[Y.i == 0, , drop = FALSE])
-    } 
+    }
   } else {
     val <- double(length(Y.i))  # a zero vector
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
@@ -748,7 +628,7 @@ loss.Disc.Surv <- function(Y.i, yhat.i){
     }
     if (sum(Y.i == 0)){
       val[Y.i == 0] <- -2 * log(1 - yhat.i[Y.i == 0])
-    } 
+    }
   }
   return(val)
 }

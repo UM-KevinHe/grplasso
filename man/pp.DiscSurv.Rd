@@ -2,7 +2,7 @@
 % Please edit documentation in R/pp_DiscSurv.R
 \name{pp.DiscSurv}
 \alias{pp.DiscSurv}
-\title{fit a group penalized generalized regression model}
+\title{fit a penalized discrete survival model}
 \usage{
 pp.DiscSurv(
   data,
@@ -88,7 +88,7 @@ pp.DiscSurv(
 \item{...}{extra arguments to be passed to function.}
 }
 \value{
-An object with S3 class `ppDiscSurv`.
+An object with S3 class \code{ppDiscSurv}.
 
 \item{beta}{the fitted matrix of covariate coefficients.
 The number of rows is equal to the number of coefficients,
@@ -96,7 +96,7 @@ and the number of columns is equal to nlambda.}
 
 \item{alpha}{the fitted value of logit-transformed baseline hazard.}
 
-\item{gamma}{the fitted value of provider effects.}
+\item{gamma}{the fitted value of provider effects. The effect of the first provider is set to be reference group.}
 
 \item{lambda}{the sequence of `lambda` values in the path.}
 
@@ -105,20 +105,21 @@ and the number of columns is equal to nlambda.}
 \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 }
 \description{
-Fit a group penalized generalized regression model via coordinate descent method:
+main function for fitting a penalized discrete survival model
 }
 \details{
 The model is fit by Newton method and coordinate descent method.
 }
 \examples{
-\dontrun{
 data(Surv_Data)
 Event.char <- 'status'
 prov.char <- 'Prov.ID'
 Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
 Time.char <- "time"
-fit <- pp.DiscSurv(Surv_Data, Event.char, prov.char, Z.char, Time.char)
-}
+fit <- pp.DiscSurv(Surv_Data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
+fit$beta
+fit$alpha
+fit$gamma
 
 }
 \references{

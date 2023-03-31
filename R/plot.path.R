@@ -1,8 +1,8 @@
-#' plot regularization path of coefficients from a `ppLasso` object
+#' plot regularization path of coefficients from a ppLasso or gr_ppLasso object
 #'
-#' plot the cross entropy Loss from a `ppLasso` object
+#' return the plot the cross entropy Loss from a \code{ppLasso} or \code{gr_ppLasso} object
 #'
-#' @param fit a `ppLasso` object.
+#' @param fit a \code{ppLasso} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'
@@ -67,11 +67,9 @@ plot.ppLasso <- function(fit, log.x = T, label = F){
 }
 
 
-#' plot regularization path of coefficients from a `gr_ppLasso` object
+#' @rdname plot.ppLasso
 #'
-#' plot the cross entropy Loss from a `gr_ppLasso` object
-#'
-#' @param fit a `gr_ppLasso` object.
+#' @param fit a \code{gr_ppLasso} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'

@@ -71,19 +71,19 @@
 
 
 <dt>Y.char</dt>
-<dd><p>name of the response variable from `data` as a character string, as in `pp.lasso` function.</p></dd>
+<dd><p>name of the response variable from `data` as a character string, as in <code>pp.lasso</code> function.</p></dd>
 
 
 <dt>Z.char</dt>
-<dd><p>names of covariates from `data` as vector of character strings, as in `pp.lasso` function.</p></dd>
+<dd><p>names of covariates from `data` as vector of character strings, as in <code>pp.lasso</code> function.</p></dd>
 
 
 <dt>prov.char</dt>
-<dd><p>name of provider IDs variable from `data` as a character string, as in `pp.lasso` function.</p></dd>
+<dd><p>name of provider IDs variable from `data` as a character string, as in <code>pp.lasso</code> function.</p></dd>
 
 
 <dt>penalize.x</dt>
-<dd><p>a vector indicates whether the corresponding covariate will be penalized, as in `pp.lasso` function.</p></dd>
+<dd><p>a vector indicates whether the corresponding covariate will be penalized, as in <code>pp.lasso</code> function.</p></dd>
 
 
 <dt>...</dt>
@@ -103,14 +103,14 @@
 
 
 <dt>trace.cv</dt>
-<dd><p>`cv.pp.lasso` will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.</p></dd>
+<dd><p><code>cv.pp.lasso</code> will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
 
-<p>An object with S3 class `cv.ppLasso`.</p>
+<p>An object with S3 class <code>cv.ppLasso</code>.</p>
 <dl><dt>cve</dt>
 <dd><p>the error for each value of lambda, averaged across the cross-validation folds.</p></dd>
 
@@ -124,7 +124,7 @@
 
 
 <dt>fit</dt>
-<dd><p>the fitted `pp.lasso` object for the whole data.</p></dd>
+<dd><p>the fitted <code>pp.lasso</code> object for the whole data.</p></dd>
 
 
 <dt>fold</dt>
@@ -155,7 +155,7 @@
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">cv.pp.lasso</span><span class="op">(</span><span class="va">GLM_Data</span>, <span class="va">Y.char</span>, <span class="va">Z.char</span>, <span class="va">prov.char</span>, nfolds <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># the best lambda using cross validation</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">lambda.min</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.001827451</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.001259591</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -2,19 +2,22 @@
 % Please edit documentation in R/plot.path.R
 \name{plot.ppLasso}
 \alias{plot.ppLasso}
-\title{plot regularization path of coefficients from a `ppLasso` object}
+\alias{plot.gr_ppLasso}
+\title{plot regularization path of coefficients from a ppLasso or gr_ppLasso object}
 \usage{
 \method{plot}{ppLasso}(fit, log.x = T, label = F)
+
+\method{plot}{gr_ppLasso}(fit, log.x = T, label = F)
 }
 \arguments{
-\item{fit}{a `ppLasso` object.}
+\item{fit}{a \code{gr_ppLasso} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{label}{whether annotates the plot with labels.}
 }
 \description{
-plot the cross entropy Loss from a `ppLasso` object
+return the plot the cross entropy Loss from a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)
@@ -22,5 +25,12 @@ Y.char <- 'Y'
 prov.char <- 'Prov.ID'
 Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
 fit <- pp.lasso(GLM_Data, Y.char, Z.char, prov.char)
+plot(fit)
+data(GLM_Data)
+Y.char <- 'Y'
+prov.char <- 'Prov.ID'
+Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
+group <- c(1, 1, 2, 2, 2)
+fit <- grp.lasso(GLM_Data, Y.char, Z.char, prov.char, group = group)
 plot(fit)
 }

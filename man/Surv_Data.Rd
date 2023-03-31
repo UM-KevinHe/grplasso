@@ -3,7 +3,7 @@
 \docType{data}
 \name{Surv_Data}
 \alias{Surv_Data}
-\title{example data for `pp.DiscSurv`}
+\title{example data for pp.DiscSurv}
 \format{
 A list containing the following elements:
 \describe{
@@ -17,6 +17,6 @@ A list containing the following elements:
 data(Surv_Data)
 }
 \description{
-A simulated data set containing time, status, provider information and 5 covariates.
+A simulated data set containing observation time, event indicator, provider information and 5 covariates.
 }
 \keyword{datasets}

@@ -2,7 +2,8 @@
 % Please edit documentation in R/plot.cve.R
 \name{plot.cv.ppLasso}
 \alias{plot.cv.ppLasso}
-\title{plot the cross entropy Loss from a `cv.ppLasso` object}
+\alias{plot.cv.gr_ppLasso}
+\title{plot the cross entropy Loss from a cv.ppLasso or cv.gr_ppLasso object}
 \usage{
 \method{plot}{cv.ppLasso}(
   fit,
@@ -11,16 +12,24 @@
   col.vertical.line = "blue",
   col.dot = "red"
 )
+
+\method{plot}{cv.gr_ppLasso}(
+  fit,
+  log.x = T,
+  vertical.line = T,
+  col.vertical.line = "blue",
+  col.dot = "red"
+)
 }
 \arguments{
-\item{fit}{a `cv.ppLasso` object.}
+\item{fit}{a \code{cv.gr_ppLasso} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{vertical.line}{whether draws a vertical line at the value where cross-validaton error is minimized.}
 }
 \description{
-plot the cross entropy Loss from a `cv.ppLasso` object
+return the plot of the cross entropy Loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)
@@ -28,6 +37,14 @@ Y.char <- 'Y'
 prov.char <- 'Prov.ID'
 Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
 fit <- cv.pp.lasso(GLM_Data, Y.char, Z.char, prov.char, nfolds = 10)
+plot(fit)
+
+data(GLM_Data)
+Y.char <- 'Y'
+prov.char <- 'Prov.ID'
+Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
+group <- c(1, 1, 2, 2, 3)
+fit <- cv.grp.lasso(GLM_Data, Y.char, Z.char, prov.char, group = group)
 plot(fit)
 
 }

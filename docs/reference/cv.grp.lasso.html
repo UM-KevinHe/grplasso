@@ -71,15 +71,15 @@
 
 
 <dt>Y.char</dt>
-<dd><p>name of the response variable from `data` as a character string, as in `pp.lasso` function.</p></dd>
+<dd><p>name of the response variable from `data` as a character string, as in <code>grp.lasso</code> function.</p></dd>
 
 
 <dt>Z.char</dt>
-<dd><p>names of covariates from `data` as vector of character strings, as in `pp.lasso` function.</p></dd>
+<dd><p>names of covariates from `data` as vector of character strings, as in <code>grp.lasso</code> function.</p></dd>
 
 
 <dt>prov.char</dt>
-<dd><p>name of provider IDs variable from `data` as a character string, as in `pp.lasso` function.</p></dd>
+<dd><p>name of provider IDs variable from `data` as a character string, as in <code>grp.lasso</code> function.</p></dd>
 
 
 <dt>group</dt>
@@ -103,14 +103,14 @@
 
 
 <dt>trace.cv</dt>
-<dd><p>`cv.pp.lasso` will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.</p></dd>
+<dd><p><code>cv.grp.lasso</code> will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
 
-<p>An object with S3 class `cv.gr_ppLasso`.</p>
+<p>An object with S3 class <code>cv.gr_ppLasso</code>.</p>
 <dl><dt>cve</dt>
 <dd><p>the error for each value of lambda, averaged across the cross-validation folds.</p></dd>
 
@@ -124,7 +124,7 @@
 
 
 <dt>fit</dt>
-<dd><p>the fitted `pp.lasso` object for the whole data.</p></dd>
+<dd><p>the fitted <code>gr_ppLasso</code> object for the whole data.</p></dd>
 
 
 <dt>fold</dt>

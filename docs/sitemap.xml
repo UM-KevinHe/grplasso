@@ -19,6 +19,9 @@
     <loc>https://github.com/UM-KevinHe/grplasso/reference/Surv_Data.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.ppLasso.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.grp.lasso.html</loc>
   </url>
   <url>
@@ -47,5 +50,8 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/pp.lasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.ppLasso.html</loc>
   </url>
 </urlset>

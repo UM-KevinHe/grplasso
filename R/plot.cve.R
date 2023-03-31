@@ -1,8 +1,8 @@
-#' plot the cross entropy Loss from a `cv.ppLasso` object
+#' plot the cross entropy Loss from a cv.ppLasso or cv.gr_ppLasso object
 #'
-#' plot the cross entropy Loss from a `cv.ppLasso` object
+#' return the plot of the cross entropy Loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 #'
-#' @param fit a `cv.ppLasso` object.
+#' @param fit a \code{cv.ppLasso} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'
@@ -67,11 +67,9 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
   return(cv.plot)
 }
 
-#' plot the cross entropy Loss from a `cv.gr_ppLasso` object
+#' @rdname plot.cv.ppLasso
 #'
-#' plot the cross entropy Loss from a `cv.gr_ppLasso` object
-#'
-#' @param fit a `cv.gr_ppLasso` object.
+#' @param fit a \code{cv.gr_ppLasso} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'

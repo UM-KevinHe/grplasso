@@ -90,7 +90,7 @@ pp.lasso(
 \item{...}{extra arguments to be passed to function.}
 }
 \value{
-An object with S3 class `ppLasso`.
+An object with S3 class \code{ppLasso}.
 
 \item{beta}{the fitted matrix of covariate coefficients.
 The number of rows is equal to the number of coefficients,
@@ -109,7 +109,7 @@ and the number of columns is equal to nlambda.}
 \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 }
 \description{
-Fit a penalized generalized regression model via coordinate descent method:
+main function for fitting a penalized generalized regression
 }
 \details{
 The model is fit by Newton method and coordinate descent method.

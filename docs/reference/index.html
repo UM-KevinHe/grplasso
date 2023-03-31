@@ -70,27 +70,31 @@
       </tr></tbody><tbody><tr><td>
           <p><code><a href="pp.DiscSurv.html">pp.DiscSurv()</a></code> </p>
         </td>
-        <td><p>fit a group penalized generalized regression model</p></td>
+        <td><p>fit a penalized discrete survival model</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="plotting-functions">Plotting functions <a href="#plotting-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="plot.ppLasso.html">plot(<i>&lt;ppLasso&gt;</i>)</a></code> </p>
+          <p><code><a href="plot.ppLasso.html">plot(<i>&lt;ppLasso&gt;</i>)</a></code> <code><a href="plot.ppLasso.html">plot(<i>&lt;gr_ppLasso&gt;</i>)</a></code> </p>
         </td>
-        <td><p>plot regularization path of coefficients from a `ppLasso` object</p></td>
+        <td><p>plot regularization path of coefficients from a ppLasso or gr_ppLasso object</p></td>
       </tr><tr><td>
-          <p><code><a href="plot.gr_ppLasso.html">plot(<i>&lt;gr_ppLasso&gt;</i>)</a></code> </p>
+          <p><code><a href="plot.cv.ppLasso.html">plot(<i>&lt;cv.ppLasso&gt;</i>)</a></code> <code><a href="plot.cv.ppLasso.html">plot(<i>&lt;cv.gr_ppLasso&gt;</i>)</a></code> </p>
         </td>
-        <td><p>plot regularization path of coefficients from a `gr_ppLasso` object</p></td>
+        <td><p>plot the cross entropy Loss from a cv.ppLasso or cv.gr_ppLasso object</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="prediction-functions">Prediction functions <a href="#prediction-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="predict.ppLasso.html">predict(<i>&lt;ppLasso&gt;</i>)</a></code> <code><a href="predict.ppLasso.html">predict(<i>&lt;gr_ppLasso&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>predictions of a ppLasso or gr_ppLasso object</p></td>
       </tr><tr><td>
-          <p><code><a href="plot.cv.ppLasso.html">plot(<i>&lt;cv.ppLasso&gt;</i>)</a></code> </p>
+          <p><code><a href="coef.ppLasso.html">coef(<i>&lt;ppLasso&gt;</i>)</a></code> <code><a href="coef.ppLasso.html">coef(<i>&lt;gr_ppLasso&gt;</i>)</a></code> </p>
         </td>
-        <td><p>plot the cross entropy Loss from a `cv.ppLasso` object</p></td>
-      </tr><tr><td>
-          <p><code><a href="plot.cv.gr_ppLasso.html">plot(<i>&lt;cv.gr_ppLasso&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>plot the cross entropy Loss from a `cv.gr_ppLasso` object</p></td>
+        <td><p>extract coefficients of a ppLasso or gr_ppLasso object</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="package-data-sets">Package Data Sets <a href="#package-data-sets" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -98,11 +102,11 @@
       </tr></tbody><tbody><tr><td>
           <p><code><a href="GLM_Data.html">GLM_Data</a></code> </p>
         </td>
-        <td><p>example data for `pp.lasso` and `grp.lasso`</p></td>
+        <td><p>example data for pp.lasso and grp.lasso</p></td>
       </tr><tr><td>
           <p><code><a href="Surv_Data.html">Surv_Data</a></code> </p>
         </td>
-        <td><p>example data for `pp.DiscSurv`</p></td>
+        <td><p>example data for pp.DiscSurv</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

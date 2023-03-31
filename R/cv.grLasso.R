@@ -4,11 +4,11 @@
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
-#' @param Y.char name of the response variable from `data` as a character string, as in `pp.lasso` function.
+#' @param Y.char name of the response variable from `data` as a character string, as in \code{grp.lasso} function.
 #'
-#' @param Z.char names of covariates from `data` as vector of character strings, as in `pp.lasso` function.
+#' @param Z.char names of covariates from `data` as vector of character strings, as in \code{grp.lasso} function.
 #'
-#' @param prov.char name of provider IDs variable from `data` as a character string, as in `pp.lasso` function.
+#' @param prov.char name of provider IDs variable from `data` as a character string, as in \code{grp.lasso} function.
 #'
 #' @param group a vector describing the grouping of the coefficients. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0").
 #'
@@ -18,11 +18,12 @@
 #'
 #' @param fold a vector that specifies the fold that observations belongs to. By default the observations are randomly assigned.
 #'
-#' @param trace.cv `cv.pp.lasso` will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.
+#' @param trace.cv \code{cv.grp.lasso} will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.
 #'
 #' @param ... extra arguments to be passed to function.
 #'
-#' @return An object with S3 class `cv.gr_ppLasso`.
+#'
+#' @return An object with S3 class \code{cv.gr_ppLasso}.
 #'
 #' \item{cve}{the error for each value of lambda, averaged across the cross-validation folds.}
 #'
@@ -30,7 +31,7 @@
 #'
 #' \item{lambda}{the sequence of regularization parameter values along which the cross-validation error was calculated.}
 #'
-#' \item{fit}{the fitted `pp.lasso` object for the whole data.}
+#' \item{fit}{the fitted \code{gr_ppLasso} object for the whole data.}
 #'
 #' \item{fold}{the fold assignments for cross-validation for each observation}
 #'

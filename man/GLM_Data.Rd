@@ -3,7 +3,7 @@
 \docType{data}
 \name{GLM_Data}
 \alias{GLM_Data}
-\title{example data for `pp.lasso` and `grp.lasso`}
+\title{example data for pp.lasso and grp.lasso}
 \format{
 A list containing the following elements:
 \describe{

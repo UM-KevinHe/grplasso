@@ -21,6 +21,12 @@ reference:
   - plot.gr_ppLasso
   - plot.cv.ppLasso
   - plot.cv.gr_ppLasso
+- title: Prediction functions
+  contents:
+  - predict.ppLasso
+  - predict.gr_ppLasso
+  - coef.ppLasso
+  - coef.gr_ppLasso
 - title: Package Data Sets
   contents:
   - GLM_Data

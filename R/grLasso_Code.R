@@ -1,6 +1,6 @@
 #' fit a group penalized generalized regression model
 #'
-#' Fit a group penalized generalized regression model via coordinate descent method:
+#' main function for fitting a group penalized generalized regression model
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
@@ -57,7 +57,7 @@
 #' @param ... extra arguments to be passed to function.
 #'
 #'
-#' @return An object with S3 class `gr_ppLasso`.
+#' @return An object with S3 class \code{gr_ppLasso}.
 #'
 #' \item{beta}{the fitted matrix of covariate coefficients.
 #' The number of rows is equal to the number of coefficients,
