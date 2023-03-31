@@ -1,0 +1,27 @@
+url: https://github.com/UM-KevinHe/grplasso
+template:
+  params:
+    bootswatch: lumen
+    ganalytics: UA-54921687-5
+reference:
+- title: Main Fitting Functions for Generalized Linear Regression Models
+  desc: The main functions to fit the penalized generalized regression models
+  contents:
+  - pp.lasso
+  - cv.pp.lasso
+  - grp.lasso
+  - cv.grp.lasso
+- title: Main Fitting Functions for Discrete Survival Models
+  desc: The main functions to fit the penalized discrete survival mode
+  contents:
+  - pp.DiscSurv
+- title: Plotting functions
+  contents:
+  - plot.ppLasso
+  - plot.gr_ppLasso
+  - plot.cv.ppLasso
+  - plot.cv.gr_ppLasso
+- title: Package Data Sets
+  contents:
+  - GLM_Data
+  - Surv_Data

@@ -1,0 +1,16 @@
+Package: ppLasso
+Type: Package
+Title: Variable selection algorithm for generalized linear models with high dimensional center effects
+Version: 1.5
+Date: 2023-01-05
+Author: Yubo Shao
+Maintainer: Yubo Shao <ybshao@umich.edu>
+Description: An efficient algorithm for solving GLM lasso problems with large number of health centers
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Imports: Rcpp (>= 1.0.7)
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 7.2.1
+Depends: 
+    R (>= 2.10)
