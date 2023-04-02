@@ -60,10 +60,11 @@ performs k-fold cross validation for penalized regression models over a grid of 
 }
 \examples{
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-fit <- cv.pp.lasso(GLM_Data, Y.char, Z.char, prov.char, nfolds = 10)
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 # the best lambda using cross validation
 fit$lambda.min
 

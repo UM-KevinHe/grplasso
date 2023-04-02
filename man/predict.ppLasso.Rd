@@ -54,20 +54,22 @@ return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-fit <- pp.lasso(GLM_Data, Y.char, Z.char, prov.char)
-predict(fit, GLM_Data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
-predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
-predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.04, type = "vars")
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+fit <- pp.lasso(data, Y.char, Z.char, prov.char)
+predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
+predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
+predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
 
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-group <- c(1, 1, 2, 2, 3)
-fit <- grp.lasso(GLM_Data, Y.char, Z.char, prov.char, group = group)
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+group <- GLM_Data$group
+fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 predict(fit, GLM_Data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
 predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
 predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.04, type = "vars")

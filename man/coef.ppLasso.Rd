@@ -24,19 +24,23 @@
 return the model coefficients of a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
+#fit glm without grouped covariates
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-fit <- pp.lasso(GLM_Data, Y.char, Z.char, prov.char)
-coef(fit, lambda = fit$lambda)$beta[, 1:5]
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+fit <- pp.lasso(data, Y.char, Z.char, prov.char)
+coef(fit, lambda = fit$lambda)$beta[, 1:10]
 coef(fit, lambda = fit$lambda)$gamma[1:10, 1:5]
+#fit glm with grouped covariates
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-group <- c(1, 1, 2, 2, 3)
-fit <- grp.lasso(GLM_Data, Y.char, Z.char, prov.char, group = group)
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+group <- GLM_Data$group
+fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 coef(fit, lambda = fit$lambda)$beta[, 1:5]
 coef(fit, lambda = fit$lambda)$gamma[1:10, 1:5]
 }

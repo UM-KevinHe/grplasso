@@ -17,20 +17,22 @@
 \item{label}{whether annotates the plot with labels.}
 }
 \description{
-return the plot the cross entropy Loss from a \code{ppLasso} or \code{gr_ppLasso} object
+return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-fit <- pp.lasso(GLM_Data, Y.char, Z.char, prov.char)
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 plot(fit)
 data(GLM_Data)
-Y.char <- 'Y'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-group <- c(1, 1, 2, 2, 2)
-fit <- grp.lasso(GLM_Data, Y.char, Z.char, prov.char, group = group)
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+group <- GLM_Data$group
+fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 plot(fit)
 }

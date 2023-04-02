@@ -112,14 +112,15 @@ The model is fit by Newton method and coordinate descent method.
 }
 \examples{
 data(Surv_Data)
-Event.char <- 'status'
-prov.char <- 'Prov.ID'
-Z.char <- c("Z1", "Z2", "Z3", "Z4", "Z5")
-Time.char <- "time"
-fit <- pp.DiscSurv(Surv_Data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
+data <- Surv_Data$data
+Event.char <- Surv_Data$Event.char
+prov.char <- Surv_Data$prov.char
+Z.char <- Surv_Data$Z.char
+Time.char <- Surv_Data$Time.char
+fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
 fit$beta
 fit$alpha
-fit$gamma
+fit$gamma #effect of the first provider is set to be zero
 
 }
 \references{

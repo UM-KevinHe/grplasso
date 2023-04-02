@@ -7,10 +7,11 @@
 \format{
 A list containing the following elements:
 \describe{
-  \item{time}{observation time.}
-  \item{status}{event indicator.}
-  \item{Prov.ID}{provider information.}
-  \item{Z1, ..., Z5}{5 continuous covariates.}
+  \item{data}{example data.`time` represents the observation time; `status` is the event indicator; `Prov.ID` is the provider indicator; `Z1`, ..., `Z5` are 5 continuous covariates.}
+  \item{Event.char}{variable name of the event indicator.}
+  \item{prov.char}{variable name of the provider indicator.}
+  \item{Z.char}{variable names of covariates.}
+  \item{Time.char}{variable name of the observation time.}
 }
 }
 \usage{

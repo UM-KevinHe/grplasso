@@ -7,9 +7,12 @@
 \format{
 A list containing the following elements:
 \describe{
-  \item{Y}{response variable.}
-  \item{Prov.ID}{provider information.}
-  \item{Z1, ..., Z5}{5 continuous covariates.}
+  \item{data}{example data.`Y` is the response variable; `Prov.ID` is the provider indicator; `Z1`, ..., `Z5` are 5 continuous covariates.}
+  \item{Y.char}{variable name of the response variable.}
+  \item{prov.char}{variable name of the provider indicator.}
+  \item{Z.char}{variable names of covariates.}
+  \item{group}{vector describing how the covariates are grouped.}
+
 }
 }
 \usage{

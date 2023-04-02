@@ -14,3 +14,7 @@ LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.1
 Depends: 
     R (>= 2.10)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

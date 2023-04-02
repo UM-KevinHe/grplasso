@@ -1,0 +1,99 @@
+---
+title: "ppLasso"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ppLasso}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction:
+
+`ppLasso` is an R package designed to fit penalized regression models for generalized linear models and discrete survival models. This package was developed specifically for data sets containing a large number of health providers. Our statistical tool outperforms existing methods in terms of convergence speed by a significant margin, as proven by both simulated studies and real-world data. In this tutorial, we will demonstrate the usage of `ppLasso` through example datasets.
+
+## Installation:
+
+```{r ,include=TRUE,eval=FALSE}
+require("devtools")
+require("remotes")
+remotes::install_github("UM-KevinHe/grplasso", ref = "main")
+```
+
+## Quick Start:
+
+This section will delve into the essential usage of the functions incorporated in the current R package, along with the interpretation of the resulting values from those functions. We will utilize example data sets to facilitate users in comprehending the R package more thoroughly.
+
+```{r}
+library(ppLasso)
+```
+
+To illustrate the process of fitting a generalized linear model, we will utilize the "GLM_Data" data set that is included in the package. This data set comprises of five predictors, an indicator for provider information, and a binary outcome variable.
+
+```{r}
+data(GLM_Data)
+data <- GLM_Data$data
+Y.char <- GLM_Data$Y.char
+prov.char <- GLM_Data$prov.char
+Z.char <- GLM_Data$Z.char
+head(GLM_Data$data)
+```
+
+The `pp.lasso()` function is utilized to fit a generalized linear model when the covariate does not include any group information. 
+
+By default, if the user does not specify the regularization coefficient $\lambda$, our function will automatically generate a sequence of $\lambda$ values, where the largest $\lambda$ will penalize all covariates to zero.
+
+```{r}
+fit <- pp.lasso(data, Y.char, Z.char, prov.char)
+```
+
+`coef` function can provide an estimate of the coefficients in the fitted model. The column names of the coefficient matrix correspond to the $\lambda$ value.
+
+```{r}
+# estimate of covariate coefficients
+coef(fit)$beta[, 1:5]
+# estimate of provider effects
+coef(fit)$gamma[1:10, 1:5]
+```
+
+`plot` function generates the figure of the regularization path:
+
+```{r}
+plot(fit)
+```
+
+`predict` function generates the model predictions for a given dataset based on the coefficient estimates:
+
+```{r}
+predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
+predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
+```
+
+The usage of the `grp.lasso()` function is similar to above, but with the additional requirement of providing group information for the covariates. If the user calls the function without providing group information, it will assume that each variable is a group on its own.
+
+```{r}
+group <- GLM_Data$group
+fit2 <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
+plot(fit2)
+```
+
+The optimal regularization parameter is determined by cross-validation, which is the default method. To obtain the optimal regularization coefficient, the user can call the `cv.pp.lasso()` or `cv.grp.lasso` function.
+
+```{r}
+fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
+```
+
+`plot` function returns the figure of the cross entropy Loss to help user choose the optimal $\lambda$:
+
+```{r}
+plot(fit)
+```
+
+
+

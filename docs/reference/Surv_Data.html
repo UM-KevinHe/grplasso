@@ -29,6 +29,9 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
+  <a href="../articles/ppLasso.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
@@ -55,17 +58,20 @@
 
     <div id="format">
     <h2>Format</h2>
-    <p>A list containing the following elements:</p><dl><dt>time</dt>
-<dd><p>observation time.</p></dd>
+    <p>A list containing the following elements:</p><dl><dt>data</dt>
+<dd><p>example data.`time` represents the observation time; `status` is the event indicator; `Prov.ID` is the provider indicator; `Z1`, ..., `Z5` are 5 continuous covariates.</p></dd>
 
-  <dt>status</dt>
-<dd><p>event indicator.</p></dd>
+  <dt>Event.char</dt>
+<dd><p>variable name of the event indicator.</p></dd>
 
-  <dt>Prov.ID</dt>
-<dd><p>provider information.</p></dd>
+  <dt>prov.char</dt>
+<dd><p>variable name of the provider indicator.</p></dd>
 
-  <dt>Z1, ..., Z5</dt>
-<dd><p>5 continuous covariates.</p></dd>
+  <dt>Z.char</dt>
+<dd><p>variable names of covariates.</p></dd>
+
+  <dt>Time.char</dt>
+<dd><p>variable name of the observation time.</p></dd>
 
 
 </dl></div>
