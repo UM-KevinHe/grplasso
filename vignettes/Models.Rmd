@@ -31,7 +31,7 @@ Given the previous iteration's estimate of $\boldsymbol{\beta}$ (denoted as $\ti
 
 Since the score function of $Q_{\lambda, \boldsymbol{\gamma}}(\boldsymbol{\gamma})$ is separable for $\boldsymbol{\gamma}$ and the fisher information matrix is diagonal, $\gamma_i$ can be updated separately using only a subset of the entire data by a one-step Newton procedure:
 
-$$\hat{\gamma}_i = \tilde{\gamma_i} + I_{\lambda}^{-1}(\tilde{\gamma}_i) U_{\lambda}(\tilde{\gamma}_i).$$
+$$\hat{\gamma}_i = \tilde{\gamma_i} + I_{\lambda}^{-1}(\tilde{\gamma}_i) U_{\lambda}(\tilde{\gamma}_i).$$ 
 
 #### inner layer: update the covariate coefficient $\boldsymbol{\beta}$
 
