@@ -1,0 +1,37 @@
+---
+title: "Models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Suppose we have total $n$ subjects from $m$ transplant centers with $n_i$ records from center $i$ ($i = 1, ..., m$). Coefficients of risk factors are denoted by $\boldsymbol{\beta}$ = $(\beta_1, \dots, \beta_P)^T$, and let $\boldsymbol{\gamma} = (\gamma_1, ..., \gamma_m)^T$ denote the effect of centers. 
+
+## Generalized Linear Models
+
+Let $Y_{ij}$ denotes the outcome variable for record $j \ (j = 1, ..., n_i$) of center $i$, and let $\boldsymbol{X}_{ij}$ be the corresponding $1 \times P$ vector of risk factors. We assume that given the linear predictor $\eta_{ij} := \gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta}$, the outcome $Y_{ij}$ follows a distribution in the exponential family. Incorporate with penalty terms, our problem of interest is estimating $\boldsymbol{\theta} = (\boldsymbol{\gamma}^T, \boldsymbol{\beta}^T)^T$ by minimizing:
+
+$$Q_{\lambda}(\boldsymbol{\theta}) = -\frac{1}{n}\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta}) - b(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta})\} + \sum_{p = 1}^P \lambda_{p} |\beta_p|$$
+
+## Discrete Survival Logistic Model
+
+Let $\tilde{T}_{ij}$ represent the underlying uncensored failure time and $C_{ij}$ be the censoring time of individual $j$ of center $i$. Let $\boldsymbol{Z}_{ij}$ denote the $1 \times p$ vector of risk factors of $j^{th}$ individual from center $i$, $\Delta_i$ is the center indicator, and $T_{ij}$ be the corresponding observed failure or censor time with $\bigcup\{T_{ij}\} = \{t_{1}, t_{2}, ..., t_{K}\}$, where $t_{1} < t_{2} < \cdots < t_{K}$ is the discrete failure times indexed by $m = 1, 2, ..., K$. We assume that $\tilde{T}_{ij}$ is independent with $C_{ij}$ given $\boldsymbol{Z}_{ij}$ and $\Delta_i$. Let $\lambda(t_k; \boldsymbol{Z}_{ij}, \Delta_i) = P(\tilde{T}_{ij} = t_i | \tilde{T}_{ij} \geq t_k, \boldsymbol{Z}_{ij}, \Delta_i)$ be the hazard for the individual with risk factor $\boldsymbol{Z}_{ij}$ and from center $i$ at time $t_k$, and let $\mathcal{D}_{i,k}$ and $\mathcal{C}_{i,k}$ be the set of indices attached to individuals from center $i$ failing and censoring at $t_k$, respectively. 
+
+The full likelihood function is given by
+
+$$ L=\prod_{k=1}^{K} \prod_{i=1}^{m} \left\{\prod_{j \in \mathcal{D}_{i,k}} [F(t_k^-; \boldsymbol{Z}_{ij}, \Delta_i) - F(t_k; \boldsymbol{Z}_{ij}, \Delta_i)] \prod_{j \in \mathcal{C}_{i,k}} F(t_k; \boldsymbol{Z}_{ij}, \Delta_i)\right\},$$
+where $F(t_k; \boldsymbol{Z}_{ij}, \Delta_i) = P(\tilde{T}_{ij} > t_k|\boldsymbol{Z}_{ij}, \Delta_i) = \prod\limits_{l \mid t_{l} \leq t_k}\{1 - \lambda(t_l; \boldsymbol{Z}_{ij}, \Delta_i)\}$ is the survival function at time $t_k$ corresponding to individual from center $i$ with covariate $\boldsymbol{Z}_{ij}$. Let $\lambda_0(t_k)$ be the discrete baseline hazard function at time $t_k$, then the hazard relationship for the discrete-time logistic model is defined as:
+
+$$log(\frac{\lambda(t_k; \boldsymbol{Z}_{ij}, \Delta_i)}{1 - \lambda(t_k; \boldsymbol{Z}_{ij}, \Delta_i)}) = log(\frac{\lambda_0(t_k)}{1 - \lambda_0(t_k)}) + \gamma_i + \boldsymbol{Z}_{ij} \boldsymbol{\beta}.$$
+Let $\alpha_k = log(\frac{\lambda_0(t_k)}{1 - \lambda_0(t_k)})$, then our problem of interest is estimating $\boldsymbol{\theta} = (\boldsymbol{\boldsymbol{\alpha}^T, \gamma}^T, \boldsymbol{\beta}^T)^T$ by minimizing:
+
+$$Q_{\lambda}(\boldsymbol{\theta}) = -\frac{1}{n} \sum_{i = 1}^m \sum_{j=1}^{n_i} \sum_{k=1}^{k_{ij}} \{\delta_{ij}\left(t_{k}\right) \cdot (\alpha_k + \gamma_i + \boldsymbol{Z}_{ij} \boldsymbol{\beta}) -log(1 + e^{\alpha_k + \gamma_i + \boldsymbol{Z}_{ij} \boldsymbol{\beta}}) \} + \sum_{p = 1}^P \lambda_{p} |\beta_p|$$
