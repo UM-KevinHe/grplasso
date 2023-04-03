@@ -104,14 +104,109 @@ corresponding <span class="math inline">\(1 \times P\)</span> vector of
 risk factors. We assume that given the linear predictor <span class="math inline">\(\eta_{ij} := \gamma_i +
 \boldsymbol{X}_{ij}\boldsymbol{\beta}\)</span>, the outcome <span class="math inline">\(Y_{ij}\)</span> follows a distribution in the
 exponential family. Incorporate with penalty terms, our problem of
-interest is estimating <span class="math inline">\(boldsymbol{\theta} =
+interest is estimating <span class="math inline">\(\boldsymbol{\theta} =
 (\boldsymbol{\gamma}^T, \boldsymbol{\beta}^T)^T\)</span> by
 minimizing:</p>
 <p><span class="math display">\[Q_{\lambda}(\boldsymbol{\theta}) =
 -\frac{1}{n}\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i}
 \{Y_{ij}(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta}) - b(\gamma_i
 +  \boldsymbol{X}_{ij}\boldsymbol{\beta})\} + \sum_{p = 1}^P \lambda_{p}
-|\beta_p|\]</span></p>
+|\beta_p|,\]</span> where <span class="math inline">\(\lambda_{p}\)</span> <span class="math inline">\((p = 1,2,...,P)\)</span> is the regularization
+parameter for <span class="math inline">\(\beta_p\)</span>.</p>
+<div class="section level3">
+<h3 id="two-layer-iterative-update-procedure">Two-layer iterative update procedure<a class="anchor" aria-label="anchor" href="#two-layer-iterative-update-procedure"></a>
+</h3>
+<div class="section level4">
+<h4 id="outer-layer-update-the-provider-effect-boldsymbolgamma">outer layer: update the provider effect <span class="math inline">\(\boldsymbol{\gamma}\)</span><a class="anchor" aria-label="anchor" href="#outer-layer-update-the-provider-effect-boldsymbolgamma"></a>
+</h4>
+<p>Given the previous iteration’s estimate of <span class="math inline">\(\boldsymbol{\beta}\)</span> (denoted as <span class="math inline">\(\tilde{\boldsymbol{\beta}}\)</span>), consider
+<span class="math inline">\(Q_{\lambda,
+\boldsymbol{\gamma}}(\boldsymbol{\gamma}) \propto
+Q_{\lambda}((\boldsymbol{\gamma}^T,
+\tilde{\boldsymbol{\beta}}^T)^T)\)</span> that is defined as <span class="math display">\[ Q_{\lambda,
+\boldsymbol{\gamma}}(\boldsymbol{\gamma}) = - \frac{1}{n} \sum\limits_{i
+= 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i + \boldsymbol{X}_{ij}
+\tilde{\boldsymbol{\beta}}) - b(\gamma_i + \boldsymbol{X}_{ij}
+\tilde{\boldsymbol{\beta}})\}.\]</span></p>
+<p>Since the score function of <span class="math inline">\(Q_{\lambda,
+\boldsymbol{\gamma}}(\boldsymbol{\gamma})\)</span> is separable for
+<span class="math inline">\(\boldsymbol{\gamma}\)</span> and the fisher
+information matrix is diagonal, <span class="math inline">\(\gamma_i\)</span> can be updated separately using
+only a subset of the entire data by a one-step Newton procedure:</p>
+<p><span class="math display">\[\hat{\gamma}_i = \tilde{\gamma_i} +
+I_{\lambda}^{-1}(\tilde{\gamma}_i)
+U_{\lambda}(\tilde{\gamma}_i).\]</span></p>
+</div>
+<div class="section level4">
+<h4 id="inner-layer-update-the-covariate-coefficient-boldsymbolbeta">inner layer: update the covariate coefficient <span class="math inline">\(\boldsymbol{\beta}\)</span><a class="anchor" aria-label="anchor" href="#inner-layer-update-the-covariate-coefficient-boldsymbolbeta"></a>
+</h4>
+<p>Based on the updated value of <span class="math inline">\(\boldsymbol{\gamma}\)</span> (i.e. the <span class="math inline">\(\hat{\boldsymbol{\gamma}}\)</span> that was
+updated previously), consider <span class="math display">\[Q_{\lambda,
+\boldsymbol{\beta}}(\boldsymbol{\beta}) =
+Q_{\lambda}((\hat{\boldsymbol{\gamma}}^T, \boldsymbol{\beta}^T)^T) =
+\frac{1}{n}\mathcal{L}_{\beta}(\boldsymbol{\beta}) + \sum_{p = 1}^P
+\lambda_{p} |\beta_p|,\]</span> where <span class="math inline">\(\mathcal{L}_{\beta}(\boldsymbol{\beta}) = -
+\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\hat{\gamma}_i
++ \boldsymbol{X}_{ij} \boldsymbol{\beta}) - b(\hat{\gamma}_i +
+\boldsymbol{X}_{ij} \boldsymbol{\beta})\}\)</span>.</p>
+<p>The coordinate-wise updating function of <span class="math inline">\(\boldsymbol{\beta}\)</span> utilizing the
+sub-differential calculus is given by: <span class="math display">\[\hat{\beta}_p = \frac{S\{\sum\limits_{i = 1}^m
+\sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {X_{ijp}} (Z(\tilde{\eta}_{ij})
+- \hat{\gamma}_i - \boldsymbol{X}_{ij} \hat{\boldsymbol{\beta}}_{(-p)}),
+n\lambda_p\}}{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i}
+\tilde{w}_{ij} {X_{ijp}}^2},\]</span> where <span class="math display">\[S(Z, \lambda) = \begin{cases} Z - \lambda,\ \
+\text{if} \ \ \ Z &gt; \lambda \\ \ \ \ 0, \ \ \ \ \ \text{if}
+\  -\lambda \leq Z \leq \lambda \\ Z + \lambda, \ \ \text{if} \ \ \ Z
+&lt; -\lambda \end{cases}\]</span>, <span class="math display">\[Z(\tilde{\eta}_{ij}) = \hat{\gamma}_i +
+\boldsymbol{X}_{ij} \tilde{\boldsymbol{\beta}}
+-  \{\mathcal{L}_{\eta}''(\tilde{\boldsymbol{\eta}})
+^{-1}
+\mathcal{L}_{\eta}'(\tilde{\boldsymbol{\eta}})\}_{ij},\]</span> and
+<span class="math display">\[\tilde{\omega}_{ij} =
+\mathcal{L}_{\eta}''(\tilde{\boldsymbol{\eta}})_{ij}.\]</span></p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="extensions-covariates-with-group-information">Extensions: Covariates with Group Information<a class="anchor" aria-label="anchor" href="#extensions-covariates-with-group-information"></a>
+</h3>
+<p>Let <span class="math inline">\(\boldsymbol{X}_{ij}\)</span> be a
+<span class="math inline">\(1 \times \sum_{k = 1}^K p_k\)</span> vector
+of risk factors that are divided into <span class="math inline">\(K\)</span> non-overlapping groups (<span class="math inline">\(p_k\)</span> denotes the length of group <span class="math inline">\(k\)</span>). The coefficients of risk factors are
+denoted by <span class="math inline">\(\boldsymbol{\beta}\)</span> =
+<span class="math inline">\((\boldsymbol{\beta}_1^T\)</span>, …, <span class="math inline">\(\boldsymbol{\beta}_K^T)^T\)</span>. Given the
+observed data <span class="math inline">\(\{(Y_{ij},
+\boldsymbol{X}_{ij})\}\)</span>, our problem of interest becomes
+estimating <span class="math inline">\(\boldsymbol{\theta} =
+(\boldsymbol{\gamma}^T, \boldsymbol{\beta}^T)^T\)</span> by minimizing
+<span class="math display">\[ Q_{\lambda}(\boldsymbol{\theta}) =
+\frac{1}{n} \mathcal{L}(\boldsymbol{\theta}) + \sum_{k = 1}^K \lambda_k
+||\boldsymbol{\beta}_k||_2,\]</span> where <span class="math inline">\(\mathcal{L}(\boldsymbol{\theta}) = -
+\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i +
+\sum_{k = 1}^K \boldsymbol{X}_{ijk}\boldsymbol{\beta}_k) - b(\gamma_i +
+\sum_{k = 1}^K \boldsymbol{X}_{ijk}\boldsymbol{\beta}_k)\}\)</span> is
+the loss function, and <span class="math inline">\(||\boldsymbol{\beta}_k||_2\)</span> is the <span class="math inline">\(L_2\)</span> norm of <span class="math inline">\(\boldsymbol{\beta}_k\)</span>. <span class="math inline">\(\lambda_k\)</span> is the regularization parameter
+on group <span class="math inline">\(k\)</span> with default <span class="math inline">\(\lambda_k = \lambda \sqrt{p_k}\)</span>.</p>
+<p>In the outer layer of each iteration, the center effects <span class="math inline">\(\boldsymbol{\gamma}\)</span>’s are updated the
+same way as we discussed previously.</p>
+<p>In the inner layer, we use the Majorize-Minimization (MM) algorithm
+to improve the efficiency of our algorithm for binary outcomes. Based on
+the current value of <span class="math inline">\(\hat{\boldsymbol{\gamma}}\)</span>, the
+subdifferential-based group-wise updating function of the objective
+function is given by <span class="math display">\[\boldsymbol{\beta}_k =
+\begin{cases} (||\tilde{\boldsymbol{z}}_k|| - \frac{\lambda_k}{v})
+\frac{\tilde{\boldsymbol{z}}_k}{||\tilde{\boldsymbol{z}}_k||},   &amp;
+\text{if} \ \ v\cdot||\tilde{\boldsymbol{z}}_k|| &gt; \lambda_k \\
+    0,  &amp; \text{if} \ \ v\cdot||\tilde{\boldsymbol{z}}_k|| \leq
+\lambda_k  \end{cases},\]</span> where <span class="math inline">\(\tilde{\boldsymbol{z}}_k = \frac{1}{n}
+{\boldsymbol{X}_k}^T (Z(\tilde{\boldsymbol{\eta}}) -
+\hat{\boldsymbol{\gamma}} - \boldsymbol{X}
+\tilde{\boldsymbol{\beta}}_{(-k)})\)</span> and <span class="math inline">\(v = 0.25\)</span>. <span class="math inline">\(\tilde{\boldsymbol{\beta}}_{(-k)}\)</span> is the
+most recently updated value of <span class="math inline">\(\boldsymbol{\beta}\)</span> but set <span class="math inline">\(\tilde{\boldsymbol{\beta}}_k\)</span> to <span class="math inline">\(\boldsymbol{0}\)</span>, <span class="math inline">\(Z(\tilde{\boldsymbol{\eta}}) =
+\boldsymbol{Y}\)</span> for continuous outcome and <span class="math inline">\(Z(\tilde{\boldsymbol{\eta}}) =
+\hat{\boldsymbol{\gamma}} + \boldsymbol{X} \tilde{\boldsymbol{\beta}} +
+\frac{1}{v}(\boldsymbol{Y} - \tilde{\boldsymbol{p}})\)</span> for binary
+outcome.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="discrete-survival-logistic-model">Discrete Survival Logistic Model<a class="anchor" aria-label="anchor" href="#discrete-survival-logistic-model"></a>
@@ -160,6 +255,109 @@ as:</p>
 \boldsymbol{Z}_{ij} \boldsymbol{\beta}) -log(1 + e^{\alpha_k + \gamma_i
 + \boldsymbol{Z}_{ij} \boldsymbol{\beta}}) \} + \sum_{p = 1}^P
 \lambda_{p} |\beta_p|\]</span></p>
+<div class="section level3">
+<h3 id="three-layer-iterative-update-procedure">Three-layer iterative update procedure<a class="anchor" aria-label="anchor" href="#three-layer-iterative-update-procedure"></a>
+</h3>
+<div class="section level4">
+<h4 id="outer-layer-update-the-log-transformed-baseline-hazard-boldsymbolalpha">outer layer: update the log-transformed baseline hazard <span class="math inline">\(\boldsymbol{\alpha}\)</span><a class="anchor" aria-label="anchor" href="#outer-layer-update-the-log-transformed-baseline-hazard-boldsymbolalpha"></a>
+</h4>
+<p>Given the previous iteration’s estimate of center effect <span class="math inline">\(\tilde{\boldsymbol{\gamma}}\)</span> and
+coefficient of risk factors <span class="math inline">\(\tilde{\boldsymbol{\beta}}\)</span>, we consider
+<span class="math inline">\(Q_{\lambda,
+\boldsymbol{\alpha}}(\boldsymbol{\alpha}) = - \frac{1}{n} \sum\limits_{i
+= 1}^m \sum\limits_{j=1}^{n_i} \sum\limits_{k=1}^{k_{ij}}
+\{\delta_{ij}\left(t_{k}\right) \cdot (\alpha_k + \tilde{\gamma}_{i} +
+\boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}) -log(1 + e^{\alpha_k +
+\tilde{\gamma}_{i} + \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}})
+\}\)</span>. The Newton method allows us to update <span class="math inline">\(\boldsymbol{\gamma}\)</span> separately by: <span class="math display">\[\hat{\alpha}_k = \tilde{\alpha}_k +
+I_{\lambda}^{-1}(\tilde{\alpha}_k)
+U_{\lambda}(\tilde{\alpha}_k),\]</span> where <span class="math inline">\(\tilde{\alpha}_k\)</span> is the current value of
+<span class="math inline">\(\alpha_k\)</span>, and <span class="math display">\[U_{\lambda}(\tilde{\alpha}_k) = - \frac{1}{n}
+\sum_{i = 1}^m \{\sum_{j = 1}^{n_i} \delta_{ij} \left(t_{k}\right) -
+\sum_{j|T_{ij} \geq t_k} \frac{e^{\tilde{\alpha}_k + \tilde{\gamma}_i
++  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{1 +
+e^{\tilde{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij}
+\tilde{\boldsymbol{\beta}}}}\} \\
+     I_{\lambda}(\tilde{\alpha}_k) = - \frac{1}{n} \sum_{i = 1}^m
+\sum_{j|T_{ij} \geq t_k} \frac{e^{\tilde{\alpha}_k + \tilde{\gamma}_i
++  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{(1 +
+e^{\tilde{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij}
+\tilde{\boldsymbol{\beta}}})^2}.\]</span></p>
+</div>
+<div class="section level4">
+<h4 id="middle-layer-update-the-provider-effect-boldsymbolgamma">middle layer: update the provider effect <span class="math inline">\(\boldsymbol{\gamma}\)</span><a class="anchor" aria-label="anchor" href="#middle-layer-update-the-provider-effect-boldsymbolgamma"></a>
+</h4>
+<p>Given the <span class="math inline">\(\hat{\boldsymbol{\alpha}}\)</span> updated above
+and the most recently updated <span class="math inline">\(\tilde{\boldsymbol{\beta}}\)</span>, we consider
+<span class="math inline">\(Q_{\lambda,
+\boldsymbol{\gamma}}(\boldsymbol{\gamma}) = - \frac{1}{n} \sum\limits_{i
+= 1}^m \sum\limits_{j=1}^{n_i} \sum\limits_{k=1}^{k_{ij}}
+\{\delta_{ij}\left(t_{k}\right) \cdot (\hat{\alpha}_k + \gamma_{i} +
+\boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}) -log(1 +
+e^{\hat{\alpha}_k + \gamma_{i} + \boldsymbol{Z}_{ij}
+\tilde{\boldsymbol{\beta}}}) \}\)</span>. Use a similar one-step Newton
+method we should have <span class="math display">\[\hat{\gamma}_i =
+\tilde{\gamma}_i + I_{\lambda}^{-1}(\tilde{\gamma}_i)
+U_{\lambda}(\tilde{\gamma}_i),\]</span> where <span class="math inline">\(\gamma_{i}\)</span> represent the most recently
+updated value of effect of center <span class="math inline">\(i\)</span>, and <span class="math display">\[U_{\lambda}(\tilde{\gamma}_i) = - \frac{1}{n}
+\sum_{j = 1}^{n_i} \sum_{k = 1}^{k_{ij}} \{\delta_{ij}
+\left(t_{k}\right) - \frac{e^{\hat{\alpha}_k + \tilde{\gamma}_i
++  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{1 +
+e^{\hat{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij}
+\tilde{\boldsymbol{\beta}}}}\} \\
+     I_{\lambda}(\tilde{\gamma}_i) = - \frac{1}{n}  \sum_{j = 1}^{n_i}
+\sum_{k = 1}^{k_{ij}} \frac{e^{\hat{\alpha}_k + \tilde{\gamma}_i
++  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{(1 +
+e^{\hat{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij}
+\tilde{\boldsymbol{\beta}}})^2}.\]</span></p>
+<p>It should be noted that the effect of the first provider is set to
+zero (as the reference group) to prevent issues of
+multicollinearity.</p>
+</div>
+<div class="section level4">
+<h4 id="inner-layer-update-the-covariate-coefficient-boldsymbolbeta-1">inner layer: update the covariate coefficient <span class="math inline">\(\boldsymbol{\beta}\)</span><a class="anchor" aria-label="anchor" href="#inner-layer-update-the-covariate-coefficient-boldsymbolbeta-1"></a>
+</h4>
+<p>Based on the <span class="math inline">\(\hat{\boldsymbol{\alpha}}\)</span> and <span class="math inline">\(\hat{\boldsymbol{\gamma}}\)</span> updated from
+the previous two steps, define <span class="math inline">\(\mathcal{L}_{\beta}(\boldsymbol{\beta}) = -
+\frac{1}{n} \sum\limits_{i = 1}^m \sum\limits_{j=1}^{n_i}
+\sum\limits_{k=1}^{k_{ij}} \{\delta_{ij}\left(t_{k}\right) \cdot
+(\hat{\alpha}_k + \hat{\gamma}_{i} + \boldsymbol{Z}_{ij}
+\boldsymbol{\beta}) -log(1 + e^{\hat{\alpha}_k + \hat{\gamma}_{i} +
+\boldsymbol{Z}_{ij} \boldsymbol{\beta}}) \}\)</span> and consider <span class="math display">\[Q_{\lambda,
+\boldsymbol{\beta}}(\boldsymbol{\beta}) =
+\frac{1}{n}  \mathcal{L}_{\beta}(\boldsymbol{\beta}) + \sum_{k = 1}^p
+\lambda_{k} |\beta_k|.\]</span></p>
+<p>Denote <span class="math display">\[Z(\tilde{\eta}_{ij}) =
+\tilde{\eta}_{ij}
+-  \{\mathcal{L}_{\eta}''(\tilde{\boldsymbol{\eta}})^{-1}
+\mathcal{L}_{\eta}'(\tilde{\boldsymbol{\eta}})\}_{ij} =
+\tilde{\eta}_{ij} + \frac{\sum\limits_{k = 1}^{k_{ij}}[\delta_{ij}(t_k)
+- \frac{e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}{1 + e^{\hat{\alpha}_k +
+\tilde{\eta}_{ij}}}]}{\sum\limits_{k = 1}^{k_{ij}}
+\frac{e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}{(1 + e^{\hat{\alpha}_k +
+\tilde{\eta}_{ij}})^2}},\]</span> and <span class="math display">\[\tilde{\omega}_{ij} = \sum\limits_{k =
+1}^{k_{ij}} \frac{e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}{(1 +
+e^{\hat{\alpha}_k + \tilde{\eta}_{ij}})^2},\]</span> then the
+coordinate-wise updating function will be given by: <span class="math display">\[\beta_p = \frac{S\{\sum\limits_{i = 1}^m
+\sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {Z_{ijp}} (Z(\tilde{\eta}_{ij})
+- \hat{\gamma}_i - \boldsymbol{Z}_{ij}
+\tilde{\boldsymbol{\beta}}_{(-p)}), n\lambda_k\}}{\sum\limits_{i = 1}^m
+\sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {Z_{ijp}}^2},\]</span> where
+<span class="math inline">\(S\)</span> is the same soft-thresholding
+operator defined above.</p>
+<p>MM algorithm can also be applied for solving this problem since <span class="math inline">\(\sum\limits_{k = 1}^{k_{ij}}
+\frac{e^{\hat{\alpha}_{k} + \eta_{ij}}}{(1 + e^{\hat{\alpha}_{k} +
+\eta_{ij}})^2} &lt; \frac{1}{4} k_{ij}\)</span>. The majorizing
+surrogate function is constructed based on <span class="math display">\[\boldsymbol{W} = \begin{pmatrix}
+\frac{1}{4}k_{11} &amp;  &amp;  \\  &amp; \ddots &amp;  \\ &amp;  &amp;
+\frac{1}{4}k_{m,n_m} \end{pmatrix}_{n \times n},\]</span> and the
+corresponding updating function is given by <span class="math display">\[\beta_p = \frac{S\{\sum\limits_{i = 1}^m
+\sum\limits_{j = 1}^{n_i} k_{ij} {Z_{ijp}} (Z(\tilde{\eta}_{ij}) -
+\hat{\gamma}_i - \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}_{(-p)}),
+4n\lambda_k\}}{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} k_{ij}
+{Z_{ijp}}^2}.\]</span></p>
+</div>
+</div>
 </div>
   </div>
 

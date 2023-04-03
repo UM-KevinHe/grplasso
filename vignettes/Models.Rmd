@@ -20,7 +20,35 @@ Suppose we have total $n$ subjects from $m$ transplant centers with $n_i$ record
 
 Let $Y_{ij}$ denotes the outcome variable for record $j \ (j = 1, ..., n_i$) of center $i$, and let $\boldsymbol{X}_{ij}$ be the corresponding $1 \times P$ vector of risk factors. We assume that given the linear predictor $\eta_{ij} := \gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta}$, the outcome $Y_{ij}$ follows a distribution in the exponential family. Incorporate with penalty terms, our problem of interest is estimating $\boldsymbol{\theta} = (\boldsymbol{\gamma}^T, \boldsymbol{\beta}^T)^T$ by minimizing:
 
-$$Q_{\lambda}(\boldsymbol{\theta}) = -\frac{1}{n}\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta}) - b(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta})\} + \sum_{p = 1}^P \lambda_{p} |\beta_p|$$
+$$Q_{\lambda}(\boldsymbol{\theta}) = -\frac{1}{n}\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta}) - b(\gamma_i +  \boldsymbol{X}_{ij}\boldsymbol{\beta})\} + \sum_{p = 1}^P \lambda_{p} |\beta_p|,$$
+where $\lambda_{p}$ $(p = 1,2,...,P)$ is the regularization parameter for $\beta_p$. 
+
+### Two-layer iterative update procedure
+
+#### outer layer: update the provider effect $\boldsymbol{\gamma}$
+
+Given the previous iteration's estimate of $\boldsymbol{\beta}$ (denoted as $\tilde{\boldsymbol{\beta}}$), consider $Q_{\lambda, \boldsymbol{\gamma}}(\boldsymbol{\gamma}) \propto Q_{\lambda}((\boldsymbol{\gamma}^T, \tilde{\boldsymbol{\beta}}^T)^T)$ that is defined as $$ Q_{\lambda, \boldsymbol{\gamma}}(\boldsymbol{\gamma}) = - \frac{1}{n} \sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i + \boldsymbol{X}_{ij} \tilde{\boldsymbol{\beta}}) - b(\gamma_i + \boldsymbol{X}_{ij} \tilde{\boldsymbol{\beta}})\}.$$ 
+
+Since the score function of $Q_{\lambda, \boldsymbol{\gamma}}(\boldsymbol{\gamma})$ is separable for $\boldsymbol{\gamma}$ and the fisher information matrix is diagonal, $\gamma_i$ can be updated separately using only a subset of the entire data by a one-step Newton procedure:
+
+$$\hat{\gamma}_i = \tilde{\gamma_i} + I_{\lambda}^{-1}(\tilde{\gamma}_i) U_{\lambda}(\tilde{\gamma}_i).$$
+
+#### inner layer: update the covariate coefficient $\boldsymbol{\beta}$
+
+Based on the updated value of $\boldsymbol{\gamma}$ (i.e. the $\hat{\boldsymbol{\gamma}}$ that was updated previously), consider $$Q_{\lambda, \boldsymbol{\beta}}(\boldsymbol{\beta}) = Q_{\lambda}((\hat{\boldsymbol{\gamma}}^T, \boldsymbol{\beta}^T)^T) = \frac{1}{n}\mathcal{L}_{\beta}(\boldsymbol{\beta}) + \sum_{p = 1}^P \lambda_{p} |\beta_p|,$$ where $\mathcal{L}_{\beta}(\boldsymbol{\beta}) = - \sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\hat{\gamma}_i + \boldsymbol{X}_{ij} \boldsymbol{\beta}) - b(\hat{\gamma}_i + \boldsymbol{X}_{ij} \boldsymbol{\beta})\}$.
+
+The coordinate-wise updating function of $\boldsymbol{\beta}$ utilizing the sub-differential calculus is given by: 
+$$\hat{\beta}_p = \frac{S\{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {X_{ijp}} (Z(\tilde{\eta}_{ij}) - \hat{\gamma}_i - \boldsymbol{X}_{ij} \hat{\boldsymbol{\beta}}_{(-p)}), n\lambda_p\}}{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {X_{ijp}}^2},$$ where $$S(Z, \lambda) = \begin{cases} Z - \lambda,\ \ \text{if} \ \ \ Z > \lambda \\ \ \ \ 0, \ \ \ \ \ \text{if} \  -\lambda \leq Z \leq \lambda \\ Z + \lambda, \ \ \text{if} \ \ \ Z < -\lambda \end{cases}$$, $$Z(\tilde{\eta}_{ij}) = \hat{\gamma}_i + \boldsymbol{X}_{ij} \tilde{\boldsymbol{\beta}} -  \{\mathcal{L}_{\eta}''(\tilde{\boldsymbol{\eta}})
+^{-1} \mathcal{L}_{\eta}'(\tilde{\boldsymbol{\eta}})\}_{ij},$$ and $$\tilde{\omega}_{ij} = \mathcal{L}_{\eta}''(\tilde{\boldsymbol{\eta}})_{ij}.$$
+
+### Extensions: Covariates with Group Information
+
+Let $\boldsymbol{X}_{ij}$ be a $1 \times \sum_{k = 1}^K p_k$ vector of risk factors that are divided into $K$ non-overlapping groups ($p_k$ denotes the length of group $k$). The coefficients of risk factors are denoted by $\boldsymbol{\beta}$ = $(\boldsymbol{\beta}_1^T$, ..., $\boldsymbol{\beta}_K^T)^T$. Given the observed data $\{(Y_{ij}, \boldsymbol{X}_{ij})\}$, our problem of interest becomes estimating  $\boldsymbol{\theta} = (\boldsymbol{\gamma}^T, \boldsymbol{\beta}^T)^T$ by minimizing $$ Q_{\lambda}(\boldsymbol{\theta}) = \frac{1}{n} \mathcal{L}(\boldsymbol{\theta}) + \sum_{k = 1}^K \lambda_k ||\boldsymbol{\beta}_k||_2,$$ where $\mathcal{L}(\boldsymbol{\theta}) = - \sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \{Y_{ij}(\gamma_i + \sum_{k = 1}^K \boldsymbol{X}_{ijk}\boldsymbol{\beta}_k) - b(\gamma_i + \sum_{k = 1}^K \boldsymbol{X}_{ijk}\boldsymbol{\beta}_k)\}$ is the loss function, and $||\boldsymbol{\beta}_k||_2$ is the $L_2$ norm of $\boldsymbol{\beta}_k$. $\lambda_k$ is the regularization parameter on group $k$ with default $\lambda_k = \lambda \sqrt{p_k}$.
+
+In the outer layer of each iteration, the center effects $\boldsymbol{\gamma}$'s are updated the same way as we discussed previously. 
+
+In the inner layer, we use the Majorize-Minimization (MM) algorithm to improve the efficiency of our algorithm for binary outcomes. Based on the current value of $\hat{\boldsymbol{\gamma}}$, the subdifferential-based group-wise updating function of the objective function is given by $$\boldsymbol{\beta}_k = \begin{cases} (||\tilde{\boldsymbol{z}}_k|| - \frac{\lambda_k}{v}) \frac{\tilde{\boldsymbol{z}}_k}{||\tilde{\boldsymbol{z}}_k||},   & \text{if} \ \ v\cdot||\tilde{\boldsymbol{z}}_k|| > \lambda_k \\
+    0,  & \text{if} \ \ v\cdot||\tilde{\boldsymbol{z}}_k|| \leq \lambda_k  \end{cases},$$ where $\tilde{\boldsymbol{z}}_k = \frac{1}{n} {\boldsymbol{X}_k}^T (Z(\tilde{\boldsymbol{\eta}}) - \hat{\boldsymbol{\gamma}} - \boldsymbol{X} \tilde{\boldsymbol{\beta}}_{(-k)})$ and $v = 0.25$. $\tilde{\boldsymbol{\beta}}_{(-k)}$ is the most recently updated value of $\boldsymbol{\beta}$ but set $\tilde{\boldsymbol{\beta}}_k$ to $\boldsymbol{0}$, $Z(\tilde{\boldsymbol{\eta}}) = \boldsymbol{Y}$ for continuous outcome and $Z(\tilde{\boldsymbol{\eta}}) = \hat{\boldsymbol{\gamma}} + \boldsymbol{X} \tilde{\boldsymbol{\beta}} + \frac{1}{v}(\boldsymbol{Y} - \tilde{\boldsymbol{p}})$ for binary outcome.
 
 ## Discrete Survival Logistic Model
 
@@ -35,3 +63,25 @@ $$log(\frac{\lambda(t_k; \boldsymbol{Z}_{ij}, \Delta_i)}{1 - \lambda(t_k; \bolds
 Let $\alpha_k = log(\frac{\lambda_0(t_k)}{1 - \lambda_0(t_k)})$, then our problem of interest is estimating $\boldsymbol{\theta} = (\boldsymbol{\boldsymbol{\alpha}^T, \gamma}^T, \boldsymbol{\beta}^T)^T$ by minimizing:
 
 $$Q_{\lambda}(\boldsymbol{\theta}) = -\frac{1}{n} \sum_{i = 1}^m \sum_{j=1}^{n_i} \sum_{k=1}^{k_{ij}} \{\delta_{ij}\left(t_{k}\right) \cdot (\alpha_k + \gamma_i + \boldsymbol{Z}_{ij} \boldsymbol{\beta}) -log(1 + e^{\alpha_k + \gamma_i + \boldsymbol{Z}_{ij} \boldsymbol{\beta}}) \} + \sum_{p = 1}^P \lambda_{p} |\beta_p|$$
+
+### Three-layer iterative update procedure
+
+#### outer layer: update the log-transformed baseline hazard $\boldsymbol{\alpha}$
+
+Given the previous iteration's estimate of center effect $\tilde{\boldsymbol{\gamma}}$ and coefficient of risk factors $\tilde{\boldsymbol{\beta}}$, we consider $Q_{\lambda, \boldsymbol{\alpha}}(\boldsymbol{\alpha}) = - \frac{1}{n} \sum\limits_{i = 1}^m \sum\limits_{j=1}^{n_i} \sum\limits_{k=1}^{k_{ij}} \{\delta_{ij}\left(t_{k}\right) \cdot (\alpha_k + \tilde{\gamma}_{i} +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}) -log(1 + e^{\alpha_k + \tilde{\gamma}_{i} +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}) \}$. The Newton method allows us to update $\boldsymbol{\gamma}$ separately by: $$\hat{\alpha}_k = \tilde{\alpha}_k + I_{\lambda}^{-1}(\tilde{\alpha}_k) U_{\lambda}(\tilde{\alpha}_k),$$ where $\tilde{\alpha}_k$ is the current value of $\alpha_k$, and $$U_{\lambda}(\tilde{\alpha}_k) = - \frac{1}{n} \sum_{i = 1}^m \{\sum_{j = 1}^{n_i} \delta_{ij} \left(t_{k}\right) - \sum_{j|T_{ij} \geq t_k} \frac{e^{\tilde{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{1 + e^{\tilde{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}\} \\
+     I_{\lambda}(\tilde{\alpha}_k) = - \frac{1}{n} \sum_{i = 1}^m \sum_{j|T_{ij} \geq t_k} \frac{e^{\tilde{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{(1 + e^{\tilde{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}})^2}.$$
+
+#### middle layer: update the provider effect $\boldsymbol{\gamma}$
+
+Given the $\hat{\boldsymbol{\alpha}}$ updated above and the most recently updated $\tilde{\boldsymbol{\beta}}$, we consider $Q_{\lambda, \boldsymbol{\gamma}}(\boldsymbol{\gamma}) = - \frac{1}{n} \sum\limits_{i = 1}^m \sum\limits_{j=1}^{n_i} \sum\limits_{k=1}^{k_{ij}} \{\delta_{ij}\left(t_{k}\right) \cdot (\hat{\alpha}_k + \gamma_{i} +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}) -log(1 + e^{\hat{\alpha}_k + \gamma_{i} +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}) \}$. Use a similar one-step Newton method we should have $$\hat{\gamma}_i = \tilde{\gamma}_i + I_{\lambda}^{-1}(\tilde{\gamma}_i) U_{\lambda}(\tilde{\gamma}_i),$$ where $\gamma_{i}$ represent the most recently updated value of effect of center $i$, and $$U_{\lambda}(\tilde{\gamma}_i) = - \frac{1}{n} \sum_{j = 1}^{n_i} \sum_{k = 1}^{k_{ij}} \{\delta_{ij} \left(t_{k}\right) - \frac{e^{\hat{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{1 + e^{\hat{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}\} \\
+     I_{\lambda}(\tilde{\gamma}_i) = - \frac{1}{n}  \sum_{j = 1}^{n_i} \sum_{k = 1}^{k_{ij}} \frac{e^{\hat{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}}}{(1 + e^{\hat{\alpha}_k + \tilde{\gamma}_i +  \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}})^2}.$$
+     
+It should be noted that the effect of the first provider is set to zero (as the reference group) to prevent issues of multicollinearity.
+
+#### inner layer: update the covariate coefficient $\boldsymbol{\beta}$
+
+Based on the $\hat{\boldsymbol{\alpha}}$ and $\hat{\boldsymbol{\gamma}}$ updated from the previous two steps, define $\mathcal{L}_{\beta}(\boldsymbol{\beta}) = - \frac{1}{n} \sum\limits_{i = 1}^m \sum\limits_{j=1}^{n_i} \sum\limits_{k=1}^{k_{ij}} \{\delta_{ij}\left(t_{k}\right) \cdot (\hat{\alpha}_k + \hat{\gamma}_{i} +  \boldsymbol{Z}_{ij} \boldsymbol{\beta}) -log(1 + e^{\hat{\alpha}_k + \hat{\gamma}_{i} +  \boldsymbol{Z}_{ij} \boldsymbol{\beta}}) \}$ and consider $$Q_{\lambda, \boldsymbol{\beta}}(\boldsymbol{\beta}) = \frac{1}{n}  \mathcal{L}_{\beta}(\boldsymbol{\beta}) + \sum_{k = 1}^p \lambda_{k} |\beta_k|.$$
+
+Denote $$Z(\tilde{\eta}_{ij}) = \tilde{\eta}_{ij} -  \{\mathcal{L}_{\eta}''(\tilde{\boldsymbol{\eta}})^{-1} \mathcal{L}_{\eta}'(\tilde{\boldsymbol{\eta}})\}_{ij} = \tilde{\eta}_{ij} + \frac{\sum\limits_{k = 1}^{k_{ij}}[\delta_{ij}(t_k) - \frac{e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}{1 + e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}]}{\sum\limits_{k = 1}^{k_{ij}} \frac{e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}{(1 + e^{\hat{\alpha}_k + \tilde{\eta}_{ij}})^2}},$$ and $$\tilde{\omega}_{ij} = \sum\limits_{k = 1}^{k_{ij}} \frac{e^{\hat{\alpha}_k + \tilde{\eta}_{ij}}}{(1 + e^{\hat{\alpha}_k + \tilde{\eta}_{ij}})^2},$$ then the coordinate-wise updating function will be given by: $$\beta_p = \frac{S\{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {Z_{ijp}} (Z(\tilde{\eta}_{ij}) - \hat{\gamma}_i - \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}_{(-p)}), n\lambda_k\}}{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} \tilde{w}_{ij} {Z_{ijp}}^2},$$ where $S$ is the same soft-thresholding operator defined above.
+
+MM algorithm can also be applied for solving this problem since $\sum\limits_{k = 1}^{k_{ij}} \frac{e^{\hat{\alpha}_{k} + \eta_{ij}}}{(1 + e^{\hat{\alpha}_{k} + \eta_{ij}})^2} < \frac{1}{4} k_{ij}$. The majorizing surrogate function is constructed based on $$\boldsymbol{W} = \begin{pmatrix} \frac{1}{4}k_{11} &  &  \\  & \ddots &  \\ &  & \frac{1}{4}k_{m,n_m} \end{pmatrix}_{n \times n},$$ and the corresponding updating function is given by $$\beta_p = \frac{S\{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} k_{ij} {Z_{ijp}} (Z(\tilde{\eta}_{ij}) - \hat{\gamma}_i - \boldsymbol{Z}_{ij} \tilde{\boldsymbol{\beta}}_{(-p)}), 4n\lambda_k\}}{\sum\limits_{i = 1}^m \sum\limits_{j = 1}^{n_i} k_{ij} {Z_{ijp}}^2}.$$
