@@ -105,6 +105,9 @@ sets to facilitate users in comprehending the R package more
 thoroughly.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">ppLasso</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="generalized-linear-models">Generalized linear models<a class="anchor" aria-label="anchor" href="#generalized-linear-models"></a>
+</h3>
 <p>To illustrate the process of fitting a generalized linear model, we
 will utilize the “GLM_Data” data set that is included in the package.
 This data set comprises of five predictors, an indicator for provider
@@ -115,7 +118,7 @@ information, and a binary outcome variable.</p>
 <span><span class="va">Y.char</span> <span class="op">&lt;-</span> <span class="va">GLM_Data</span><span class="op">$</span><span class="va">Y.char</span></span>
 <span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">GLM_Data</span><span class="op">$</span><span class="va">prov.char</span></span>
 <span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">GLM_Data</span><span class="op">$</span><span class="va">Z.char</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">GLM_Data</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      Y Prov.ID     Z1     Z2     Z3     Z4     Z5</span></span>
 <span><span class="co">#&gt; 733  1      10 -0.006 -0.159  0.588  0.378 -1.430</span></span>
 <span><span class="co">#&gt; 853  0      11  0.862 -0.162  0.243  0.503  0.549</span></span>
@@ -193,7 +196,7 @@ group on its own.</p>
 <p>The optimal regularization parameter is determined by
 cross-validation, which is the default method. To obtain the optimal
 regularization coefficient, the user can call the
-<code><a href="../reference/cv.pp.lasso.html">cv.pp.lasso()</a></code> or <code>cv.grp.lasso</code> function.</p>
+<code><a href="../reference/cv.pp.lasso.html">cv.pp.lasso()</a></code> or <code><a href="../reference/cv.grp.lasso.html">cv.grp.lasso()</a></code> function.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.pp.lasso.html">cv.pp.lasso</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Y.char</span>, <span class="va">Z.char</span>, <span class="va">prov.char</span>, nfolds <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <p><code>plot</code> function returns the figure of the cross entropy
@@ -201,6 +204,63 @@ Loss to help user choose the optimal <span class="math inline">\(\lambda\)</span
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ppLasso_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="discrete-survival-models">Discrete survival models<a class="anchor" aria-label="anchor" href="#discrete-survival-models"></a>
+</h3>
+<p>The <code><a href="../reference/pp.DiscSurv.html">pp.DiscSurv()</a></code> function is utilized for fitting a
+penalized discrete survival model. In contrast to the current R package,
+this function does not necessitate data expansion based on discrete time
+points, resulting in a significant reduction in memory usage and
+convergence time required for operation.</p>
+<p>The <code>Surv_Data</code> dataset, included in this package,
+comprises of 5 covariates, provider information, observation time, and
+event indicator. We will be using this dataset as an example to
+illustrate how to utilize it.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Surv_Data</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">data</span></span>
+<span><span class="va">Event.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Event.char</span></span>
+<span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">prov.char</span></span>
+<span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Z.char</span></span>
+<span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pp.DiscSurv.html">pp.DiscSurv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Prov.ID     Z1     Z2     Z3     Z4     Z5 time status</span></span>
+<span><span class="co">#&gt; 1       1  0.003 -0.012  0.077  0.128 -0.317    5      0</span></span>
+<span><span class="co">#&gt; 2       1  0.202  0.398 -0.843  1.011  0.006    4      1</span></span>
+<span><span class="co">#&gt; 3       1 -0.198  1.231  0.633  0.739  0.214    4      1</span></span>
+<span><span class="co">#&gt; 4       1 -0.077 -0.949 -0.779 -0.236 -0.862    5      1</span></span>
+<span><span class="co">#&gt; 5       1 -0.252 -0.817 -1.184 -1.380 -1.517    1      1</span></span>
+<span><span class="co">#&gt; 6       1 -1.014 -0.432 -1.259 -0.427 -0.433    4      1</span></span></code></pre></div>
+<p>The primary output of the <code><a href="../reference/pp.DiscSurv.html">pp.DiscSurv()</a></code> function
+consists of three sets of coefficients, which correspond to the
+covariate estimates, log-transformed baseline hazard for different time
+points, and provider effects (with the first provider serving as the
+reference group).</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span><span class="op">$</span><span class="va">beta</span></span>
+<span><span class="co">#&gt;          0.01</span></span>
+<span><span class="co">#&gt; Z1 -2.0841124</span></span>
+<span><span class="co">#&gt; Z2 -0.0647692</span></span>
+<span><span class="co">#&gt; Z3 -0.3168500</span></span>
+<span><span class="co">#&gt; Z4  0.4769268</span></span>
+<span><span class="co">#&gt; Z5 -1.1488439</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">alpha</span></span>
+<span><span class="co">#&gt;          0.01</span></span>
+<span><span class="co">#&gt; T_1 -3.685847</span></span>
+<span><span class="co">#&gt; T_2 -2.726428</span></span>
+<span><span class="co">#&gt; T_3 -2.454425</span></span>
+<span><span class="co">#&gt; T_4 -1.813694</span></span>
+<span><span class="co">#&gt; T_5 -2.209131</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">gamma</span></span>
+<span><span class="co">#&gt;          0.01</span></span>
+<span><span class="co">#&gt; 1  0.00000000</span></span>
+<span><span class="co">#&gt; 2 -1.39940594</span></span>
+<span><span class="co">#&gt; 3 -0.08267246</span></span>
+<span><span class="co">#&gt; 4 -0.17076572</span></span>
+<span><span class="co">#&gt; 5 -0.24777485</span></span></code></pre></div>
+</div>
 </div>
   </div>
 

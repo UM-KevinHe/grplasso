@@ -34,6 +34,8 @@ This section will delve into the essential usage of the functions incorporated i
 library(ppLasso)
 ```
 
+### Generalized linear models
+
 To illustrate the process of fitting a generalized linear model, we will utilize the "GLM_Data" data set that is included in the package. This data set comprises of five predictors, an indicator for provider information, and a binary outcome variable.
 
 ```{r}
@@ -42,7 +44,7 @@ data <- GLM_Data$data
 Y.char <- GLM_Data$Y.char
 prov.char <- GLM_Data$prov.char
 Z.char <- GLM_Data$Z.char
-head(GLM_Data$data)
+head(data)
 ```
 
 The `pp.lasso()` function is utilized to fit a generalized linear model when the covariate does not include any group information. 
@@ -83,7 +85,7 @@ fit2 <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 plot(fit2)
 ```
 
-The optimal regularization parameter is determined by cross-validation, which is the default method. To obtain the optimal regularization coefficient, the user can call the `cv.pp.lasso()` or `cv.grp.lasso` function.
+The optimal regularization parameter is determined by cross-validation, which is the default method. To obtain the optimal regularization coefficient, the user can call the `cv.pp.lasso()` or `cv.grp.lasso()` function.
 
 ```{r}
 fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
@@ -95,5 +97,28 @@ fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 plot(fit)
 ```
 
+### Discrete survival models
 
+The `pp.DiscSurv()` function is utilized for fitting a penalized discrete survival model. In contrast to the current R package, this function does not necessitate data expansion based on discrete time points, resulting in a significant reduction in memory usage and convergence time required for operation.
+
+The `Surv_Data` dataset, included in this package, comprises of 5 covariates, provider information, observation time, and event indicator. We will be using this dataset as an example to illustrate how to utilize it.
+
+```{r}
+data(Surv_Data)
+data <- Surv_Data$data
+Event.char <- Surv_Data$Event.char
+prov.char <- Surv_Data$prov.char
+Z.char <- Surv_Data$Z.char
+Time.char <- Surv_Data$Time.char
+fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
+head(data)
+```
+
+The primary output of the `pp.DiscSurv()` function consists of three sets of coefficients, which correspond to the covariate estimates, log-transformed baseline hazard for different time points, and provider effects (with the first provider serving as the reference group).
+
+```{r}
+fit$beta
+fit$alpha
+fit$gamma
+```
 
