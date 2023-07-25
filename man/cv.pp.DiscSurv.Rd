@@ -68,7 +68,8 @@ Event.char <- Surv_Data$Event.char
 prov.char <- Surv_Data$prov.char
 Z.char <- Surv_Data$Z.char
 Time.char <- Surv_Data$Time.char
-cv.fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10)
+cv.fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+cv.fit$cve
 cv.fit$lambda.min
 
 }

@@ -1,6 +1,6 @@
 #' plot the cross entropy Loss from a cv.ppLasso or cv.gr_ppLasso object
 #'
-#' return the plot of the cross entropy Loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
+#' return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 #'
 #' @param fit a \code{cv.ppLasso} object.
 #'
@@ -18,9 +18,8 @@
 #' Y.char <- GLM_Data$Y.char
 #' prov.char <- GLM_Data$prov.char
 #' Z.char <- GLM_Data$Z.char
-#' fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
-#' plot(fit)
-#'
+#' cv.fit.pplasso <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
+#' plot(cv.fit.pplasso)
 
 
 plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line = "blue",
@@ -38,7 +37,7 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
   CV.figure.df <- as.data.frame(cbind(lambda, CVE, CVE.upper, CVE.lower))
 
   cv.plot <- ggplot(CV.figure.df, aes(lambda, CVE)) +
-    geom_line(aes(y = CVE), size = 0.05, color = "blue") +
+    geom_line(aes(y = CVE), linewidth = 0.05, color = "blue") +
     geom_point(size = 1, color = col.dot) +
     geom_errorbar(aes(ymin = CVE.lower, ymax = CVE.upper), width = 0.1, size = 0.1) +
     theme(panel.grid = element_blank(), panel.background = element_blank(),
@@ -50,8 +49,14 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
 
   if (vertical.line == T){
+    if (log.x == T){
+      xintercept <- log(fit$lambda.min)
+    } else {
+      xintercept <- fit$lambda.min
+    }
+    
     cv.plot <- cv.plot +
-      geom_vline(xintercept = log(fit$lambda.min), size = 0.5, linetype = "dashed", color = col.vertical.line)
+      geom_vline(xintercept = xintercept, size = 0.5, linetype = "dashed", color = col.vertical.line)
   }
 
   if (log.x == T){
@@ -87,8 +92,8 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
 #' prov.char <- GLM_Data$prov.char
 #' Z.char <- GLM_Data$Z.char
 #' group <- GLM_Data$group
-#' fit <- cv.grp.lasso(data, Y.char, Z.char, prov.char, group = group, nfolds = 10)
-#' plot(fit)
+#' cv.fit.grplasso <- cv.grp.lasso(data, Y.char, Z.char, prov.char, group = group, nfolds = 10)
+#' plot(cv.fit.grplasso)
 #'
 
 plot.cv.gr_ppLasso <- function(fit, log.x = T, vertical.line = T,
@@ -118,8 +123,14 @@ plot.cv.gr_ppLasso <- function(fit, log.x = T, vertical.line = T,
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
 
   if (vertical.line == T){
+    if (log.x == T){
+      xintercept <- log(fit$lambda.min)
+    } else {
+      xintercept <- fit$lambda.min
+    }
+    
     cv.plot <- cv.plot +
-      geom_vline(xintercept = log(fit$lambda.min), size = 0.5, linetype = "dashed", color = col.vertical.line)
+      geom_vline(xintercept = xintercept, size = 0.5, linetype = "dashed", color = col.vertical.line)
   }
 
   if (log.x == T){

@@ -262,8 +262,8 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
                            time.ref = time.ref),
                       class = "ppDiscSurv")  #define a list for prediction
   
-  if (return.transform.data == TRUE){
-    result$return.transform.data <- return.transform.data
+  if (return.transform.data == TRUE){  #return a dataframe with recoded time
+    result$transform.data <- data
   }  
   
   if (returnX == TRUE){

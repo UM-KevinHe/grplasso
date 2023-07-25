@@ -19,7 +19,7 @@
 #' prov.char <- GLM_Data$prov.char
 #' Z.char <- GLM_Data$Z.char
 #' fit <- pp.lasso(data, Y.char, Z.char, prov.char)
-#' plot(fit)
+#' plot(fit, label = T)
 
 plot.ppLasso <- function(fit, log.x = T, label = F){
   beta <- fit$beta
@@ -88,7 +88,7 @@ plot.ppLasso <- function(fit, log.x = T, label = F){
 #' Z.char <- GLM_Data$Z.char
 #' group <- GLM_Data$group
 #' fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
-#' plot(fit)
+#' plot(fit, label = T)
 
 plot.gr_ppLasso <- function(fit, log.x = T, label = F){
   beta <- fit$beta
@@ -102,8 +102,8 @@ plot.gr_ppLasso <- function(fit, log.x = T, label = F){
   path.figure.df <- as.data.frame(t(rbind(iter.num, y, group)))
 
   Regularization.path <- ggplot(path.figure.df, aes(iter.num, y, group = factor(group))) +
-    geom_line(aes(color = factor(group)), size = 0.5) +
-    geom_abline(color = "red", linetype = 2, size = 0.5, intercept = 0, slope = 0) +
+    geom_line(aes(color = factor(group)), linewidth = 0.5) +
+    geom_abline(color = "red", linetype = 2, linewidth = 0.5, intercept = 0, slope = 0) +
     theme(panel.grid = element_blank(), panel.background = element_blank(),
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),

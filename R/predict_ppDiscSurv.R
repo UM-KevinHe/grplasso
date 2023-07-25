@@ -16,6 +16,8 @@
 #'
 #' @param which indices of the penalty parameter lambda at which predictions are required. By default, all indices are returned. If lambda is specified, this will override which.
 #'
+#' @param which.lambda determine which lambda values are included in the output of the prediction. By default, its value is set to "all," resulting in a matrix of predicted values for each lambda presented as a list. However, if specific numeric values are provided, only the predicted matrix corresponding to those specified values will be included in the output.
+#' 
 #' @param type type of prediction: \code{response} provides the fitted value of each person at each time point ;
 #' \code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;
 #'
@@ -31,12 +33,13 @@
 #' Z.char <- Surv_Data$Z.char
 #' Time.char <- Surv_Data$Time.char
 #' fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
-#' predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
-#' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
+#' predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[[1]][1:5,]
+#' predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = 0.04, type = "vars")
 
 
-predict.ppDiscSurv <- function(fit, data, prov.char, Z.char, Time.char, lambda, which = 1:length(fit$lambda),
-                               type = c("response", "vars", "nvars"), return.Array = TRUE, ...){
+predict.ppDiscSurv <- function(fit, data, Event.char, prov.char, Z.char, Time.char, lambda, which = 1:length(fit$lambda),
+                               type = c("response", "vars", "nvars"), return.Array = TRUE, 
+                               which.lambda = "all", ...){
   gamma <- coef.ppDiscSurv(fit, lambda = lambda, which = which, drop = FALSE)$gamma #center effect
   alpha <- coef.ppDiscSurv(fit, lambda = lambda, which = which, drop = FALSE)$alpha #time effect
   beta <- coef.ppDiscSurv(fit, lambda = lambda, which = which, drop = FALSE)$beta
@@ -88,17 +91,30 @@ predict.ppDiscSurv <- function(fit, data, prov.char, Z.char, Time.char, lambda, 
     
     pred.prob.array <- list()
     for (i in 1:length(lambda)){
-      pred.prob.array[[paste0("lambda = ", lambda)[i]]] <- as.data.frame(tidyr::pivot_wider(pred.prob.individual[, c(1, 2, i + 2)], 
-                                                                     Individual, names_from = Time.char,
-                                                                     values_from = paste0("lambda = ", lambda)[i]))
-      colnames(pred.prob.array[[paste0("lambda = ", lambda)[i]]]) <- c("Individual", rownames(alpha)[1:max.time.new_data])
+      pred.prob.array[[i]] <- as.data.frame(tidyr::pivot_wider(pred.prob.individual[, c(1, 2, i + 2)],
+                                                               id_cols = Individual, names_from = Time.char,
+                                                               values_from = paste0("lambda = ", lambda)[i]))
+      colnames(pred.prob.array[[i]]) <- c("Individual", rownames(alpha)[1:max.time.new_data])
     }
     
+    names(pred.prob.array) <- paste0("lambda = ", round(lambda, 5))
+    
+    
     if (return.Array == TRUE){
-      return(pred.prob.array)
+      if (which.lambda == "all") {
+        return(pred.prob.array)
+      } else if (!is.numeric(which.lambda)) {
+        stop("which.lambda must specify a numeric variable!", call. = FALSE)
+      } else {
+        if (sum(!(which.lambda %in% lambda)) != 0){
+          stop("which.lambda contains values that do not exist in the given lambda sequence!", call. = FALSE)
+        } else {
+          return(pred.prob.array[pmatch(which.lambda, lambda)])
+        }
+      }
     } else {
       return(pred.prob)
     }
-
   }
+  
 }

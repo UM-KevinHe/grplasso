@@ -172,10 +172,35 @@
 <span class="r-in"><span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">prov.char</span></span></span>
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
-<span class="r-in"><span><span class="va">cv.fit</span> <span class="op">&lt;-</span> <span class="fu">cv.pp.DiscSurv</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, nfolds <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in array(x, c(length(x), 1L), if (!is.null(names(x))) list(names(x),     NULL) else NULL):</span> 'data' must be of a vector type, was 'NULL'</span>
+<span class="r-in"><span><span class="va">cv.fit</span> <span class="op">&lt;-</span> <span class="fu">cv.pp.DiscSurv</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, nfolds <span class="op">=</span> <span class="fl">10</span>, trace.cv <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #1...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #2...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #3...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #4...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #5...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #6...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #7...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #8...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #9...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Starting CV fold #10...</span>
+<span class="r-in"><span><span class="va">cv.fit</span><span class="op">$</span><span class="va">cve</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1] 0.5569792 0.4639793 0.4525833 0.4430613 0.4350632 0.4283245 0.4225950</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [8] 0.4168083 0.4104943 0.4048622 0.4000582 0.3959613 0.3925657 0.3897008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [15] 0.3872436 0.3851883 0.3834321 0.3819671 0.3807039 0.3796288 0.3787270</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [22] 0.3780784 0.3771921 0.3764094 0.3753853 0.3745506 0.3735538 0.3727019</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [29] 0.3719932 0.3713872 0.3708965 0.3705040 0.3701736 0.3699188 0.3697261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [36] 0.3695780 0.3694737 0.3694030 0.3693579 0.3693352 0.3693253 0.3693311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [43] 0.3693475 0.3693682 0.3693962 0.3694288 0.3694606 0.3694923 0.3695333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [50] 0.3695661 0.3696018 0.3696360 0.3696675 0.3696988 0.3697275 0.3697591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [57] 0.3697829 0.3698069 0.3698303 0.3698529 0.3698754 0.3698906 0.3699086</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [64] 0.3699240 0.3699393 0.3699511 0.3699635 0.3699749 0.3699856 0.3699960</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [71] 0.3700050 0.3700136 0.3700214 0.3700264 0.3700342 0.3700382 0.3700472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [78] 0.3700508 0.3700533 0.3700617 0.3700626 0.3700663 0.3700681 0.3700711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [85] 0.3700755 0.3700767 0.3700795 0.3700813 0.3700833 0.3700847 0.3700860</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [92] 0.3700875 0.3700896 0.3700900 0.3700921 0.3700914 0.3700923 0.3700930</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [99] 0.3700941 0.3700961</span>
 <span class="r-in"><span><span class="va">cv.fit</span><span class="op">$</span><span class="va">lambda.min</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'cv.fit' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.00387345</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

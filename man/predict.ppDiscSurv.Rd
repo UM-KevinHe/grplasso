@@ -7,6 +7,7 @@
 \method{predict}{ppDiscSurv}(
   fit,
   data,
+  Event.char,
   prov.char,
   Z.char,
   Time.char,
@@ -14,6 +15,7 @@
   which = 1:length(fit$lambda),
   type = c("response", "vars", "nvars"),
   return.Array = TRUE,
+  which.lambda = "all",
   ...
 )
 }
@@ -35,6 +37,8 @@
 \item{type}{type of prediction: \code{response} provides the fitted value of each person at each time point ;
 \code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;}
 
+\item{which.lambda}{determine which lambda values are included in the output of the prediction. By default, its value is set to "all," resulting in a matrix of predicted values for each lambda presented as a list. However, if specific numeric values are provided, only the predicted matrix corresponding to those specified values will be included in the output.}
+
 \item{...}{}
 }
 \description{
@@ -48,6 +52,6 @@ prov.char <- Surv_Data$prov.char
 Z.char <- Surv_Data$Z.char
 Time.char <- Surv_Data$Time.char
 fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
-predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
-predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
+predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[[1]][1:5,]
+predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = 0.04, type = "vars")
 }

@@ -55,7 +55,7 @@ The `pp.lasso()` function is employed to fit a generalized linear model when the
 fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 ```
 
-The `coef` function serves to provide estimates of the coefficients in the fitted model. The resulting coefficient matrix is structured such that the column names correspond to the $\lambda$ values used in the modeling process. 
+The `coef()` function serves to provide estimates of the coefficients in the fitted model. The resulting coefficient matrix is structured such that the column names correspond to the $\lambda$ values used in the modeling process. 
 
 ```{r}
 # estimate of covariate coefficients
@@ -64,13 +64,13 @@ coef(fit)$beta[, 1:5]
 coef(fit)$gamma[1:10, 1:5]
 ```
 
-The `plot` function is designed to generate a figure depicting the regularization path. This path illustrates the behavior of the coefficients for each predictor variable as the regularization parameter $\lambda$ varies. By visualizing the regularization path, users can gain valuable insights into the impact of different regularization strengths on the coefficients, aiding in model interpretation and selection. 
+The `plot()` function is designed to generate a figure depicting the regularization path. This path illustrates the behavior of the coefficients for each predictor variable as the regularization parameter $\lambda$ varies. By visualizing the regularization path, users can gain valuable insights into the impact of different regularization strengths on the coefficients, aiding in model interpretation and selection. 
 
 ```{r}
-plot(fit)
+plot(fit, label = T)
 ```
 
-The `predict` function is utilized to generate model predictions for a given dataset based on the coefficient estimates obtained from the fitted model. Once the model has been trained using the `pp.lasso()` function and the coefficients have been estimated, the predict function can be applied to new data to obtain predictions for the outcome variable. 
+The `predict()` function is utilized to generate model predictions for a given dataset based on the coefficient estimates obtained from the fitted model. Once the model has been trained using the `pp.lasso()` function and the coefficients have been estimated, the predict function can be applied to new data to obtain predictions for the outcome variable. 
 
 This function offers various types of outputs to suit different analysis needs. For instance, when fitting a penalized logistic regression model, using **type = "response"** provides the probabilities of "Y = 1" for each observation, while **type = "class"** provides the predicted class.
 
@@ -89,7 +89,7 @@ fit2 <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 plot(fit2)
 ```
 
-#### regularization parameter selection  
+#### regularization parameter selection for glm problems 
 
 The optimal regularization parameter ($\lambda$) is determined through cross-validation. To find the best $\lambda$, users can employ either the `cv.pp.lasso()` or `cv.grp.lasso()` function, depending on the specific type of model they are working with. These cross-validation functions inherit the parameters required for the model fitting process, providing a seamless and straightforward experience for users. By default, both functions utilize 10-fold cross-validation.
 
@@ -97,7 +97,7 @@ The optimal regularization parameter ($\lambda$) is determined through cross-val
 fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 ```
 
-The `plot` function, applied to a `cv.pp.lasso` or `cv.grp.lasso` object, generates a figure that enables users to assess how the cross-entropy loss changes with varying values of $\lambda$. By observing the plot, users can easily identify the point at which the cross-entropy loss is minimized.
+The `plot()` function, applied to a `cv.pp.lasso` or `cv.grp.lasso` object, generates a figure that enables users to assess how the cross-entropy loss changes with varying values of $\lambda$. By observing the plot, users can easily identify the point at which the cross-entropy loss is minimized.
 
 ```{r}
 plot(fit)
@@ -130,11 +130,43 @@ head(data)
 fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
 ```
 
-The primary output of the `pp.DiscSurv()` function consists of three sets of coefficients, which correspond to the covariate estimates, log-transformed baseline hazard for different time points, and provider effects. We set the first provider as reference group to avoid the multicollinearity issues.
+The `pp.DiscSurv()` function yields three main sets of coefficients as its primary output. These coefficients pertain to the covariate estimates, log-transformed baseline hazard for various time points, and provider effects. To avoid multicollinearity problems, we designate the first provider as the reference group.
+
+Similar to the GLM fitting functions mentioned earlier, `pp.DiscSurv()` is also furnished with a `coef()` function. This function facilitates the provision of coefficient estimates within the fitted penalized discrete survival model across the entire sequence of $\lambda$ values employed in the modeling procedure.
 
 ```{r}
-fit$beta[, 1:5]
-fit$alpha[, 1:5]
-fit$gamma[, 1:5]
+coef(fit)$beta[, 1:5]
+coef(fit)$gamma[, 1:5]
+coef(fit)$alpha[, 1:5]
 ```
+
+Users have the option to utilize the `plot()` function, which generates a figure illustrating the regularization path. This visual representation showcases the behavior of the coefficients for each predictor variable as $\lambda$ varies.
+
+```{r}
+plot(fit, label = T)
+```
+
+The `predict()` function is employed to generate model predictions for a given dataset using the coefficient estimates obtained from the fitted model. It is essential to note that the discrete time points within the prediction data set must align with the discrete time points used during model fitting. If they do not match, the baseline hazard of mismatches cannot be estimated accurately.
+
+```{r}
+predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[[1]][1:5,]
+```
+
+#### regularization parameter selection for discrete survival models 
+
+The optimal regularization parameter ($\lambda$) is determined through cross-validation, utilizing the cross-validation error as the guiding metric. Users can identify the best $\lambda$ value by employing the `cv.pp.DiscSurv()` function.
+
+```{r}
+fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+```
+
+Users can either utilize the `plot()` function or directly access the **fit$lambda.min** command to identify the optimal value of $\lambda$ at which the cross-entropy loss is minimized. 
+
+```{r}
+plot(fit)
+
+fit$lambda.min
+```
+
+
 

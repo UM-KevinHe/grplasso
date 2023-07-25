@@ -496,7 +496,8 @@ cvf.ppDiscSurv <- function(i, data, Event.char, prov.char, Z.char, Time.char, fo
   
   fit.i <- do.call("pp.DiscSurv", cv.args)  #fit the discrete survival model using one training data set (9/10 data)
   data.i <- data[fold == i, , drop = FALSE]  #current validation data
-  yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response", return.Array = FALSE) # y-hat matrix across all given lambda; data has been expanded
+  yhat.i <- predict(fit.i, data.i, Event.char, prov.char, Z.char, Time.char, 
+                    lambda = fit.i$lambda, type = "response", return.Array = FALSE) # y-hat matrix across all given lambda; data has been expanded
   
   data.small <- data.i[, c(Event.char, Time.char)]
   Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, 

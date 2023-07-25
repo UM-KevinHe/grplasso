@@ -52,10 +52,16 @@
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.gr_ppLasso.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.ppDiscSurv.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.ppLasso.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.gr_ppLasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.ppDiscSurv.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.ppLasso.html</loc>

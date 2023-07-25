@@ -49,7 +49,8 @@
 #' prov.char <- Surv_Data$prov.char
 #' Z.char <- Surv_Data$Z.char
 #' Time.char <- Surv_Data$Time.char
-#' cv.fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10)
+#' cv.fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+#' cv.fit$cve
 #' cv.fit$lambda.min
 #'
 #' @references
@@ -143,7 +144,7 @@ cv.pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, penal
     if (trace.cv == TRUE){
       cat("Starting CV fold #", i, sep = "", "...\n")
     }
-    res <- cvf.ppDiscSurv(i, data, Event.char, Z.char, Time.char, fold, original.count.alpha, cv.args)
+    res <- cvf.ppDiscSurv(i, data, Event.char, prov.char, Z.char, Time.char, fold, original.count.alpha, cv.args)
     Y[expand.fold == i, 1:res$nl] <- res$yhat
     E[expand.fold == i, 1:res$nl] <- res$loss
   }

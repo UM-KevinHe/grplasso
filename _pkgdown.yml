@@ -20,15 +20,17 @@ reference:
   contents:
   - plot.ppLasso
   - plot.gr_ppLasso
+  - plot.ppDiscSurv
   - plot.cv.ppLasso
   - plot.cv.gr_ppLasso
+  - plot.cv.ppDiscSurv
 - title: Prediction functions
   contents:
   - predict.ppLasso
   - predict.gr_ppLasso
+  - predict.ppDiscSurv
   - coef.ppLasso
   - coef.gr_ppLasso
-  - predict.ppDiscSurv
   - coef.ppDiscSurv
 - title: Package Data Sets
   contents:
