@@ -6,8 +6,6 @@
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
 #'
-#' @param Y.char name of the response variable in `data` as a character string.
-#'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
 #' @param prov.char name of provider IDs variable in `data` as a character string.
@@ -79,11 +77,9 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
 
 #' @rdname predict.ppLasso
 #'
-#' @param fit a \code{ppLasso} or \code{gr_ppLasso} or \code{ppDiscSurv} object.
+#' @param fit a \code{ppLasso} or \code{gr_ppLasso}.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
-#'
-#' @param Y.char name of the response variable in `data` as a character string.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
@@ -110,10 +106,10 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
 #' Z.char <- GLM_Data$Z.char
 #' group <- GLM_Data$group
 #' fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
-#' predict(fit, GLM_Data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
-#' predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
-#' predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.04, type = "vars")
-#' predict(fit, GLM_Data, Z.char, prov.char, lambda = 0.04, type = "groups")
+#' predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
+#' predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
+#' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
+#' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "groups")
 
 predict.gr_ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:length(fit$lambda),
                                type = c("response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){

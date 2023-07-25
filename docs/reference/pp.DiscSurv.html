@@ -89,6 +89,7 @@
 <span>  returnX <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  trace.lambda <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  threads <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  return.transform.data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  MM <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -254,28 +255,28 @@ and the number of columns is equal to nlambda.</p></dd>
 <span class="r-in"><span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">prov.char</span></span></span>
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">pp.DiscSurv</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">beta</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1 -2.08438847</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2 -0.06466753</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3 -0.31665867</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4  0.47716175</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5 -1.14897816</span>
-<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">alpha</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> T_1 -3.685872</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> T_2 -2.726429</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> T_3 -2.454406</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> T_4 -1.813654</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> T_5 -2.209080</span>
-<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">gamma</span> <span class="co">#effect of the first provider is set to be zero</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          0.01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -1.39959773</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.08272695</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.17063809</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.24793418</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">pp.DiscSurv</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.1601     0.1458     0.1329     0.1211     0.1103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.1735757 -0.3325774 -0.4793679 -0.6155647</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 0.1601    0.1458    0.1329    0.1211    0.1103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -1.668065 -1.747753 -1.824209 -1.898663 -1.971909</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -1.480994 -1.526815 -1.571328 -1.615488 -1.659886</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -1.622145 -1.641556 -1.661848 -1.683563 -1.706991</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -1.251585 -1.257340 -1.264124 -1.272503 -1.282795</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -1.781635 -1.780095 -1.780526 -1.783340 -1.788771</span>
+<span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">gamma</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span> <span class="co">#effect of the first provider is set to be zero</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.1601     0.1458    0.1329     0.1211     0.1103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0000000  0.0000000  0.000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -4.5665147 -4.3516946 -4.162992 -3.9945779 -3.8425705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.7478311 -0.7116142 -0.682481 -0.6580980 -0.6367834</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1.2412090  1.1456446  1.059286  0.9815198  0.9121089</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -2.3399410 -2.1966372 -2.070536 -1.9577270 -1.8555876</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

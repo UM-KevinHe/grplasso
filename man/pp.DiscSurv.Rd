@@ -30,6 +30,7 @@ pp.DiscSurv(
   returnX = FALSE,
   trace.lambda = FALSE,
   threads = 1,
+  return.transform.data = FALSE,
   MM = FALSE,
   ...
 )
@@ -117,10 +118,10 @@ Event.char <- Surv_Data$Event.char
 prov.char <- Surv_Data$prov.char
 Z.char <- Surv_Data$Z.char
 Time.char <- Surv_Data$Time.char
-fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
-fit$beta
-fit$alpha
-fit$gamma #effect of the first provider is set to be zero
+fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
+fit$beta[, 1:5]
+fit$alpha[, 1:5]
+fit$gamma[, 1:5] #effect of the first provider is set to be zero
 
 }
 \references{

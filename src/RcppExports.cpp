@@ -38,17 +38,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // DiscSurv_residuals
-arma::vec DiscSurv_residuals(int n_obs, arma::vec& delta_obs, arma::vec& time, arma::vec& gamma, arma::vec& eta);
-RcppExport SEXP _ppLasso_DiscSurv_residuals(SEXP n_obsSEXP, SEXP delta_obsSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP etaSEXP) {
+arma::vec DiscSurv_residuals(int n_obs, arma::vec& delta_obs, arma::vec& time, arma::vec& alpha, arma::vec& eta);
+RcppExport SEXP _ppLasso_DiscSurv_residuals(SEXP n_obsSEXP, SEXP delta_obsSEXP, SEXP timeSEXP, SEXP alphaSEXP, SEXP etaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n_obs(n_obsSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type delta_obs(delta_obsSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type time(timeSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type eta(etaSEXP);
-    rcpp_result_gen = Rcpp::wrap(DiscSurv_residuals(n_obs, delta_obs, time, gamma, eta));
+    rcpp_result_gen = Rcpp::wrap(DiscSurv_residuals(n_obs, delta_obs, time, alpha, eta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -196,19 +196,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // NR_residuals
-List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec gamma, arma::vec beta, double tol, int max_iter);
-RcppExport SEXP _ppLasso_NR_residuals(SEXP tSEXP, SEXP XSEXP, SEXP delta_obsSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP tolSEXP, SEXP max_iterSEXP) {
+List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec alpha, arma::vec beta, double tol, int max_iter);
+RcppExport SEXP _ppLasso_NR_residuals(SEXP tSEXP, SEXP XSEXP, SEXP delta_obsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP tolSEXP, SEXP max_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type t(tSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type delta_obs(delta_obsSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
-    rcpp_result_gen = Rcpp::wrap(NR_residuals(t, X, delta_obs, gamma, beta, tol, max_iter));
+    rcpp_result_gen = Rcpp::wrap(NR_residuals(t, X, delta_obs, alpha, beta, tol, max_iter));
     return rcpp_result_gen;
 END_RCPP
 }

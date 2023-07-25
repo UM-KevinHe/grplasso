@@ -15,6 +15,7 @@ reference:
   desc: The main functions to fit the penalized discrete survival mode
   contents:
   - pp.DiscSurv
+  - cv.pp.DiscSurv
 - title: Plotting functions
   contents:
   - plot.ppLasso
@@ -27,6 +28,8 @@ reference:
   - predict.gr_ppLasso
   - coef.ppLasso
   - coef.gr_ppLasso
+  - predict.ppDiscSurv
+  - coef.ppDiscSurv
 - title: Package Data Sets
   contents:
   - GLM_Data

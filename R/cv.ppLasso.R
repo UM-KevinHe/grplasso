@@ -46,9 +46,9 @@
 #' Y.char <- GLM_Data$Y.char
 #' prov.char <- GLM_Data$prov.char
 #' Z.char <- GLM_Data$Z.char
-#' fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
+#' cv.fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 #' # the best lambda using cross validation
-#' fit$lambda.min
+#' cv.fit$lambda.min
 #'
 #' @references
 #' K. He, J. Kalbfleisch, Y. Li, and et al. (2013) Evaluating hospital readmission rates in dialysis facilities; adjusting for hospital effects.
@@ -112,7 +112,7 @@ cv.pp.lasso <- function(data, Y.char, Z.char, prov.char, penalize.x = rep(1, len
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
   cv.args$group <- ZG$g
-  cv.args$group.multiplier <- ZG$m
+  cv.args$penalized.multiplier <- ZG$m
 
   for (i in 1:nfolds) {
     if (trace.cv == TRUE){

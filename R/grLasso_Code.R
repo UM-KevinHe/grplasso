@@ -181,7 +181,7 @@ grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char),
     actIter <- max.each.iter
   }
 
-  # main algorithm
+  # main algorithm (note: "MM" algorithm must be used for group lasso problem)
   fit <- grp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, group.multiplier,
                    max.total.iter, max.each.iter, tol, nullDev, backtrack, bound, initial.active.group, nvar.max, group.max,
                    trace.lambda, single.intercept, threads, actSet, actIter, actGroupNum, actSetRemove)

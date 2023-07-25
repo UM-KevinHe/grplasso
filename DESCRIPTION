@@ -9,7 +9,13 @@ Description: An efficient algorithm for solving GLM lasso problems with large nu
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: Rcpp (>= 1.0.7)
+Imports: 
+    Rcpp (>= 1.0.7),
+    dplyr,
+    ggplot2,
+    survival,
+    fastDummies,
+    discSurv
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.2.1
 Depends: 

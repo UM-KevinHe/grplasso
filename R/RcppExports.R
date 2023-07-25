@@ -9,8 +9,8 @@ Deviance <- function(Y, p) {
     .Call(`_ppLasso_Deviance`, Y, p)
 }
 
-DiscSurv_residuals <- function(n_obs, delta_obs, time, gamma, eta) {
-    .Call(`_ppLasso_DiscSurv_residuals`, n_obs, delta_obs, time, gamma, eta)
+DiscSurv_residuals <- function(n_obs, delta_obs, time, alpha, eta) {
+    .Call(`_ppLasso_DiscSurv_residuals`, n_obs, delta_obs, time, alpha, eta)
 }
 
 predict_linear_predictor <- function(n_lambda, n_obs, expand_n_obs, time, gamma, eta) {
@@ -33,7 +33,7 @@ SerBIN <- function(Y, Z, n_prov, gamma, beta) {
     .Call(`_ppLasso_SerBIN`, Y, Z, n_prov, gamma, beta)
 }
 
-NR_residuals <- function(t, X, delta_obs, gamma, beta, tol, max_iter) {
-    .Call(`_ppLasso_NR_residuals`, t, X, delta_obs, gamma, beta, tol, max_iter)
+NR_residuals <- function(t, X, delta_obs, alpha, beta, tol, max_iter) {
+    .Call(`_ppLasso_NR_residuals`, t, X, delta_obs, alpha, beta, tol, max_iter)
 }
 

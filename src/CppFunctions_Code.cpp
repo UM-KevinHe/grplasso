@@ -148,11 +148,11 @@ double p_binomial_Surv(double &gamma, double &eta) {
 
 
 // [[Rcpp::export]]
-arma::vec DiscSurv_residuals(int n_obs, arma::vec &delta_obs, arma::vec &time, arma::vec &gamma, arma::vec &eta){
+arma::vec DiscSurv_residuals(int n_obs, arma::vec &delta_obs, arma::vec &time, arma::vec &alpha, arma::vec &eta){
   arma::vec residuals(n_obs);
   for (int j = 0; j < n_obs; j++){  //j: individual
     for (int i = 0; i < time(j); i++){ //i: time point
-      residuals(j) += p_binomial_Surv(gamma(i), eta(j));
+      residuals(j) += p_binomial_Surv(alpha(i), eta(j));
     }
   }
   residuals = - residuals + delta_obs;
@@ -494,7 +494,6 @@ tuple<arma::vec, arma::vec, arma::vec, double, double, int> pp_lasso_fit(arma::v
 }
 
 
-
 // [[Rcpp::export]]
 List pp_lasso(arma::vec &Y, arma::mat &Z, arma::vec &n_prov, arma::vec &gamma, arma::vec &beta, int K0, arma::vec &K1, arma::vec &lambda_seq, bool lambda_early_stop,
               double stop_dev_ratio, arma::vec &penalized_multiplier, int max_total_iter, int max_each_iter, double tol, double nullDev,
@@ -745,6 +744,9 @@ tuple<arma::vec, arma::vec, arma::vec, double, double, int> grp_lasso_fit(arma::
         eta += Z.col(update_order_unpenalized(j)) * shift;
         df++;
       }
+
+      // update penalized beta
+      // note that all groups are iterated without "active set method"
       for (int g = 0; g < n_group; g++){
         if (active_group(g) == 1){
           lambda_g = lambda * group_multiplier(g);
@@ -772,16 +774,16 @@ tuple<arma::vec, arma::vec, arma::vec, double, double, int> grp_lasso_fit(arma::
         }
       }
 
+      // check whether "non-active" groups can still be updated; if not, algorithm ends
       arma::vec Current_len_group(n_group, fill::zeros);
-
       for (int g = 0; g < n_group; g++) {
         if (active_group(g) == 0) {
           double lambda_g = lambda * group_multiplier(g);
-          Current_len_group(g) = gd_glm_grplasso_BetaChange(Z, r, g, K1, n_obs, lambda_g);
+          Current_len_group(g) = gd_glm_grplasso_BetaChange(Z, r, g, K1, n_obs, lambda_g); //beta's are not truly updated
         }
       }
 
-      int if_add_new = 0;
+      int if_add_new = 0; // count how many "non-active" groups can still be further updated
       arma::uvec descend_len_index = sort_index(Current_len_group, "descend");
       arma::vec descend_len_value = sort(Current_len_group, "descend");
 
@@ -789,15 +791,15 @@ tuple<arma::vec, arma::vec, arma::vec, double, double, int> grp_lasso_fit(arma::
         if (descend_len_value(i)!= 0){
           if_add_new++;
           active_group(descend_len_index(i)) = 1;
-        } else {
+        } else {  // all remaining groups must stay at zero as well
           break;
         }
       }
 
-      if (if_add_new == 0){
+      if (if_add_new == 0){ //if no new groups can be updated, the algorithm ends
         break;
       }
-    } else {
+    } else {  //while without "active set", all the parameters have already been updated to global optimal
       break;
     }
   }
@@ -949,6 +951,9 @@ tuple<arma::vec, arma::vec, arma::vec, arma::vec, double, int> pp_DiscSurv_fit(a
                                                                               double lambda, int &tol_iter, int max_total_iter, int max_each_iter, arma::vec &penalized_multiplier, bool backtrack,
                                                                               bool MM, double bound, double tol, arma::vec &ind_start, arma::vec &active_var, int n_obs, int n_var, int threads,
                                                                               bool actSet, int actIter, int activeVarNum, bool actSetRemove){
+  // note: In the current ".cpp" function, "gamma" denotes the time effect, while "alpha" denotes the center effect
+  // which are different from the notations wrote in the paper
+  
   arma::vec old_beta = beta, old_alpha = alpha, r(n_obs), r_shift, w(n_obs);
   int n_alpha = alpha.n_elem;
   int nProcessors = threads;

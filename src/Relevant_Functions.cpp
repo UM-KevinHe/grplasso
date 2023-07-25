@@ -113,38 +113,39 @@ List SerBIN(arma::vec &Y, arma::mat &Z, arma::vec &n_prov, arma::vec gamma, arma
   return ret;
 }
 
-tuple<arma::vec, arma::vec, arma::vec, arma::mat, arma::mat> Update_logit(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec gamma, arma::vec beta, int max_t, int c, int r){
-  arma::vec score_gamma(max_t, fill::zeros);
+// newton method for updating discrete logistic model (without center effect)
+tuple<arma::vec, arma::vec, arma::vec, arma::mat, arma::mat> Update_logit(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec alpha, arma::vec beta, int max_t, int c, int r){
+  arma::vec score_alpha(max_t, fill::zeros);
   arma::vec score_beta(c, fill::zeros);
-  arma::vec info_gamma(max_t, fill::zeros);
+  arma::vec info_alpha(max_t, fill::zeros);
   arma::mat info_beta(c, c, fill::zeros);
-  arma::mat info_betagamma(max_t, c, fill::zeros);
+  arma::mat info_betaalpha(max_t, c, fill::zeros);
 
   for (int i = 0 ; i < r ; i++){
     for (int s = 1 ; s <= t(i) ; s++){
-        double lambda = 1/(1 + exp(-gamma(s-1) - dot(X.row(i), beta)));
-        score_gamma(s-1) = score_gamma(s-1) - lambda;
+        double lambda = 1/(1 + exp(-alpha(s-1) - dot(X.row(i), beta)));
+        score_alpha(s-1) = score_alpha(s-1) - lambda;
         score_beta = score_beta - lambda * X.row(i).t();
-        info_gamma(s-1) = info_gamma(s-1) + lambda * (1 - lambda);
+        info_alpha(s-1) = info_alpha(s-1) + lambda * (1 - lambda);
         info_beta = info_beta + (lambda * (1 - lambda)) * (X.row(i).t() * X.row(i));
-        info_betagamma.row(s-1) = info_betagamma.row(s-1) + (lambda * (1-lambda)) * X.row(i);
+        info_betaalpha.row(s-1) = info_betaalpha.row(s-1) + (lambda * (1-lambda)) * X.row(i);
         if (t(i) == s && delta_obs(i) == 1){
-          score_gamma(s-1) = score_gamma(s-1) + 1;
+          score_alpha(s-1) = score_alpha(s-1) + 1;
           score_beta = score_beta + X.row(i).t();
         }
     }
   }
 
-  return make_tuple(score_gamma, score_beta, info_gamma, info_beta, info_betagamma);
+  return make_tuple(score_alpha, score_beta, info_alpha, info_beta, info_betaalpha);
 }
 
 // [[Rcpp::export]]
-List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec gamma, arma::vec beta, double tol, int max_iter){
+List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec alpha, arma::vec beta, double tol, int max_iter){
   int r = X.n_rows;
   int c = X.n_cols;
   int max_t = t.max();
 
-  arma::vec gamma2 = gamma;
+  arma::vec alpha2 = alpha;
   arma::vec beta2 = beta;
   arma::vec beta_change(c);
   arma::mat A_inv(max_t, max_t, fill::zeros);
@@ -152,24 +153,24 @@ List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec gamma
   arma::mat B(max_t, c, fill::zeros);
   arma::mat C(c, c, fill::zeros);
   arma::mat schur(c, c, fill::zeros);
-  arma::vec score_gamma(max_t, fill::zeros);
+  arma::vec score_alpha(max_t, fill::zeros);
   arma::vec score_beta(c, fill::zeros);
 
-  auto update = Update_logit(t, X, delta_obs, gamma, beta, max_t, c, r);
+  auto update = Update_logit(t, X, delta_obs, alpha, beta, max_t, c, r);
   int iter = 0;
 
   for (int i = 0 ; i <= max_iter; i++){
     iter++;
     R_CheckUserInterrupt();
     double MaxChange_beta = 0;
-    tie(score_gamma, score_beta, A, C, B) = update;
+    tie(score_alpha, score_beta, A, C, B) = update;
     A = 1/A;
     A_inv = diagmat(A);
     schur = (C - (B.t()) * (A_inv) * (B)).i();
-    gamma2 = gamma + (A_inv + A_inv * B * schur * (B.t()) * A_inv) * score_gamma - A_inv * B * schur * score_beta;
-    beta2 = beta + schur * score_beta-schur * (B.t())* A_inv * score_gamma;
+    alpha2 = alpha + (A_inv + A_inv * B * schur * (B.t()) * A_inv) * score_alpha - A_inv * B * schur * score_beta;
+    beta2 = beta + schur * score_beta-schur * (B.t())* A_inv * score_alpha;
     beta_change = beta2 - beta;
-    gamma = gamma2;
+    alpha = alpha2;
     beta = beta2;
 
     for (i = 0; i < c; i++){
@@ -180,9 +181,9 @@ List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec gamma
     if(MaxChange_beta < tol){
       break;
     }
-    update = Update_logit(t, X, delta_obs, gamma, beta, max_t, c, r);
+    update = Update_logit(t, X, delta_obs, alpha, beta, max_t, c, r);
   }
 
-  List result = List::create(_["beta"] = beta, _["gamma"] = gamma, _["iter"] = iter);
+  List result = List::create(_["beta"] = beta, _["alpha"] = alpha, _["iter"] = iter);
   return result;
 }

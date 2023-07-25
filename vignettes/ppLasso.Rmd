@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## Introduction:
 
-`ppLasso` is an R package designed to fit penalized regression models for generalized linear models and discrete survival models. This package was developed specifically for data sets containing a large number of health providers. Our statistical tool outperforms existing methods in terms of convergence speed by a significant margin, as proven by both simulated studies and real-world data. In this tutorial, we will demonstrate the usage of `ppLasso` through example datasets.
+`ppLasso` stands as a dedicated R package tailored to fitting penalized regression models for both generalized linear models and discrete survival models. Its development was precisely geared towards efficiently handling data sets with a substantial number of health providers. Notably, our statistical tool surpasses existing methods, showcasing a significant margin of improvement in convergence speed, as substantiated by comprehensive evaluations using simulated studies and real-world data. In this tutorial, we aim to illustrate the practical application of `ppLasso` by employing example datasets.
 
 ## Installation:
 
@@ -28,7 +28,7 @@ remotes::install_github("UM-KevinHe/grplasso", ref = "main")
 
 ## Quick Start:
 
-This section will delve into the essential usage of the functions incorporated in the current R package, along with the interpretation of the resulting values from those functions. We will utilize example data sets to facilitate users in comprehending the R package more thoroughly.
+In this section, we will explore the fundamental usage of the functions integrated into the current R package, providing a detailed interpretation of the resulting values obtained from these functions. To enhance users' understanding of the R package, we will employ example datasets, enabling a comprehensive grasp of its functionalities. 
 
 ```{r}
 library(ppLasso)
@@ -36,26 +36,26 @@ library(ppLasso)
 
 ### Generalized linear models
 
-To illustrate the process of fitting a generalized linear model, we will utilize the "GLM_Data" data set that is included in the package. This data set comprises of five predictors, an indicator for provider information, and a binary outcome variable.
+To exemplify the process of fitting a generalized linear model, we will utilize the "GLM_Data" dataset included in the package. This dataset consists of five predictors, an indicator for provider information, and a binary outcome variable. 
 
 ```{r}
 data(GLM_Data)
 data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
+Y.char <- GLM_Data$Y.char # variable name of outcome variable
+prov.char <- GLM_Data$prov.char # variable name of provider indicator
+Z.char <- GLM_Data$Z.char # variable names of predictors
 head(data)
 ```
 
-The `pp.lasso()` function is utilized to fit a generalized linear model when the covariate does not include any group information. 
+#### without grouped covariate  
 
-By default, if the user does not specify the regularization coefficient $\lambda$, our function will automatically generate a sequence of $\lambda$ values, where the largest $\lambda$ will penalize all covariates to zero.
+The `pp.lasso()` function is employed to fit a generalized linear model when the covariate does not include any group information. When the user does not specify the regularization coefficient $\lambda$, our function automatically generates a sequence of $\lambda$ values by default. The sequence starts with the largest $\lambda$, which penalizes all covariates to zero, and then gradually decreases $\lambda$ to allow for variable selection and modeling flexibility. 
 
 ```{r}
 fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 ```
 
-`coef` function can provide an estimate of the coefficients in the fitted model. The column names of the coefficient matrix correspond to the $\lambda$ value.
+The `coef` function serves to provide estimates of the coefficients in the fitted model. The resulting coefficient matrix is structured such that the column names correspond to the $\lambda$ values used in the modeling process. 
 
 ```{r}
 # estimate of covariate coefficients
@@ -64,20 +64,24 @@ coef(fit)$beta[, 1:5]
 coef(fit)$gamma[1:10, 1:5]
 ```
 
-`plot` function generates the figure of the regularization path:
+The `plot` function is designed to generate a figure depicting the regularization path. This path illustrates the behavior of the coefficients for each predictor variable as the regularization parameter $\lambda$ varies. By visualizing the regularization path, users can gain valuable insights into the impact of different regularization strengths on the coefficients, aiding in model interpretation and selection. 
 
 ```{r}
 plot(fit)
 ```
 
-`predict` function generates the model predictions for a given dataset based on the coefficient estimates:
+The `predict` function is utilized to generate model predictions for a given dataset based on the coefficient estimates obtained from the fitted model. Once the model has been trained using the `pp.lasso()` function and the coefficients have been estimated, the predict function can be applied to new data to obtain predictions for the outcome variable. 
+
+This function offers various types of outputs to suit different analysis needs. For instance, when fitting a penalized logistic regression model, using **type = "response"** provides the probabilities of "Y = 1" for each observation, while **type = "class"** provides the predicted class.
 
 ```{r}
 predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
 predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
 ```
 
-The usage of the `grp.lasso()` function is similar to above, but with the additional requirement of providing group information for the covariates. If the user calls the function without providing group information, it will assume that each variable is a group on its own.
+#### with grouped covariate  
+
+The utilization of the `grp.lasso()` function is similar to the previously mentioned methods, with the added requirement of providing group information for the covariates. When calling the function, users should provide the necessary group information to ensure proper grouping of variables for regularization. However, if the user does not explicitly provide the group information, the `grp.lasso()` function will automatically assume that each variable is treated as an individual group on its own. This default behavior simplifies the process for users who do not wish to specify explicit groups, ensuring that the function can still be applied effectively without the need for additional input. 
 
 ```{r}
 group <- GLM_Data$group
@@ -85,16 +89,24 @@ fit2 <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 plot(fit2)
 ```
 
-The optimal regularization parameter is determined by cross-validation, which is the default method. To obtain the optimal regularization coefficient, the user can call the `cv.pp.lasso()` or `cv.grp.lasso()` function.
+#### regularization parameter selection  
+
+The optimal regularization parameter ($\lambda$) is determined through cross-validation. To find the best $\lambda$, users can employ either the `cv.pp.lasso()` or `cv.grp.lasso()` function, depending on the specific type of model they are working with. These cross-validation functions inherit the parameters required for the model fitting process, providing a seamless and straightforward experience for users. By default, both functions utilize 10-fold cross-validation.
 
 ```{r}
 fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 ```
 
-`plot` function returns the figure of the cross entropy Loss to help user choose the optimal $\lambda$:
+The `plot` function, applied to a `cv.pp.lasso` or `cv.grp.lasso` object, generates a figure that enables users to assess how the cross-entropy loss changes with varying values of $\lambda$. By observing the plot, users can easily identify the point at which the cross-entropy loss is minimized.
 
 ```{r}
 plot(fit)
+```
+
+Indeed, users can directly use the **fit$lambda.min** command to obtain the optimal value of $\lambda$.
+
+```{r}
+fit$lambda.min
 ```
 
 ### Discrete survival models
@@ -103,6 +115,7 @@ The `pp.DiscSurv()` function is utilized for fitting a penalized discrete surviv
 
 The `Surv_Data` dataset, included in this package, comprises of 5 covariates, provider information, observation time, and event indicator. We will be using this dataset as an example to illustrate how to utilize it.
 
+
 ```{r}
 data(Surv_Data)
 data <- Surv_Data$data
@@ -110,15 +123,18 @@ Event.char <- Surv_Data$Event.char
 prov.char <- Surv_Data$prov.char
 Z.char <- Surv_Data$Z.char
 Time.char <- Surv_Data$Time.char
-fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
 head(data)
 ```
 
-The primary output of the `pp.DiscSurv()` function consists of three sets of coefficients, which correspond to the covariate estimates, log-transformed baseline hazard for different time points, and provider effects (with the first provider serving as the reference group).
+```{r}
+fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
+```
+
+The primary output of the `pp.DiscSurv()` function consists of three sets of coefficients, which correspond to the covariate estimates, log-transformed baseline hazard for different time points, and provider effects. We set the first provider as reference group to avoid the multicollinearity issues.
 
 ```{r}
-fit$beta
-fit$alpha
-fit$gamma
+fit$beta[, 1:5]
+fit$alpha[, 1:5]
+fit$gamma[, 1:5]
 ```
 

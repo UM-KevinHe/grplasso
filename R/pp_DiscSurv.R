@@ -82,10 +82,10 @@
 #' prov.char <- Surv_Data$prov.char
 #' Z.char <- Surv_Data$Z.char
 #' Time.char <- Surv_Data$Time.char
-#' fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, lambda = 0.01)
-#' fit$beta
-#' fit$alpha
-#' fit$gamma #effect of the first provider is set to be zero
+#' fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
+#' fit$beta[, 1:5]
+#' fit$alpha[, 1:5]
+#' fit$gamma[, 1:5] #effect of the first provider is set to be zero
 #'
 #' @importFrom Rcpp evalCpp
 #'
@@ -97,99 +97,96 @@
 #' \emph{Lifetime Data Analysis}, \strong{19}: 490-512.
 #' \cr
 
-
 pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, nlambda = 100,
-                     lambda.min.ratio = 1e-4, penalize.x = rep(1, length(Z.char)), penalized.multiplier,
-                     lambda.early.stop = FALSE, nvar.max = p, stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE,
-                     tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE,
-                     actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE,
-                     trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
-
+                        lambda.min.ratio = 1e-4, penalize.x = rep(1, length(Z.char)), penalized.multiplier,
+                        lambda.early.stop = FALSE, nvar.max = p, stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE,
+                        tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE,
+                        actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE,
+                        trace.lambda = FALSE, threads = 1, return.transform.data = FALSE, MM = FALSE, ...){
+  
   # Convert the observed time in discrete intervals
   # "time" is converted into order index (integers)
-  count.gamma <- length(unique(data[, Time.char]))
+  count.alpha <- length(unique(data[, Time.char]))
   timepoint.increase <- sort(unique(data[, Time.char]))
-  # new time start from 1, and time points are {1, 2, 3, ...}
-  for (i in 1:count.gamma){
+  # new "time indicator" starts from 1, and time points are {1, 2, 3, ...}
+  for (i in 1:count.alpha){
     data[, Time.char][which(data[, Time.char] == timepoint.increase[i])] <- i
   }
-  max.timepoint <- length(timepoint.increase)  # the number of gamma that we need
-
+  
+  time.ref <- as.data.frame(cbind(1:count.alpha, timepoint.increase))
+  colnames(time.ref) <- c("time.indicator", "time")
+  
+  max.timepoint <- length(timepoint.increase)  # the number of "alpha" (time effect) that we need
+  
   data <- data[order(factor(data[, prov.char])), ]
   ID <- as.matrix(data[, prov.char]) # ID vector
   colnames(ID) <- prov.char
-
+  
   pseudo.group <- 1:length(Z.char)    #each variable forms a group
   if (min(penalize.x) == 0){
     pseudo.group[penalize.x == 0] = 0 # set unpenalized variables
   }
-
+  
   # failure at each time point
   fit <- survival::survfit(survival::Surv(data[, Time.char], data[, Event.char]) ~ 1)
   sum.failure <- fit$n.event
   KM.baseline.hazard <- c(fit$cumhaz[1], fit$cumhaz[2:length(fit$cumhaz)] - fit$cumhaz[1:(length(fit$cumhaz) - 1)])
-
+  
   failure.each.center <- tapply(data$status, data$Prov.ID, sum)
-
-
-  # !!! "standardize = T" may cause problems in transforming gamma and alpha back, current we only consider "standardize = F"
-
+  
+  
+  # !!! Since "standardize = T" may cause problems in transforming gamma and alpha back, currently we only consider "standardize = F"
+  
   #if (standardize == T){
   #  std.Z <- newZG.Std.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
   #  Z <- std.Z$std.Z[, , drop = F]  # standardized covariate matrix
   #  pseudo.group <- std.Z$g  # new group order
   #  penalized.multiplier <- std.Z$m # new group multiplier
   #} else {
-    std.Z <- newZG.Unstd.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
-    Z <- std.Z$std.Z[, , drop = F]
-    pseudo.group <- std.Z$g
-    penalized.multiplier <- std.Z$m
+  std.Z <- newZG.Unstd.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
+  Z <- std.Z$std.Z[, , drop = F]
+  pseudo.group <- std.Z$g
+  penalized.multiplier <- std.Z$m
   #}
-
+  
   delta.obs <- data[, Event.char]  #each observation's event variable
   time <- data[, Time.char]
   p <- ncol(Z)
   nvar.max <- as.integer(nvar.max)
-
+  
   # gamma start from KM estimator
   KM.baseline.hazard.add.small <- KM.baseline.hazard
   KM.baseline.hazard.add.small[which(KM.baseline.hazard.add.small == 0)] <- 1e-10
-  gamma <- log(KM.baseline.hazard.add.small/(1 - KM.baseline.hazard.add.small))
+  alpha <- log(KM.baseline.hazard.add.small/(1 - KM.baseline.hazard.add.small))
   beta <- rep(0, ncol(Z))
   n.prov <- sapply(split(delta.obs, ID), length)
-  alpha.prov <- rep(0, length(n.prov))
-
-  #####---check-----#####
-  ##if (missing(lambda)) {
-  ##  if (nlambda < 2) {
-  ##    stop("nlambda must be at least 2", call. = FALSE)
-  ##  } else if (nlambda != round(nlambda)){
-  ##    stop("nlambda must be a positive integer", call. = FALSE)
-  ##  }
-  ##  lambda.fit <- set.lambda.Surv2(delta.obs, Z, time, ID, gamma, beta, alpha.prov, prov.char,
-  ##                                 pseudo.group, penalized.multiplier, nlambda = nlambda,
-  ##                                 lambda.min.ratio = lambda.min.ratio)
-  ##  lambda.seq <- lambda.fit$lambda.seq
-  ##  beta <- lambda.fit$beta
-  ##  alpha <- lambda.fit$alpha
-  ##  gamma <- lambda.fit$gamma
-  ##} else {
-  ##  nlambda <- length(lambda)  # Note: lambda can be a single value
-  ##  lambda.seq <- as.vector(sort(lambda, decreasing = TRUE))
-  ##}
-  #####---check-----#####
-
-  if (missing(lambda)){
-    lambda.seq <- 0
+  gamma.prov <- rep(0, length(n.prov))
+  
+  #####---need check-----#####
+  if (missing(lambda)) {
+    if (nlambda < 2) {
+      stop("nlambda must be at least 2", call. = FALSE)
+    } else if (nlambda != round(nlambda)){
+      stop("nlambda must be a positive integer", call. = FALSE)
+    }
+    lambda.fit <- set.lambda.Surv(delta.obs, Z, time, ID, alpha, beta, gamma.prov, prov.char,
+                                  pseudo.group, penalized.multiplier, nlambda = nlambda,
+                                  lambda.min.ratio = lambda.min.ratio)
+      
+    lambda.seq <- lambda.fit$lambda.seq
+    beta <- lambda.fit$beta
+    alpha <- lambda.fit$alpha
+    gamma.prov <- lambda.fit$gamma
   } else {
-    lambda.seq <- lambda
+    nlambda <- length(lambda)  # Note: lambda can be a single value
+    lambda.seq <- as.vector(sort(lambda, decreasing = TRUE))
   }
-
-
+  #####---need check-----#####
+  
   K <- as.integer(table(pseudo.group)) #number of features in each group
   K0 <- as.integer(if (min(pseudo.group) == 0) K[1] else 0)
   K1 <- as.integer(if (min(pseudo.group) == 0) cumsum(K) else c(0, cumsum(K)))
-
+  
   initial.active.variable <- -1 ## "-1" means this variable can be any value and we will not use it in our cpp function.
   if (actSet == TRUE){
     if (K0 == 0){ #all variables are penalized
@@ -198,35 +195,37 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   } else {  ## if we don't use active set method, then the initial active set should contain all penalized variables
     actIter <- max.each.iter
   }
-
-  fit <- pp_DiscSurv_lasso(delta.obs, max.timepoint, Z, n.prov, time, gamma, beta, alpha.prov, K0, K1, sum.failure, failure.each.center,
+  
+  # note that currently in ".cpp" file, "gamma" and "alpha" exchange notations
+  fit <- pp_DiscSurv_lasso(delta.obs, max.timepoint, Z, n.prov, time, alpha, beta, gamma.prov, K0, K1, sum.failure, failure.each.center,
                            lambda.seq, penalized.multiplier, max.total.iter, max.each.iter, tol, backtrack, MM, bound, initial.active.variable,
                            nvar.max, trace.lambda, threads, actSet, actIter, actVarNum, actSetRemove)
-
-  gamma <- fit$gamma
+  
+  alpha <- fit$gamma # notations in .cpp functions are different
   beta <- fit$beta
-  alpha <- fit$alpha
+  gamma <- fit$alpha # notations in .cpp functions are different
   eta <- fit$Eta
   df <- fit$Df
   iter <- fit$iter
-
+  
   # Eliminate saturated lambda values
   ind <- !is.na(iter)
   lambda <- lambda.seq[ind]
   beta <- beta[, ind, drop = FALSE]
-  gamma <- gamma[, ind, drop = FALSE]
+  gamma <- gamma[, ind, drop = FALSE] #time effect
+  alpha <- alpha[, ind, drop = FALSE] #center effect
   eta <- eta[, ind, drop = FALSE]
   df <- df[ind]
   iter <- iter[ind]
-
+  
   #if (iter[1] == max.total.iter){
   #  stop("Algorithm failed to converge for any values of lambda", call. = FALSE)
   #}
   if (sum(iter) == max.total.iter){
     warning("Algorithm failed to converge for all values of lambda", call. = FALSE)
   }
-
-
+  
+  
   # Original scale
   beta <- unorthogonalize(beta, std.Z$std.Z, pseudo.group)
   rownames(beta) <- colnames(Z)
@@ -238,31 +237,38 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   #  beta <- unstandardize.para$beta
   #  gamma <- unstandardize.para$gamma
   #}
-
+  
   # Names
   dimnames(beta) <- list(Z.char, round(lambda, digits = 4))
   if (nrow(gamma) == 1 & length(lambda.seq) == 1){
     gamma <- t(gamma)
     alpha <- t(alpha)
   }
-
-  dimnames(gamma) <- list(paste0("T_", 1:count.gamma), round(lambda, digits = 4))
-  dimnames(alpha) <- list(names(n.prov), round(lambda, digits = 4))
-
+  
+  dimnames(alpha) <- list(paste0("[Time: ", time.ref[, 2], "]"), round(lambda, digits = 4))
+  dimnames(gamma) <- list(names(n.prov), round(lambda, digits = 4))
+  
   colnames(eta) <- round(lambda, digits = 4)
-
+  
   result <- structure(list(beta = beta,
-                           alpha = gamma,
-                           gamma = alpha,
+                           alpha = alpha,
+                           gamma = gamma,
                            lambda = lambda,
-                           linear.components = eta,  #eta = alpha +  Z * beta
+                           linear.components = eta,  #eta = gamma +  Z * beta
                            df = df,
                            iter = iter,
                            penalized.multiplier = penalized.multiplier,
-                           penalize.x = penalize.x),
+                           penalize.x = penalize.x, 
+                           time.ref = time.ref),
                       class = "ppDiscSurv")  #define a list for prediction
+  
+  if (return.transform.data == TRUE){
+    result$return.transform.data <- return.transform.data
+  }  
+  
   if (returnX == TRUE){
     result$returnX <- std.Z
   }
   return(result)
 }
+

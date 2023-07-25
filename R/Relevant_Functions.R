@@ -127,70 +127,51 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
 }
 
 # "DiscSurv.residuals" is used for computing the sum of response residuals within each individual
-DiscSurv.residuals <- function(delta.obs, Z, time, gamma, beta){
-  fit <- NR_residuals(as.matrix(time), as.matrix(Z), as.matrix(delta.obs), as.matrix(gamma),
-                      as.matrix(beta), tol = 1e-4, max_iter = 1e4)  #cpp functions
-  gamma <- as.numeric(fit$gamma)
-  beta <- as.numeric(fit$beta)
-  eta <- as.matrix(Z) %*% as.matrix(beta)
-  residuals <- DiscSurv_residuals(nrow(Z), delta.obs, time, gamma, eta)
+DiscSurv.residuals <- function(delta.obs, new.Z, time, alpha, beta.new, n.true_beta){
+  fit <- NR_residuals(as.matrix(time), as.matrix(new.Z), as.matrix(delta.obs), as.matrix(alpha),
+                      as.matrix(beta.new), tol = 1e-4, max_iter = 1e4)  #.cpp functions
+  alpha <- as.numeric(fit$alpha)
+  beta <- as.numeric(fit$beta)  #beta here includes original beta and dummy "center effect"
+  eta <- as.matrix(new.Z) %*% as.matrix(beta)
+  residuals <- DiscSurv_residuals(nrow(new.Z), delta.obs, time, alpha, eta)
   colnames(residuals) <- "Within person residuals"
-  ls <- list(beta = beta, gamma = gamma, residual = residuals)
+  beta.out <- ifelse(n.true_beta != 0, 
+                 beta[1:n.true_beta],
+                 NA)
+  ls <- list(beta = beta.out, 
+             alpha = alpha, 
+             gamma = beta[(1 + n.true_beta):length(beta)],
+             residual = residuals)
   return(ls)
 }
 
-set.lambda.Surv <- function(delta.obs, Z, time, gamma, beta, group, group.multiplier,
-                            nlambda = 100, lambda.min.ratio = 1e-04){
-  n <- nrow(Z)
-  K <- table(group)
-  K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
-  storage.mode(K1) <- "integer"
-  if (K1[1] != 0) {  ## use Di's code
-    fit <- DiscSurv.residuals(delta.obs, Z[, group == 0, drop = F], time, gamma, beta[1:sum(group == 0)])
-    r <- fit$residual
-    beta.initial <- c(fit$beta, rep(0, length(beta) - length(fit$beta)))
-    gamma.initial <- fit$gamma
-  } else {  ## use KM results
-    plogis.gamma <- plogis(gamma)
-    r <- rep(0, n)
-    for (i in 1:n){
-      r[i] <- delta.obs[i] - sum(plogis.gamma[1:time[i]])
-    }
-    beta.initial <- beta
-    gamma.initial <- gamma
-  }
-  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
-  lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
-  lambda.seq[1] <- lambda.seq[1] + 1e-5
-  ls <- list(beta = beta.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
-  return(ls)
-}
-
-set.lambda.Surv2 <- function(delta.obs, Z, time, ID, gamma, beta, alpha.prov, prov.char, group, group.multiplier,
+set.lambda.Surv <- function(delta.obs, Z, time, ID, alpha, beta, gamma.prov, prov.char, group, group.multiplier,
                              nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
   storage.mode(K1) <- "integer"
-  if (K1[1] != 0) {  ## use Di's code
-    dummy_time <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
-    new.Z <- cbind(Z[, group == 0, drop = F], dummy_time)
-    beta.new <- c(beta[1:sum(group == 0)], alpha.prov[2:(ncol(dummy_time) + 1)])
-    fit <- DiscSurv.residuals(delta.obs, new.Z, time, gamma, beta.new)
+  if (K1[1] != 0) {  ## if some beta are unpenalized
+    dummy_center <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
+    new.Z <- cbind(Z[, group == 0, drop = F], dummy_center) #create new dummy variables for center effect (remove 1st center, which is treated as reference center)
+    beta.new <- c(beta[1:sum(group == 0)], gamma.prov[2:(ncol(dummy_center) + 1)])
+    n.true_beta <- sum(group == 0)
+    fit <- DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
     r <- fit$residual
 
-    beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0)))
-    alpha.initial <- c(alpha.prov[1], fit$beta[(1 + sum(group == 0)):length(fit$beta)])
-    gamma.initial <- fit$gamma
+    beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0))) 
+    gamma.initial <- c(gamma.prov[1], fit$gamma) # the first center effect is not estimated
+    alpha.initial <- fit$alpha  #initial time effect
   } else {  ## only time and center
     new.Z <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
-    beta.new <- alpha.prov[2:(ncol(new.Z) + 1)]
-    fit <- DiscSurv.residuals(delta.obs, new.Z, time, gamma, beta.new)
+    beta.new <- gamma.prov[2:(ncol(new.Z) + 1)]
+    n.true_beta <- 0
+    fit <- DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
     r <- fit$residual
 
-    beta.initial <- beta
-    alpha.initial <- c(alpha.prov[1], fit$beta)
-    gamma.initial <- fit$gamma
+    beta.initial <- beta  #use original beta (all 0)
+    gamma.initial <- c(gamma.prov[1], fit$gamma)
+    alpha.initial <- fit$alpha  #initial time effect
   }
   lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
@@ -458,66 +439,6 @@ newY <- function(data, Y.char){
   return(y)
 }
 
-coef.DiscSurv <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
-  if (!missing(lambda)) {
-    if (any(lambda > max(object$lambda) | lambda < min(object$lambda))){
-      stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)
-    }
-    ind <- approx(object$lambda, seq(object$lambda), lambda)$y
-    l <- floor(ind)
-    r <- ceiling(ind)
-    w <- ind %% 1
-    # linearly interpolate between two lambda
-    beta <- (1 - w) * object$beta[, l, drop = FALSE] + w * object$beta[, r, drop = FALSE]
-    gamma <- (1 - w) * object$gamma[, l, drop = FALSE] + w * object$gamma[, r, drop = FALSE]
-    colnames(beta) <- round(lambda, 4)
-    colnames(gamma) <- round(lambda, 4)
-  } else {  #specify lambda value as index
-    beta <- object$beta[, which, drop = FALSE]
-    gamma <- object$gamma[, which, drop = FALSE]
-  }
-  if (drop == TRUE){
-    beta <- drop(beta)
-    gamma <- drop(gamma)
-    coef <- list(gamma = gamma, beta = beta)
-  } else {
-    coef <- list(gamma = gamma, beta = beta)
-  }
-  return(coef)
-}
-
-predict.DiscSurv <- function(object, data.i, Z.char, Time.char, lambda, which = 1:length(object$lambda),
-                             type = c("response", "vars", "nvars"), ...){
-  beta <- coef.DiscSurv(object, lambda = lambda, which = which, drop = FALSE)$beta
-  gamma <- coef.DiscSurv(object, lambda = lambda, which = which, drop = FALSE)$gamma
-
-  if (type == "vars"){
-    return(drop(apply(beta != 0, 2, FUN = which)))
-  }
-
-  if (type == "nvars") {
-    v <- as.list(apply(beta != 0, 2, FUN = which))
-    nvars <- sapply(v, length)
-    return(nvars)
-  }
-
-  # predict response
-  if (missing(data.i) | is.null(data.i)) {
-    stop("Must supply data for predictions", call. = FALSE)
-  }
-
-  if (type == "response") {
-    # need data expansion
-    n.obs <- nrow(data.i)
-    eta <- as.matrix(data.i[, Z.char, drop = F]) %*% beta  # "eta" is a matrix; "gamma" is also a matrix
-    sum.time <- sum(data.i[, Time.char, drop = F])
-    time <- as.matrix(data.i[, Time.char, drop = F])
-    nlambda <- ncol(eta)
-    pred.prob <- predict_linear_predictor(nlambda, n.obs, sum.time, time, gamma, eta)  # return a matrix
-    return(pred.prob)
-  }
-}
-
 
 
 cvf.pplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
@@ -556,6 +477,37 @@ cvf.grplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
 
 
 
+cvf.ppDiscSurv <- function(i, data, Event.char, prov.char, Z.char, Time.char, fold, original.count.alpha, cv.args){
+  cv.args$data <- data[fold != i, , drop = FALSE]  #current training data (should have all time points
+  cv.args$Event.char <- Event.char
+  cv.args$prov.char <- prov.char
+  cv.args$Z.char <- Z.char
+  cv.args$Time.char <- Time.char
+  
+  # some time point might lost within one sub data set, so we need to reorder time
+  #count.gamma <- length(unique(cv.args$data[, Time.char]))
+  #if (count.gamma != original.count.gamma){
+  #  timepoint.increase <- sort(unique(data[, Time.char]))
+  #  # new time start from 1, and time points are {1, 2, 3, ...}
+  #  for (i in 1:count.gamma){
+  #    data[, Time.char][which(data[, Time.char] == timepoint.increase[i])] <- i
+  #  }
+  #}
+  
+  fit.i <- do.call("pp.DiscSurv", cv.args)  #fit the discrete survival model using one training data set (9/10 data)
+  data.i <- data[fold == i, , drop = FALSE]  #current validation data
+  yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response", return.Array = FALSE) # y-hat matrix across all given lambda; data has been expanded
+  
+  data.small <- data.i[, c(Event.char, Time.char)]
+  Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, 
+                            eventColumn = Event.char, timeAsFactor = TRUE)$y
+  
+  loss <- loss.Disc.Surv(Y.i, yhat.i)  ## cross entropy loss
+  list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
+}
+
+
+
 cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args){
   cv.args$data <- data[fold != i, , drop = FALSE]
   cv.args$Event.char <- Event.char
@@ -577,7 +529,8 @@ cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.
   yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response") # y-hat matrix across all given lambda; data has been expanded
 
   data.small <- data.i[, c(Event.char, Time.char)]
-  Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, eventColumn = Event.char, timeAsFactor = TRUE)$y
+  Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, 
+                            eventColumn = Event.char, timeAsFactor = TRUE)$y
 
   loss <- loss.Disc.Surv(Y.i, yhat.i)  ## cross entropy loss
   list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
