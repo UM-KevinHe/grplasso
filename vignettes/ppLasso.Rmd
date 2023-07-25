@@ -164,7 +164,6 @@ Users can either utilize the `plot()` function or directly access the **fit$lamb
 
 ```{r}
 plot(fit)
-
 fit$lambda.min
 ```
 
