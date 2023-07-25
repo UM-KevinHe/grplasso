@@ -1,6 +1,6 @@
-#' fit a group penalized generalized regression model
+#' Fit a group penalized generalized regression model
 #'
-#' main function for fitting a group penalized generalized regression model
+#' Main function for fitting a group penalized generalized regression model
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'

@@ -1,6 +1,6 @@
-#' predictions of a ppLasso or gr_ppLasso object
+#' Predictions of a ppLasso or gr_ppLasso object
 #'
-#' return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
+#' Return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
 #'
 #' @param fit a \code{ppLasso} or \code{gr_ppLasso} object.
 #'

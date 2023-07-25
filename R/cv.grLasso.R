@@ -1,6 +1,6 @@
-#' cross-validation for grp.lasso
+#' Cross-validation for grp.lasso
 #'
-#' performs k-fold cross validation for group penalized regression models over a grid of values of regularization parameter lambda.
+#' Performs k-fold cross validation for group penalized regression models over a grid of values of regularization parameter lambda.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'

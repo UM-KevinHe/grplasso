@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.grLasso.R
 \name{cv.grp.lasso}
 \alias{cv.grp.lasso}
-\title{cross-validation for grp.lasso}
+\title{Cross-validation for grp.lasso}
 \usage{
 cv.grp.lasso(
   data,
@@ -56,7 +56,7 @@ An object with S3 class \code{cv.gr_ppLasso}.
 \item{lambda.min}{the value of lambda with the minimum cross-validation error.}
 }
 \description{
-performs k-fold cross validation for group penalized regression models over a grid of values of regularization parameter lambda.
+Performs k-fold cross validation for group penalized regression models over a grid of values of regularization parameter lambda.
 }
 \examples{
 data(GLM_Data)

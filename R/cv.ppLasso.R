@@ -1,6 +1,6 @@
-#' cross-validation for pp.lasso
+#' Cross-validation for pp.lasso
 #'
-#' performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
+#' Performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'

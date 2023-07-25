@@ -4,15 +4,15 @@ template:
     bootswatch: lumen
     ganalytics: UA-54921687-5
 reference:
-- title: Main Fitting Functions for Generalized Linear Regression Models
-  desc: The main functions to fit the penalized generalized regression models
+- title: Main Fitting Functions for Generalized Linear Models
+  desc: The main functions to fit the penalized generalized linear models
   contents:
   - pp.lasso
   - cv.pp.lasso
   - grp.lasso
   - cv.grp.lasso
 - title: Main Fitting Functions for Discrete Survival Models
-  desc: The main functions to fit the penalized discrete survival mode
+  desc: The main functions to fit the penalized discrete survival model
   contents:
   - pp.DiscSurv
   - cv.pp.DiscSurv
@@ -29,6 +29,8 @@ reference:
   - predict.ppLasso
   - predict.gr_ppLasso
   - predict.ppDiscSurv
+- title: Coefficient functions
+  contents:  
   - coef.ppLasso
   - coef.gr_ppLasso
   - coef.ppDiscSurv

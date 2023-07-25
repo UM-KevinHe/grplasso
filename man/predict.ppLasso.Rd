@@ -3,7 +3,7 @@
 \name{predict.ppLasso}
 \alias{predict.ppLasso}
 \alias{predict.gr_ppLasso}
-\title{predictions of a ppLasso or gr_ppLasso object}
+\title{Predictions of a ppLasso or gr_ppLasso object}
 \usage{
 \method{predict}{ppLasso}(
   fit,
@@ -48,7 +48,7 @@
 \item{...}{}
 }
 \description{
-return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
+Return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)

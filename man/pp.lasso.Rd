@@ -2,7 +2,7 @@
 % Please edit documentation in R/ppLasso.R
 \name{pp.lasso}
 \alias{pp.lasso}
-\title{fit a penalized generalized regression model}
+\title{Fit a penalized generalized regression model}
 \usage{
 pp.lasso(
   data,
@@ -109,7 +109,7 @@ and the number of columns is equal to nlambda.}
 \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 }
 \description{
-main function for fitting a penalized generalized regression
+Main function for fitting a penalized generalized regression
 }
 \details{
 The model is fit by Newton method and coordinate descent method.

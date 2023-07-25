@@ -2,7 +2,7 @@
 % Please edit documentation in R/pp_DiscSurv.R
 \name{pp.DiscSurv}
 \alias{pp.DiscSurv}
-\title{fit a penalized discrete survival model}
+\title{Fit a penalized discrete survival model}
 \usage{
 pp.DiscSurv(
   data,
@@ -106,7 +106,7 @@ and the number of columns is equal to nlambda.}
 \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 }
 \description{
-main function for fitting a penalized discrete survival model
+Main function for fitting a penalized discrete survival model
 }
 \details{
 The model is fit by Newton method and coordinate descent method.

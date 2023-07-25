@@ -3,7 +3,7 @@
 \name{coef.ppLasso}
 \alias{coef.ppLasso}
 \alias{coef.gr_ppLasso}
-\title{extract coefficients of a ppLasso or gr_ppLasso object}
+\title{Extract coefficients of a ppLasso or gr_ppLasso object}
 \usage{
 \method{coef}{ppLasso}(fit, lambda, which = 1:length(fit$lambda), drop = TRUE, ...)
 
@@ -21,7 +21,7 @@
 \item{...}{}
 }
 \description{
-return the model coefficients of a \code{ppLasso} or \code{gr_ppLasso} object
+Return the model coefficients of a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
 #fit glm without grouped covariates

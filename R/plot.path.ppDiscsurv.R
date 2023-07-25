@@ -1,6 +1,6 @@
-#' plot regularization path of coefficients from a ppDiscSurv object
+#' Plot regularization path of coefficients from a ppDiscSurv object
 #'
-#' return the plot the regularization path from a \code{ppDiscSurv} object
+#' Return the plot the regularization path from a \code{ppDiscSurv} object
 #'
 #' @param fit a \code{ppDiscSurv} object.
 #'

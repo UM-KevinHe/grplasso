@@ -1,6 +1,6 @@
-#' plot regularization path of coefficients from a ppLasso or gr_ppLasso object
+#' Plot regularization path of coefficients from a ppLasso or gr_ppLasso object
 #'
-#' return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
+#' Return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
 #'
 #' @param fit a \code{ppLasso} object.
 #'

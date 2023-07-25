@@ -1,6 +1,6 @@
-#' plot the cross entropy Loss from a cv.ppLasso or cv.gr_ppLasso object
+#' Plot the cross entropy loss from a cv.ppLasso or cv.gr_ppLasso object
 #'
-#' return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
+#' Return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 #'
 #' @param fit a \code{cv.ppLasso} object.
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/grLasso_Code.R
 \name{grp.lasso}
 \alias{grp.lasso}
-\title{fit a group penalized generalized regression model}
+\title{Fit a group penalized generalized regression model}
 \usage{
 grp.lasso(
   data,
@@ -111,7 +111,7 @@ and the number of columns is equal to nlambda.}
 \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 }
 \description{
-main function for fitting a group penalized generalized regression model
+Main function for fitting a group penalized generalized regression model
 }
 \details{
 The model is fit by Newton method and coordinate descent method.

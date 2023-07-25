@@ -1,6 +1,6 @@
-#' extract coefficients of a pppDiscSurv object
+#' Extract coefficients of a ppDiscSurv object
 #'
-#' return the model coefficients of a \code{ppDiscSurv} object
+#' Return the model coefficients of a \code{ppDiscSurv} object
 #'
 #' @param fit a \code{ppDiscSurv} object.
 #'

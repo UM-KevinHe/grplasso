@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.ppLasso.R
 \name{cv.pp.lasso}
 \alias{cv.pp.lasso}
-\title{cross-validation for pp.lasso}
+\title{Cross-validation for pp.lasso}
 \usage{
 cv.pp.lasso(
   data,
@@ -56,7 +56,7 @@ An object with S3 class \code{cv.ppLasso}.
 \item{lambda.min}{the value of lambda with the minimum cross-validation error.}
 }
 \description{
-performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
+Performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
 }
 \examples{
 data(GLM_Data)

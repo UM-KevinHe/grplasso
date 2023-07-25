@@ -2,7 +2,7 @@
 % Please edit documentation in R/coef_ppDiscSurv.R
 \name{coef.ppDiscSurv}
 \alias{coef.ppDiscSurv}
-\title{extract coefficients of a pppDiscSurv object}
+\title{Extract coefficients of a ppDiscSurv object}
 \usage{
 \method{coef}{ppDiscSurv}(fit, lambda, which = 1:length(fit$lambda), drop = TRUE, ...)
 }
@@ -18,7 +18,7 @@
 \item{...}{}
 }
 \description{
-return the model coefficients of a \code{ppDiscSurv} object
+Return the model coefficients of a \code{ppDiscSurv} object
 }
 \examples{
 data(Surv_Data)

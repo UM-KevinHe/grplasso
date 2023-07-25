@@ -1,11 +1,11 @@
 Package: ppLasso
 Type: Package
-Title: Variable selection algorithm for generalized linear models with high dimensional center effects
-Version: 1.5
-Date: 2023-01-05
+Title: Efficient Variable Selection Algorithm for High-Dimensional Center Effects in Generalized Linear and Discrete Survival Models
+Version: 2.1
+Date: 2023-07-25
 Author: Yubo Shao
 Maintainer: Yubo Shao <ybshao@umich.edu>
-Description: An efficient algorithm for solving GLM lasso problems with large number of health centers
+Description: Efficient Algorithm for Handling Generalized Linear and Discrete Survival Models with a High Volume of Health Centers
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true

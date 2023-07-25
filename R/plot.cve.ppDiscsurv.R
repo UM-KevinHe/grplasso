@@ -1,6 +1,6 @@
-#' plot the cross entropy Loss from a cv.ppDiscSurv object
+#' Plot the cross entropy loss from a cv.ppDiscSurv object
 #'
-#' return the plot of the cross entropy loss from a \code{cv.ppDiscSurv} object
+#' Return the plot of the cross entropy loss from a \code{cv.ppDiscSurv} object
 #'
 #' @param fit a \code{cv.ppDiscSurv} object.
 #'

@@ -3,7 +3,7 @@
 \name{plot.cv.ppLasso}
 \alias{plot.cv.ppLasso}
 \alias{plot.cv.gr_ppLasso}
-\title{plot the cross entropy Loss from a cv.ppLasso or cv.gr_ppLasso object}
+\title{Plot the cross entropy loss from a cv.ppLasso or cv.gr_ppLasso object}
 \usage{
 \method{plot}{cv.ppLasso}(
   fit,
@@ -29,7 +29,7 @@
 \item{vertical.line}{whether draws a vertical line at the value where cross-validaton error is minimized.}
 }
 \description{
-return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
+Return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)

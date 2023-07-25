@@ -1,6 +1,6 @@
-#' predictions of a ppDiscSurv object
+#' Predictions of a ppDiscSurv object
 #'
-#' return the model predictions of a \code{ppDiscSurv} object
+#' Return the model predictions of a \code{ppDiscSurv} object
 #'
 #' @param fit a \code{ppDiscSurv} object.
 #'

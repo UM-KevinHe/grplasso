@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.ppDiscSurv.R
 \name{cv.pp.DiscSurv}
 \alias{cv.pp.DiscSurv}
-\title{cross-validation for pp.DiscSurv}
+\title{Cross-validation for pp.DiscSurv}
 \usage{
 cv.pp.DiscSurv(
   data,
@@ -59,7 +59,7 @@ An object with S3 class \code{cv.pp.DiscSurv}.
 \item{lambda.min}{the value of lambda with the minimum cross-validation error.}
 }
 \description{
-performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
+Performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
 }
 \examples{
 data(Surv_Data)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.cve.ppDiscsurv.R
 \name{plot.cv.ppDiscSurv}
 \alias{plot.cv.ppDiscSurv}
-\title{plot the cross entropy Loss from a cv.ppDiscSurv object}
+\title{Plot the cross entropy loss from a cv.ppDiscSurv object}
 \usage{
 \method{plot}{cv.ppDiscSurv}(
   fit,
@@ -20,7 +20,7 @@
 \item{vertical.line}{whether draws a vertical line at the value where cross-validaton error is minimized.}
 }
 \description{
-return the plot of the cross entropy loss from a \code{cv.ppDiscSurv} object
+Return the plot of the cross entropy loss from a \code{cv.ppDiscSurv} object
 }
 \examples{
 data(Surv_Data)

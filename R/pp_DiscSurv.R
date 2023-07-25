@@ -1,6 +1,6 @@
-#' fit a penalized discrete survival model
+#' Fit a penalized discrete survival model
 #'
-#' main function for fitting a penalized discrete survival model
+#' Main function for fitting a penalized discrete survival model
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'

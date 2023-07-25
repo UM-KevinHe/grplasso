@@ -1,4 +1,4 @@
-#' example data for pp.lasso and grp.lasso
+#' Example data for generalize lienar model
 #'
 #' A simulated data set containing response variable, provider information and 5 covariates.
 #' @name GLM_Data
@@ -16,7 +16,7 @@
 #' }
 "GLM_Data"
 
-#' example data for pp.DiscSurv
+#' Example data for discrete survival model
 #'
 #' A simulated data set containing observation time, event indicator, provider information and 5 covariates.
 #' @name Surv_Data

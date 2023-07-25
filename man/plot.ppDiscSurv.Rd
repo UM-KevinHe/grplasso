@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.path.ppDiscsurv.R
 \name{plot.ppDiscSurv}
 \alias{plot.ppDiscSurv}
-\title{plot regularization path of coefficients from a ppDiscSurv object}
+\title{Plot regularization path of coefficients from a ppDiscSurv object}
 \usage{
 \method{plot}{ppDiscSurv}(fit, log.x = T, label = F)
 }
@@ -14,7 +14,7 @@
 \item{label}{whether annotates the plot with labels.}
 }
 \description{
-return the plot the regularization path from a \code{ppDiscSurv} object
+Return the plot the regularization path from a \code{ppDiscSurv} object
 }
 \examples{
 data(Surv_Data)

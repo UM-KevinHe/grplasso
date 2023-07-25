@@ -1,6 +1,6 @@
-#' extract coefficients of a ppLasso or gr_ppLasso object
+#' Extract coefficients of a ppLasso or gr_ppLasso object
 #'
-#' return the model coefficients of a \code{ppLasso} or \code{gr_ppLasso} object
+#' Return the model coefficients of a \code{ppLasso} or \code{gr_ppLasso} object
 #'
 #' @param fit a \code{ppLasso} or \code{gr_ppLasso} object.
 #'

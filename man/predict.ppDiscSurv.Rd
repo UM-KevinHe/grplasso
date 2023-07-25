@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict_ppDiscSurv.R
 \name{predict.ppDiscSurv}
 \alias{predict.ppDiscSurv}
-\title{predictions of a ppDiscSurv object}
+\title{Predictions of a ppDiscSurv object}
 \usage{
 \method{predict}{ppDiscSurv}(
   fit,
@@ -42,7 +42,7 @@
 \item{...}{}
 }
 \description{
-return the model predictions of a \code{ppDiscSurv} object
+Return the model predictions of a \code{ppDiscSurv} object
 }
 \examples{
 data(Surv_Data)

@@ -3,7 +3,7 @@
 \name{plot.ppLasso}
 \alias{plot.ppLasso}
 \alias{plot.gr_ppLasso}
-\title{plot regularization path of coefficients from a ppLasso or gr_ppLasso object}
+\title{Plot regularization path of coefficients from a ppLasso or gr_ppLasso object}
 \usage{
 \method{plot}{ppLasso}(fit, log.x = T, label = F)
 
@@ -17,7 +17,7 @@
 \item{label}{whether annotates the plot with labels.}
 }
 \description{
-return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
+Return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
 data(GLM_Data)

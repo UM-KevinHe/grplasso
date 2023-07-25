@@ -3,7 +3,7 @@
 \docType{data}
 \name{Surv_Data}
 \alias{Surv_Data}
-\title{example data for pp.DiscSurv}
+\title{Example data for discrete survival model}
 \format{
 A list containing the following elements:
 \describe{
