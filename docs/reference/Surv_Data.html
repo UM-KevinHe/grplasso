@@ -69,7 +69,7 @@
     <div id="format">
     <h2>Format</h2>
     <p>A list containing the following elements:</p><dl><dt>data</dt>
-<dd><p>example data.<code>time</code> represents the observation time; <code>status</code> is the event indicator; <code>Prov.ID</code> is the provider indicator; <code>Z1</code>, ..., <code>Z5</code> are 5 continuous covariates.</p></dd>
+<dd><p>example data.<code>time</code> represents the observation time; <code>status</code> is the event indicator; <code>Prov.ID</code> is the center indicator (include 5 centers); <code>Z1</code>, ..., <code>Z5</code> are 5 continuous covariates.</p></dd>
 
   <dt>Event.char</dt>
 <dd><p>variable name of the event indicator.</p></dd>
@@ -86,6 +86,20 @@
 
 </dl></div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Surv_Data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Prov.ID     Z1     Z2     Z3     Z4     Z5  time status</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       4 -1.298 -1.471 -1.346 -1.775 -1.241  1.03      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       5  0.192  0.163  0.953  1.083  0.371 12.50      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       4 -2.315 -2.038 -1.629 -2.577 -2.008  0.53      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       1 -0.198  1.231  0.633  0.739  0.214  6.74      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       2  0.469  0.640 -0.583  0.161  0.927 12.50      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       4 -1.445 -1.848 -3.024 -2.117 -1.894  0.53      1</span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

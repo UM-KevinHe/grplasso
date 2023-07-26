@@ -79,7 +79,7 @@
 #'
 #' @export
 #'
-#' @seealso \code{\link{coef}} function.
+#' @seealso \code{\link{coef}}, \code{\link{plot}} function.
 #'
 #' @examples
 #' data(GLM_Data)

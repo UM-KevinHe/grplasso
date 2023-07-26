@@ -33,7 +33,7 @@
 #' Z.char <- Surv_Data$Z.char
 #' Time.char <- Surv_Data$Time.char
 #' fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
-#' predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[[1]][1:5,]
+#' predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[1:5,]
 #' predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = 0.04, type = "vars")
 
 
@@ -108,6 +108,8 @@ predict.ppDiscSurv <- function(fit, data, Event.char, prov.char, Z.char, Time.ch
       } else {
         if (sum(!(which.lambda %in% lambda)) != 0){
           stop("which.lambda contains values that do not exist in the given lambda sequence!", call. = FALSE)
+        } else if (length(which.lambda) == 1) {
+          return(pred.prob.array[pmatch(which.lambda, lambda)][[1]])
         } else {
           return(pred.prob.array[pmatch(which.lambda, lambda)])
         }
