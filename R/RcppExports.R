@@ -2,38 +2,42 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 Z_max_grLasso <- function(x, r, K, m) {
-    .Call(`_ppLasso_Z_max_grLasso`, x, r, K, m)
+    .Call('_ppLasso_Z_max_grLasso', PACKAGE = 'ppLasso', x, r, K, m)
 }
 
 Deviance <- function(Y, p) {
-    .Call(`_ppLasso_Deviance`, Y, p)
+    .Call('_ppLasso_Deviance', PACKAGE = 'ppLasso', Y, p)
 }
 
 DiscSurv_residuals <- function(n_obs, delta_obs, time, alpha, eta) {
-    .Call(`_ppLasso_DiscSurv_residuals`, n_obs, delta_obs, time, alpha, eta)
+    .Call('_ppLasso_DiscSurv_residuals', PACKAGE = 'ppLasso', n_obs, delta_obs, time, alpha, eta)
 }
 
 predict_linear_predictor <- function(n_lambda, n_obs, expand_n_obs, time, gamma, eta) {
-    .Call(`_ppLasso_predict_linear_predictor`, n_lambda, n_obs, expand_n_obs, time, gamma, eta)
+    .Call('_ppLasso_predict_linear_predictor', PACKAGE = 'ppLasso', n_lambda, n_obs, expand_n_obs, time, gamma, eta)
 }
 
 pp_lasso <- function(Y, Z, n_prov, gamma, beta, K0, K1, lambda_seq, lambda_early_stop, stop_dev_ratio, penalized_multiplier, max_total_iter, max_each_iter, tol, nullDev, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, single_intercept, threads, actSet, actIter, activeVarNum, actSetRemove) {
-    .Call(`_ppLasso_pp_lasso`, Y, Z, n_prov, gamma, beta, K0, K1, lambda_seq, lambda_early_stop, stop_dev_ratio, penalized_multiplier, max_total_iter, max_each_iter, tol, nullDev, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, single_intercept, threads, actSet, actIter, activeVarNum, actSetRemove)
+    .Call('_ppLasso_pp_lasso', PACKAGE = 'ppLasso', Y, Z, n_prov, gamma, beta, K0, K1, lambda_seq, lambda_early_stop, stop_dev_ratio, penalized_multiplier, max_total_iter, max_each_iter, tol, nullDev, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, single_intercept, threads, actSet, actIter, activeVarNum, actSetRemove)
 }
 
 grp_lasso <- function(Y, Z, n_prov, gamma, beta, K0, K1, lambda_seq, lambda_early_stop, stop_dev_ratio, group_multiplier, max_total_iter, max_each_iter, tol, nullDev, backtrack, bound, initial_active_group, nvar_max, group_max, trace_lambda, single_intercept, threads, actSet, actIter, activeGroupNum, actSetRemove) {
-    .Call(`_ppLasso_grp_lasso`, Y, Z, n_prov, gamma, beta, K0, K1, lambda_seq, lambda_early_stop, stop_dev_ratio, group_multiplier, max_total_iter, max_each_iter, tol, nullDev, backtrack, bound, initial_active_group, nvar_max, group_max, trace_lambda, single_intercept, threads, actSet, actIter, activeGroupNum, actSetRemove)
+    .Call('_ppLasso_grp_lasso', PACKAGE = 'ppLasso', Y, Z, n_prov, gamma, beta, K0, K1, lambda_seq, lambda_early_stop, stop_dev_ratio, group_multiplier, max_total_iter, max_each_iter, tol, nullDev, backtrack, bound, initial_active_group, nvar_max, group_max, trace_lambda, single_intercept, threads, actSet, actIter, activeGroupNum, actSetRemove)
 }
 
 pp_DiscSurv_lasso <- function(delta_obs, max_timepoint, Z, n_prov, time, gamma, beta, alpha, K0, K1, sum_failure, failure_each_center, lambda_seq, penalized_multiplier, max_total_iter, max_each_iter, tol, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, threads, actSet, actIter, activeVarNum, actSetRemove) {
-    .Call(`_ppLasso_pp_DiscSurv_lasso`, delta_obs, max_timepoint, Z, n_prov, time, gamma, beta, alpha, K0, K1, sum_failure, failure_each_center, lambda_seq, penalized_multiplier, max_total_iter, max_each_iter, tol, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, threads, actSet, actIter, activeVarNum, actSetRemove)
+    .Call('_ppLasso_pp_DiscSurv_lasso', PACKAGE = 'ppLasso', delta_obs, max_timepoint, Z, n_prov, time, gamma, beta, alpha, K0, K1, sum_failure, failure_each_center, lambda_seq, penalized_multiplier, max_total_iter, max_each_iter, tol, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, threads, actSet, actIter, activeVarNum, actSetRemove)
+}
+
+DiscSurv_lasso <- function(delta_obs, max_timepoint, Z, time, gamma, beta, K0, K1, sum_failure, lambda_seq, penalized_multiplier, max_total_iter, max_each_iter, tol, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, threads, actSet, actIter, activeVarNum, actSetRemove) {
+    .Call('_ppLasso_DiscSurv_lasso', PACKAGE = 'ppLasso', delta_obs, max_timepoint, Z, time, gamma, beta, K0, K1, sum_failure, lambda_seq, penalized_multiplier, max_total_iter, max_each_iter, tol, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, threads, actSet, actIter, activeVarNum, actSetRemove)
 }
 
 SerBIN <- function(Y, Z, n_prov, gamma, beta) {
-    .Call(`_ppLasso_SerBIN`, Y, Z, n_prov, gamma, beta)
+    .Call('_ppLasso_SerBIN', PACKAGE = 'ppLasso', Y, Z, n_prov, gamma, beta)
 }
 
 NR_residuals <- function(t, X, delta_obs, alpha, beta, tol, max_iter) {
-    .Call(`_ppLasso_NR_residuals`, t, X, delta_obs, alpha, beta, tol, max_iter)
+    .Call('_ppLasso_NR_residuals', PACKAGE = 'ppLasso', t, X, delta_obs, alpha, beta, tol, max_iter)
 }
 

@@ -34,7 +34,7 @@ In this section, we will explore the fundamental usage of the functions integrat
 library(ppLasso)
 ```
 
-### Generalized linear models
+### Generalized Linear Models
 
 To exemplify the process of fitting a generalized linear model, we will utilize the "GLM_Data" dataset included in the package. This dataset consists of five predictors, an indicator for provider information, and a binary outcome variable. 
 
@@ -58,10 +58,8 @@ fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 The `coef()` function serves to provide estimates of the coefficients in the fitted model. The resulting coefficient matrix is structured such that the column names correspond to the $\lambda$ values used in the modeling process. 
 
 ```{r}
-# estimate of covariate coefficients
 coef(fit)$beta[, 1:5]
-# estimate of provider effects
-coef(fit)$gamma[1:10, 1:5]
+coef(fit)$gamma[1:5, 1:5]
 ```
 
 The `plot()` function is designed to generate a figure depicting the regularization path. This path illustrates the behavior of the coefficients for each predictor variable as the regularization parameter $\lambda$ varies. By visualizing the regularization path, users can gain valuable insights into the impact of different regularization strengths on the coefficients, aiding in model interpretation and selection. 
@@ -75,8 +73,8 @@ The `predict()` function is utilized to generate model predictions for a given d
 This function offers various types of outputs to suit different analysis needs. For instance, when fitting a penalized logistic regression model, using **type = "response"** provides the probabilities of "Y = 1" for each observation, while **type = "class"** provides the predicted class.
 
 ```{r}
-predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
-predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
+predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:5, 1:5]
+predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:5]
 ```
 
 #### with grouped covariate  
@@ -86,8 +84,17 @@ The utilization of the `grp.lasso()` function is similar to the previously menti
 ```{r}
 group <- GLM_Data$group
 fit2 <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
-plot(fit2)
+plot(fit2, label = T)
 ```
+
+Please note that for both `pp.lasso()` and `grp.lasso()` functions, the parameter "prov.char" is optional. In the event that the user does not specify the provider information for the observations, the program will automatically assume that all observations originate from the same health provider, resulting in the generation of one common intercept.
+
+```{r}
+fit.no_prov <- pp.lasso(data, Y.char, Z.char)
+coef(fit.no_prov)$beta[, 1:5]
+coef(fit.no_prov)$gamma[1:5] #"gamma" is treated as the common intercept
+```
+
 
 #### regularization parameter selection for glm problems 
 
@@ -103,13 +110,13 @@ The `plot()` function, applied to a `cv.pp.lasso` or `cv.grp.lasso` object, gene
 plot(fit)
 ```
 
-Indeed, users can directly use the **fit$lambda.min** command to obtain the optimal value of $\lambda$.
+Indeed, users can directly use the *fit$lambda.min* command to obtain the optimal value of $\lambda$.
 
 ```{r}
 fit$lambda.min
 ```
 
-### Discrete survival models
+### Discrete Survival Models
 
 The `pp.DiscSurv()` function is utilized for fitting a penalized discrete survival model. In contrast to the current R package, this function does not necessitate data expansion based on discrete time points, resulting in a significant reduction in memory usage and convergence time required for operation.
 
@@ -149,7 +156,7 @@ plot(fit, label = T)
 The `predict()` function is employed to generate model predictions for a given dataset using the coefficient estimates obtained from the fitted model. It is essential to note that the discrete time points within the prediction data set must align with the discrete time points used during model fitting. If they do not match, the baseline hazard of mismatches cannot be estimated accurately.
 
 ```{r}
-predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[[1]][1:5,]
+predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[1:5,]
 ```
 
 #### regularization parameter selection for discrete survival models 
@@ -160,11 +167,41 @@ The optimal regularization parameter ($\lambda$) is determined through cross-val
 fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
 ```
 
-Users can either utilize the `plot()` function or directly access the **fit$lambda.min** command to identify the optimal value of $\lambda$ at which the cross-entropy loss is minimized. 
+Users can either utilize the `plot()` function or directly access the *fit$lambda.min* command to identify the optimal value of $\lambda$ at which the cross-entropy loss is minimized. 
 
 ```{r}
 plot(fit)
 fit$lambda.min
+```
+
+#### Discrete survival model with no center information provided
+
+Similar with our GLM-related functions, we present a solution for fitting a discrete survival model without requiring provider information. This approach tackles the issue commonly encountered with existing statistical tools used to fit discrete survival models, which often necessitate data expansion, leading to significantly slow convergence.
+
+For ease of use, we have introduced a new function called `DiscSurv()`, designed to facilitate a similar user experience to `ppDiscSurv()`. However, the key difference lies in the fact that `DiscSurv()` no longer demands provider information from the user, meaning that all observations are now treated as originating from the same healthcare provider.
+
+Additionally, we have provided the `cv.DiscSurv()` function to aid users in selecting optimal $\lambda$. Moreover, the `coef()`, `prediction()`, and `plot()` functions have also been thoughtfully incorporated.
+
+```{r}
+fit <- DiscSurv(data, Event.char, Z.char, Time.char) # no provider information required
+coef(fit, lambda = fit$lambda)$alpha[, 1:10] #time effect
+coef(fit, lambda = fit$lambda)$beta[, 1:10] #covariate coefficient
+```
+
+```{r}
+plot(fit, label = T)
+```
+
+```{r}
+cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+```
+
+```{r}
+plot(cv.fit)
+```
+
+```{r}
+predict(fit, data, Event.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = cv.fit$lambda.min)[1:5,]
 ```
 
 

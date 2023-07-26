@@ -90,6 +90,10 @@
 <dd><p>an `dataframe` or `list` object that contains the variables for prediction.</p></dd>
 
 
+<dt>Event.char</dt>
+<dd><p>name of the event indicator in `data` as a character string.</p></dd>
+
+
 <dt>prov.char</dt>
 <dd><p>name of provider IDs variable in `data` as a character string.</p></dd>
 
@@ -133,13 +137,13 @@
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="pp.DiscSurv.html">pp.DiscSurv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span>, type <span class="op">=</span> <span class="st">"response"</span>, which.lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span>, type <span class="op">=</span> <span class="st">"response"</span>, which.lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Individual [Time: 0.53] [Time: 1.03] [Time: 3.92] [Time: 6.74] [Time: 12.5]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1    0.1586823    0.1852773    0.1649092    0.2224258    0.1441013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          2    0.1586823    0.1852773    0.1649092    0.2224258           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          3    0.1586823    0.1852773    0.1649092    0.2224258           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4          4    0.1586823    0.1852773    0.1649092    0.2224258    0.1441013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5          5    0.1586823           NA           NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1    0.1586823    0.1852773           NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          2    0.1586823    0.1852773    0.1649092    0.2224258    0.1441013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          3    0.1586823           NA           NA           NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4          4    0.1586823    0.1852773    0.1649092    0.2224258           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          5    0.1586823    0.1852773    0.1649092    0.2224258    0.1441013</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="fl">0.04</span>, type <span class="op">=</span> <span class="st">"vars"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Z1 Z3 Z5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1  3  5 </span>

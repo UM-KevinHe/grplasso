@@ -5,6 +5,8 @@
 #' @param fit a \code{ppDiscSurv} object.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
+#' 
+#' @param Event.char name of the event indicator in `data` as a character string.
 #'
 #' @param prov.char name of provider IDs variable in `data` as a character string.
 #'

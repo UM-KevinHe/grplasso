@@ -16,24 +16,30 @@ reference:
   contents:
   - pp.DiscSurv
   - cv.pp.DiscSurv
+  - DiscSurv
+  - cv.DiscSurv
 - title: Plotting functions
   contents:
   - plot.ppLasso
   - plot.gr_ppLasso
   - plot.ppDiscSurv
+  - plot.DiscSurv
   - plot.cv.ppLasso
   - plot.cv.gr_ppLasso
   - plot.cv.ppDiscSurv
+  - plot.cv.DiscSurv
 - title: Prediction functions
   contents:
   - predict.ppLasso
   - predict.gr_ppLasso
   - predict.ppDiscSurv
+  - predict.DiscSurv
 - title: Coefficient functions
   contents:  
   - coef.ppLasso
   - coef.gr_ppLasso
   - coef.ppDiscSurv
+  - coef.DiscSurv
 - title: Package Data Sets
   contents:
   - GLM_Data

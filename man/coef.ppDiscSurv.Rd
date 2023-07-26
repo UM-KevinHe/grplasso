@@ -28,6 +28,7 @@ prov.char <- Surv_Data$prov.char
 Z.char <- Surv_Data$Z.char
 Time.char <- Surv_Data$Time.char
 fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
-coef(fit, lambda = fit$lambda)$beta[, 1:10]
-coef(fit, lambda = fit$lambda)$gamma[, 1:10]
+coef(fit, lambda = fit$lambda)$alpha[, 1:5]
+coef(fit, lambda = fit$lambda)$gamma[, 1:5]
+coef(fit, lambda = fit$lambda)$beta[, 1:5]
 }

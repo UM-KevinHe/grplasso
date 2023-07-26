@@ -102,7 +102,7 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
                         lambda.early.stop = FALSE, nvar.max = p, stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE,
                         tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE,
                         actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE,
-                        trace.lambda = FALSE, threads = 1, return.transform.data = FALSE, MM = FALSE, ...){
+                        trace.lambda = FALSE, threads = 1, MM = FALSE, return.transform.data = FALSE, ...){
   
   # Convert the observed time in discrete intervals
   # "time" is converted into order index (integers)
@@ -154,7 +154,7 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   p <- ncol(Z)
   nvar.max <- as.integer(nvar.max)
   
-  # gamma start from KM estimator
+  # alpha start from KM estimator
   KM.baseline.hazard.add.small <- KM.baseline.hazard
   KM.baseline.hazard.add.small[which(KM.baseline.hazard.add.small == 0)] <- 1e-10
   alpha <- log(KM.baseline.hazard.add.small/(1 - KM.baseline.hazard.add.small))
@@ -162,16 +162,15 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   n.prov <- sapply(split(delta.obs, ID), length)
   gamma.prov <- rep(0, length(n.prov))
   
-  #####---need check-----#####
   if (missing(lambda)) {
     if (nlambda < 2) {
       stop("nlambda must be at least 2", call. = FALSE)
     } else if (nlambda != round(nlambda)){
       stop("nlambda must be a positive integer", call. = FALSE)
     }
-    lambda.fit <- set.lambda.Surv(delta.obs, Z, time, ID, alpha, beta, gamma.prov, prov.char,
-                                  pseudo.group, penalized.multiplier, nlambda = nlambda,
-                                  lambda.min.ratio = lambda.min.ratio)
+    lambda.fit <- set.lambda.pp_DiscSurv(delta.obs, Z, time, ID, alpha, beta, gamma.prov, prov.char,
+                                         pseudo.group, penalized.multiplier, nlambda = nlambda,
+                                         lambda.min.ratio = lambda.min.ratio)
       
     lambda.seq <- lambda.fit$lambda.seq
     beta <- lambda.fit$beta
@@ -181,7 +180,6 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
     nlambda <- length(lambda)  # Note: lambda can be a single value
     lambda.seq <- as.vector(sort(lambda, decreasing = TRUE))
   }
-  #####---need check-----#####
   
   K <- as.integer(table(pseudo.group)) #number of features in each group
   K0 <- as.integer(if (min(pseudo.group) == 0) K[1] else 0)
@@ -240,7 +238,7 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   
   # Names
   dimnames(beta) <- list(Z.char, round(lambda, digits = 4))
-  if (nrow(gamma) == 1 & length(lambda.seq) == 1){
+  if (nrow(alpha) == 1 & length(lambda.seq) == 1){
     gamma <- t(gamma)
     alpha <- t(alpha)
   }

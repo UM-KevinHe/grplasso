@@ -19,6 +19,9 @@
     <loc>https://github.com/UM-KevinHe/grplasso/index.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/DiscSurv.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/ExampleData.html</loc>
   </url>
   <url>
@@ -28,10 +31,16 @@
     <loc>https://github.com/UM-KevinHe/grplasso/reference/Surv_Data.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.DiscSurv.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.ppDiscSurv.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.ppLasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.DiscSurv.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.grp.lasso.html</loc>
@@ -47,6 +56,12 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.DiscSurv.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.DiscSurv.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.gr_ppLasso.html</loc>
@@ -71,6 +86,9 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/pp.lasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.DiscSurv.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.ppDiscSurv.html</loc>

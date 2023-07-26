@@ -30,8 +30,8 @@ pp.DiscSurv(
   returnX = FALSE,
   trace.lambda = FALSE,
   threads = 1,
-  return.transform.data = FALSE,
   MM = FALSE,
+  return.transform.data = FALSE,
   ...
 )
 }
@@ -130,5 +130,5 @@ K. He, J. Kalbfleisch, Y. Li, and et al. (2013) Evaluating hospital readmission 
 \cr
 }
 \seealso{
-\code{\link{coef}} function.
+\code{\link{coef}}, \code{\link{plot}} function.
 }

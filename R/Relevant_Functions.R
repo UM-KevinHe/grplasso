@@ -126,8 +126,8 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
   return(ls)
 }
 
-# "DiscSurv.residuals" is used for computing the sum of response residuals within each individual
-DiscSurv.residuals <- function(delta.obs, new.Z, time, alpha, beta.new, n.true_beta){
+# ## discrete survival with provider information
+pp.DiscSurv.residuals <- function(delta.obs, new.Z, time, alpha, beta.new, n.true_beta){
   fit <- NR_residuals(as.matrix(time), as.matrix(new.Z), as.matrix(delta.obs), as.matrix(alpha),
                       as.matrix(beta.new), tol = 1e-4, max_iter = 1e4)  #.cpp functions
   alpha <- as.numeric(fit$alpha)
@@ -145,28 +145,30 @@ DiscSurv.residuals <- function(delta.obs, new.Z, time, alpha, beta.new, n.true_b
   return(ls)
 }
 
-set.lambda.Surv <- function(delta.obs, Z, time, ID, alpha, beta, gamma.prov, prov.char, group, group.multiplier,
-                             nlambda = 100, lambda.min.ratio = 1e-04){
+set.lambda.pp_DiscSurv <- function(delta.obs, Z, time, ID, alpha, beta, gamma.prov, prov.char, group,
+                                   group.multiplier, nlambda = 100, lambda.min.ratio = 1e-04){
   n <- nrow(Z)
   K <- table(group)
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
   storage.mode(K1) <- "integer"
   if (K1[1] != 0) {  ## if some beta are unpenalized
-    dummy_center <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
+    dummy_center <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, 
+                                            remove_first_dummy = TRUE)
     new.Z <- cbind(Z[, group == 0, drop = F], dummy_center) #create new dummy variables for center effect (remove 1st center, which is treated as reference center)
     beta.new <- c(beta[1:sum(group == 0)], gamma.prov[2:(ncol(dummy_center) + 1)])
     n.true_beta <- sum(group == 0)
-    fit <- DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
+    fit <- pp.DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
     r <- fit$residual
 
     beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0))) 
     gamma.initial <- c(gamma.prov[1], fit$gamma) # the first center effect is not estimated
     alpha.initial <- fit$alpha  #initial time effect
   } else {  ## only time and center
-    new.Z <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, remove_first_dummy = TRUE)
+    new.Z <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, 
+                                     remove_first_dummy = TRUE)
     beta.new <- gamma.prov[2:(ncol(new.Z) + 1)]
     n.true_beta <- 0
-    fit <- DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
+    fit <- pp.DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
     r <- fit$residual
 
     beta.initial <- beta  #use original beta (all 0)
@@ -179,6 +181,50 @@ set.lambda.Surv <- function(delta.obs, Z, time, ID, alpha, beta, gamma.prov, pro
   ls <- list(beta = beta.initial, alpha = alpha.initial, gamma = gamma.initial, lambda.seq = lambda.seq)
   return(ls)
 }
+
+## discrete survival without provider information
+DiscSurv.residuals <- function(delta.obs, Z, time, alpha, beta){
+  fit <- NR_residuals(as.matrix(time), as.matrix(Z), as.matrix(delta.obs), as.matrix(alpha),
+                      as.matrix(beta), tol = 1e-4, max_iter = 1e4)  
+  alpha <- as.numeric(fit$alpha)
+  beta <- as.numeric(fit$beta)  
+  eta <- as.matrix(Z) %*% as.matrix(beta)
+  residuals <- DiscSurv_residuals(nrow(Z), delta.obs, time, alpha, eta)
+  colnames(residuals) <- "Within person residuals"
+  ls <- list(beta = beta, 
+             alpha = alpha, 
+             residual = residuals)
+  return(ls)
+}
+
+set.lambda.DiscSurv <- function(delta.obs, Z, time, alpha, beta, group, group.multiplier, 
+                                     nlambda = 100, lambda.min.ratio = 1e-04){
+  n <- nrow(Z)
+  K <- table(group)
+  K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
+  storage.mode(K1) <- "integer"
+  if (K1[1] != 0) {  ## use Di's code
+    n.true_beta <- sum(group == 0)
+    fit <- DiscSurv.residuals(delta.obs, Z[, group == 0, drop = F], time, alpha, beta[1:sum(group == 0)])
+    r <- fit$residual
+    beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0)))
+    alpha.initial <- fit$alpha
+  } else {  ## use KM results
+    plogis.alpha <- plogis(alpha)
+    r <- rep(0, n)
+    for (i in 1:n){
+      r[i] <- delta.obs[i] - sum(plogis.alpha[1:time[i]])
+    }
+    beta.initial <- beta
+    alpha.initial <- alpha
+  }
+  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
+  lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
+  lambda.seq[1] <- lambda.seq[1] + 1e-5
+  ls <- list(beta = beta.initial, alpha.initial = alpha, lambda.seq = lambda.seq)
+  return(ls)
+}
+
 
 
 # set up group information
@@ -477,22 +523,12 @@ cvf.grplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
 
 
 
-cvf.ppDiscSurv <- function(i, data, Event.char, prov.char, Z.char, Time.char, fold, original.count.alpha, cv.args){
+cvf.ppDiscSurv <- function(i, data, Event.char, prov.char, Z.char, Time.char, fold, cv.args){
   cv.args$data <- data[fold != i, , drop = FALSE]  #current training data (should have all time points
   cv.args$Event.char <- Event.char
   cv.args$prov.char <- prov.char
   cv.args$Z.char <- Z.char
   cv.args$Time.char <- Time.char
-  
-  # some time point might lost within one sub data set, so we need to reorder time
-  #count.gamma <- length(unique(cv.args$data[, Time.char]))
-  #if (count.gamma != original.count.gamma){
-  #  timepoint.increase <- sort(unique(data[, Time.char]))
-  #  # new time start from 1, and time points are {1, 2, 3, ...}
-  #  for (i in 1:count.gamma){
-  #    data[, Time.char][which(data[, Time.char] == timepoint.increase[i])] <- i
-  #  }
-  #}
   
   fit.i <- do.call("pp.DiscSurv", cv.args)  #fit the discrete survival model using one training data set (9/10 data)
   data.i <- data[fold == i, , drop = FALSE]  #current validation data
@@ -507,33 +543,23 @@ cvf.ppDiscSurv <- function(i, data, Event.char, prov.char, Z.char, Time.char, fo
   list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
 }
 
-
-
-cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, original.count.gamma, cv.args){
+cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, cv.args){
   cv.args$data <- data[fold != i, , drop = FALSE]
   cv.args$Event.char <- Event.char
   cv.args$Z.char <- Z.char
   cv.args$Time.char <- Time.char
-
-  # some time point might lost within one sub data set, so we need to reorder time
-  #count.gamma <- length(unique(cv.args$data[, Time.char]))
-  #if (count.gamma != original.count.gamma){
-  #  timepoint.increase <- sort(unique(data[, Time.char]))
-  #  # new time start from 1, and time points are {1, 2, 3, ...}
-  #  for (i in 1:count.gamma){
-  #    data[, Time.char][which(data[, Time.char] == timepoint.increase[i])] <- i
-  #  }
-  #}
-
-  fit.i <- do.call("Disc.Surv", cv.args)  #fit the discrete survival model using one training data set
+  
+  
+  fit.i <- do.call("DiscSurv", cv.args)  
   data.i <- data[fold == i, , drop = FALSE]
-  yhat.i <- predict(fit.i, data.i, Z.char, Time.char, type = "response") # y-hat matrix across all given lambda; data has been expanded
-
+  yhat.i <- predict(fit.i, data.i, Event.char, Z.char, Time.char, 
+                    lambda = fit.i$lambda, type = "response", return.Array = FALSE)
+  
   data.small <- data.i[, c(Event.char, Time.char)]
   Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, 
                             eventColumn = Event.char, timeAsFactor = TRUE)$y
-
-  loss <- loss.Disc.Surv(Y.i, yhat.i)  ## cross entropy loss
+  
+  loss <- loss.Disc.Surv(Y.i, yhat.i)  
   list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
 }
 

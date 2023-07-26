@@ -62,7 +62,7 @@
 
 cv.pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, penalize.x = rep(1, length(Z.char)), 
                            ..., nfolds = 10, seed, fold, trace.cv = FALSE){
-  # "...": additional arguments to "Disc.Surv"
+  # "...": additional arguments to "pp.DiscSurv"
   # "fold": a vector that specifies the fold that observations belongs to
   fit.args <- list(...)
   fit.args$data <- data
@@ -124,8 +124,8 @@ cv.pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, penal
     }
     
     if (s == try.times){
-      stop("Having too many time points can impede the proper functioning of the cross-validation procedure. 
-         Please attempt to merge some adjacent time points.", call. = FALSE)
+      stop("Having too many time points can impede the proper functioning of the cross-validation procedure.
+           Please attempt to merge some adjacent time points.", call. = FALSE)
     }
   }
 
@@ -144,7 +144,7 @@ cv.pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, penal
     if (trace.cv == TRUE){
       cat("Starting CV fold #", i, sep = "", "...\n")
     }
-    res <- cvf.ppDiscSurv(i, data, Event.char, prov.char, Z.char, Time.char, fold, original.count.alpha, cv.args)
+    res <- cvf.ppDiscSurv(i, data, Event.char, prov.char, Z.char, Time.char, fold, cv.args)
     Y[expand.fold == i, 1:res$nl] <- res$yhat
     E[expand.fold == i, 1:res$nl] <- res$loss
   }

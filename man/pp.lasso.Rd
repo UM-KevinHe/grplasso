@@ -41,7 +41,7 @@ pp.lasso(
 
 \item{Z.char}{names of covariates in `data` as vector of character strings.}
 
-\item{prov.char}{name of provider IDs variable in `data` as a character string.}
+\item{prov.char}{name of provider IDs variable in `data` as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.}
 
 \item{standardize}{logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is `standardize=TRUE`.}
 
@@ -133,5 +133,5 @@ K. He, J. Kalbfleisch, Y. Li, and et al. (2013) Evaluating hospital readmission 
 \cr
 }
 \seealso{
-\code{\link{coef}} function.
+\code{\link{coef}}, \code{\link{plot}} function.
 }

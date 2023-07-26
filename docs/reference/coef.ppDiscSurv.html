@@ -99,32 +99,27 @@
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="pp.DiscSurv.html">pp.DiscSurv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.1601     0.1458     0.1329     0.1211     0.1103     0.1005     0.0916</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.1735757 -0.3325774 -0.4793679 -0.6155647 -0.7423195 -0.8605455</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         0.0835      0.076     0.0693</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1 -0.95606196 -1.0366969 -1.1131578</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2  0.00000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3  0.00000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4  0.00000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5 -0.05153273 -0.1332636 -0.2100815</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0.1601     0.1458    0.1329     0.1211     0.1103     0.1005     0.0916</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0000000  0.0000000  0.000000  0.0000000  0.0000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -4.5665147 -4.3516946 -4.162992 -3.9945779 -3.8425705 -3.7049258 -3.5797838</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.7478311 -0.7116142 -0.682481 -0.6580980 -0.6367834 -0.6184269 -0.6025769</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1.2412090  1.1456446  1.059286  0.9815198  0.9121089  0.8493871  0.7924884</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -2.3399410 -2.1966372 -2.070536 -1.9577270 -1.8555876 -1.7631029 -1.6791563</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0.0835      0.076     0.0693</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0000000  0.0000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -3.4187270 -3.2395884 -3.0740519</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.5722253 -0.5326772 -0.4958210</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.7159105  0.6306904  0.5524755</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -1.5744543 -1.4586413 -1.3511342</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 0.1601    0.1458    0.1329    0.1211    0.1103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -1.668065 -1.747753 -1.824209 -1.898663 -1.971909</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -1.480994 -1.526815 -1.571328 -1.615488 -1.659886</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -1.622145 -1.641556 -1.661848 -1.683563 -1.706991</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -1.251585 -1.257340 -1.264124 -1.272503 -1.282795</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -1.781635 -1.780095 -1.780526 -1.783340 -1.788771</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.1601     0.1458    0.1329     0.1211     0.1103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0000000  0.0000000  0.000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -4.5665147 -4.3516946 -4.162992 -3.9945779 -3.8425705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.7478311 -0.7116142 -0.682481 -0.6580980 -0.6367834</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1.2412090  1.1456446  1.059286  0.9815198  0.9121089</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -2.3399410 -2.1966372 -2.070536 -1.9577270 -1.8555876</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.1601     0.1458     0.1329     0.1211     0.1103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.1735757 -0.3325774 -0.4793679 -0.6155647</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.0000000  0.0000000  0.0000000  0.0000000</span>
 </code></pre></div>
     </div>
   </div>

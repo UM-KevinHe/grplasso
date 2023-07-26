@@ -180,6 +180,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// DiscSurv_lasso
+List DiscSurv_lasso(arma::vec& delta_obs, int max_timepoint, arma::mat& Z, arma::vec& time, arma::vec& gamma, arma::vec& beta, int K0, arma::vec& K1, arma::vec& sum_failure, arma::vec& lambda_seq, arma::vec& penalized_multiplier, int max_total_iter, int max_each_iter, double tol, bool backtrack, bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove);
+RcppExport SEXP _ppLasso_DiscSurv_lasso(SEXP delta_obsSEXP, SEXP max_timepointSEXP, SEXP ZSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP sum_failureSEXP, SEXP lambda_seqSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type delta_obs(delta_obsSEXP);
+    Rcpp::traits::input_parameter< int >::type max_timepoint(max_timepointSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type time(timeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< int >::type K0(K0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type K1(K1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type sum_failure(sum_failureSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type lambda_seq(lambda_seqSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type penalized_multiplier(penalized_multiplierSEXP);
+    Rcpp::traits::input_parameter< int >::type max_total_iter(max_total_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type max_each_iter(max_each_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type backtrack(backtrackSEXP);
+    Rcpp::traits::input_parameter< bool >::type MM(MMSEXP);
+    Rcpp::traits::input_parameter< double >::type bound(boundSEXP);
+    Rcpp::traits::input_parameter< int >::type initial_active_var(initial_active_varSEXP);
+    Rcpp::traits::input_parameter< double >::type nvar_max(nvar_maxSEXP);
+    Rcpp::traits::input_parameter< bool >::type trace_lambda(trace_lambdaSEXP);
+    Rcpp::traits::input_parameter< int >::type threads(threadsSEXP);
+    Rcpp::traits::input_parameter< bool >::type actSet(actSetSEXP);
+    Rcpp::traits::input_parameter< int >::type actIter(actIterSEXP);
+    Rcpp::traits::input_parameter< int >::type activeVarNum(activeVarNumSEXP);
+    Rcpp::traits::input_parameter< bool >::type actSetRemove(actSetRemoveSEXP);
+    rcpp_result_gen = Rcpp::wrap(DiscSurv_lasso(delta_obs, max_timepoint, Z, time, gamma, beta, K0, K1, sum_failure, lambda_seq, penalized_multiplier, max_total_iter, max_each_iter, tol, backtrack, MM, bound, initial_active_var, nvar_max, trace_lambda, threads, actSet, actIter, activeVarNum, actSetRemove));
+    return rcpp_result_gen;
+END_RCPP
+}
 // SerBIN
 List SerBIN(arma::vec& Y, arma::mat& Z, arma::vec& n_prov, arma::vec gamma, arma::vec beta);
 RcppExport SEXP _ppLasso_SerBIN(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP) {
@@ -221,6 +256,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ppLasso_pp_lasso", (DL_FUNC) &_ppLasso_pp_lasso, 27},
     {"_ppLasso_grp_lasso", (DL_FUNC) &_ppLasso_grp_lasso, 27},
     {"_ppLasso_pp_DiscSurv_lasso", (DL_FUNC) &_ppLasso_pp_DiscSurv_lasso, 28},
+    {"_ppLasso_DiscSurv_lasso", (DL_FUNC) &_ppLasso_DiscSurv_lasso, 25},
     {"_ppLasso_SerBIN", (DL_FUNC) &_ppLasso_SerBIN, 5},
     {"_ppLasso_NR_residuals", (DL_FUNC) &_ppLasso_NR_residuals, 7},
     {NULL, NULL, 0}

@@ -8,7 +8,7 @@
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
-#' @param prov.char name of provider IDs variable in `data` as a character string.
+#' @param prov.char name of provider IDs variable in `data` as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.
 #'
 #' @param standardize logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is `standardize=TRUE`.
 #'
