@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ppLasso</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -71,7 +71,7 @@
 <span>  <span class="va">prov.char</span>,</span>
 <span>  <span class="va">lambda</span>,</span>
 <span>  which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"class"</span>, <span class="st">"vars"</span>, <span class="st">"nvars"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"link"</span>, <span class="st">"response"</span>, <span class="st">"class"</span>, <span class="st">"vars"</span>, <span class="st">"nvars"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -83,7 +83,8 @@
 <span>  <span class="va">prov.char</span>,</span>
 <span>  <span class="va">lambda</span>,</span>
 <span>  which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"class"</span>, <span class="st">"vars"</span>, <span class="st">"groups"</span>, <span class="st">"nvars"</span>, <span class="st">"ngroups"</span>, <span class="st">"beta.norm"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"link"</span>, <span class="st">"response"</span>, <span class="st">"class"</span>, <span class="st">"vars"</span>, <span class="st">"groups"</span>, <span class="st">"nvars"</span>, <span class="st">"ngroups"</span>,</span>
+<span>    <span class="st">"beta.norm"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -95,15 +96,15 @@
 
 
 <dt>data</dt>
-<dd><p>an `dataframe` or `list` object that contains the variables for prediction.</p></dd>
+<dd><p>an <code>dataframe</code> or <code>list</code> object that contains the variables for prediction.</p></dd>
 
 
 <dt>Z.char</dt>
-<dd><p>names of covariates in `data` as vector of character strings.</p></dd>
+<dd><p>names of covariates in <code>data</code> as vector of character strings.</p></dd>
 
 
 <dt>prov.char</dt>
-<dd><p>name of provider IDs variable in `data` as a character string.</p></dd>
+<dd><p>name of provider IDs variable in <code>data</code> as a character string.</p></dd>
 
 
 <dt>lambda</dt>
@@ -115,10 +116,15 @@
 
 
 <dt>type</dt>
-<dd><p>type of prediction: <code>response</code> provides the fitted value; <code>class</code> returns the binomial outcome with the largest probability;
-<code>vars</code> returns the indices for the non-zero coefficients; <code>nvars</code> returns the number of non-zero coefficients;
-<code>groups</code> returns the indices for the non-zero groups; <code>ngroups</code> returns the number of non-zero coefficients;
-<code>beta.norm</code> returns L2 norm of the coefficients in each group</p></dd>
+<dd><p>type of prediction:</p><ul><li><p><code>link</code>: linear predictors</p></li>
+<li><p><code>response</code>: fitted values (i.e., <code>exp(link)/(1 + exp(link))</code>)</p></li>
+<li><p><code>class</code>: the binomial outcome with the largest probability</p></li>
+<li><p><code>vars</code>: the indices for the non-zero coefficients</p></li>
+<li><p><code>nvars</code>: the number of non-zero coefficients</p></li>
+<li><p><code>groups</code>: the indices for the non-zero groups</p></li>
+<li><p><code>ngroups</code>: the number of non-zero coefficients</p></li>
+<li><p><code>beta.norm</code>: L2 norm of the coefficients in each group</p></li>
+</ul></dd>
 
 
 <dt>...</dt>

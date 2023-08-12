@@ -127,8 +127,6 @@ The `Surv_Data` dataset, included in this package, comprises of 5 covariates, pr
 data(Surv_Data)
 data <- Surv_Data$data
 Event.char <- Surv_Data$Event.char
-prov.char <- Surv_Data$prov.char
-Z.char <- Surv_Data$Z.char
 Time.char <- Surv_Data$Time.char
 head(data)
 ```
@@ -178,9 +176,9 @@ fit$lambda.min
 
 Similar with our GLM-related functions, we present a solution for fitting a discrete survival model without requiring provider information. This approach tackles the issue commonly encountered with existing statistical tools used to fit discrete survival models, which often necessitate data expansion, leading to significantly slow convergence.
 
-For ease of use, we have introduced a new function called `DiscSurv()`, designed to facilitate a similar user experience to `ppDiscSurv()`. However, the key difference lies in the fact that `DiscSurv()` no longer demands provider information from the user, meaning that all observations are now treated as originating from the same healthcare provider.
+For ease of use, we have introduced a new function called `DiscSurv()`, designed to facilitate a similar user experience to `pp.DiscSurv()`. However, the key difference lies in the fact that `DiscSurv()` no longer demands provider information from the user, meaning that all observations are now treated as originating from the same healthcare provider.
 
-Additionally, we have provided the `cv.DiscSurv()` function to aid users in selecting optimal $\lambda$. Moreover, the `coef()`, `prediction()`, and `plot()` functions have also been thoughtfully incorporated.
+Additionally, we have provided the `cv.DiscSurv()` function to aid users in selecting optimal $\lambda$. Moreover, the `coef()`, `predict()`, and `plot()` functions have also been thoughtfully incorporated.
 
 ```{r}
 fit <- DiscSurv(data, Event.char, Z.char, Time.char) # no provider information required
@@ -204,5 +202,51 @@ plot(cv.fit)
 predict(fit, data, Event.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = cv.fit$lambda.min)[1:5,]
 ```
 
+### Stratified Cox Models
 
+Our R package offers the `Strat.cox()` and `cv.strat_cox()` functions designed for fitting penalized stratified Cox models. In the context of our intended scenario, each healthcare provider is considered a distinct stratum. The functionality of both `Strat.cox()` and `cv.strat_cox()` extends to the incorporation of group information among variables, achieved by configuring the "group" parameter.
+
+We employ the `Cox_Data` simulation dataset, which is included within this package, to illustrate the utilization of these two functions. This dataset encompasses five covariates, a provider indicator (which serves as stratum information), as well as follow-up time and event indicators.
+
+```{r}
+data(Cox_Data)
+data <- Cox_Data$data
+head(data)
+```
+```{r}
+fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+```
+
+Users can utilize the `coef()` function to obtain coefficient estimates for the covariates across the complete sequence of $\lambda$ values.
+```{r}
+coef(fit)[, 1:5]
+```
+The `plot()` function facilitates users in visualizing the regularization path.
+```{r}
+plot(fit, label = T)
+```
+Likewise, the `cv.strat_cox()` function can be employed for cross-validation, and the `plot()` function can be utilized to visualize cross-validation error.
+
+```{r}
+cv.fit <- cv.strat_cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
+cv.fit$lambda.min
+```
+
+```{r}
+plot(cv.fit)
+```
+
+### Linear Models
+
+For the convenience of a select group of users dealing with extensive healthcare provider data, we offer the `prof_lkd.linear()` function, which help them fit unpenalized linear models. Enhanced features and functionalities are currently in the developmental phase and will be forthcoming.
+
+```{r}
+data(linear_data)
+data <- linear_data$data
+Y.char <- linear_data$Y.char
+prov.char <- linear_data$prov.char
+Z.char <- linear_data$Z.char
+fit <- prof_lkd.linear(data, Y.char, Z.char, prov.char)
+fit$beta
+```
 

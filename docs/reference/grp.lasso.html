@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ppLasso</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -97,19 +97,19 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data</dt>
-<dd><p>an `dataframe` or `list` object that contains the variables in the model.</p></dd>
+<dd><p>an <code>dataframe</code> or <code>list</code> object that contains the variables in the model.</p></dd>
 
 
 <dt>Y.char</dt>
-<dd><p>name of the response variable in `data` as a character string.</p></dd>
+<dd><p>name of the response variable in <code>data</code> as a character string.</p></dd>
 
 
 <dt>Z.char</dt>
-<dd><p>names of covariates in `data` as vector of character strings.</p></dd>
+<dd><p>names of covariates in <code>data</code> as vector of character strings.</p></dd>
 
 
 <dt>prov.char</dt>
-<dd><p>name of provider IDs variable in `data` as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.</p></dd>
+<dd><p>name of provider IDs variable in <code>data</code> as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.</p></dd>
 
 
 <dt>group</dt>
@@ -121,11 +121,11 @@
 
 
 <dt>standardize</dt>
-<dd><p>logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is `standardize=TRUE`.</p></dd>
+<dd><p>logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is <code>standardize=TRUE</code>.</p></dd>
 
 
 <dt>lambda</dt>
-<dd><p>a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on `nlambda` and `lambda.min.ratio`.</p></dd>
+<dd><p>a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on <code>nlambda</code> and <code>lambda.min.ratio</code>.</p></dd>
 
 
 <dt>nlambda</dt>
@@ -133,11 +133,11 @@
 
 
 <dt>lambda.min.ratio</dt>
-<dd><p>the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.</p></dd>
+<dd><p>the fraction of the smallest value for lambda with <code>lambda.max</code> (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.</p></dd>
 
 
 <dt>lambda.early.stop</dt>
-<dd><p>whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is `FALSE`.</p></dd>
+<dd><p>whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is <code>FALSE</code>.</p></dd>
 
 
 <dt>nvar.max</dt>
@@ -149,7 +149,7 @@
 
 
 <dt>stop.dev.ratio</dt>
-<dd><p>if `lambda.early.stop = TRUE`, the ratio of deviance for early stopping. Default is 1e-3.</p></dd>
+<dd><p>if <code>lambda.early.stop = TRUE</code>, the ratio of deviance for early stopping. Default is 1e-3.</p></dd>
 
 
 <dt>bound</dt>
@@ -161,7 +161,7 @@
 
 
 <dt>tol</dt>
-<dd><p>convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than `tol`. Default is 1e-4.</p></dd>
+<dd><p>convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than <code>tol</code>. Default is 1e-4.</p></dd>
 
 
 <dt>max.each.iter</dt>
@@ -169,7 +169,7 @@
 
 
 <dt>max.total.iter</dt>
-<dd><p>maximum number of iterations for entire path. Default is `max.each.iter` * `nlambda`.</p></dd>
+<dd><p>maximum number of iterations for entire path. Default is <code>max.each.iter</code> * <code>nlambda</code>.</p></dd>
 
 
 <dt>actSet</dt>
@@ -177,15 +177,15 @@
 
 
 <dt>actIter</dt>
-<dd><p>if `actSet = TRUE`, the maximum number of iterations for a new updated active set. Default is `max.each.iter` (i.e. we will update the current active set until convergence ).</p></dd>
+<dd><p>if <code>actSet = TRUE</code>, the maximum number of iterations for a new updated active set. Default is <code>max.each.iter</code> (i.e. we will update the current active set until convergence ).</p></dd>
 
 
 <dt>actGroupNum</dt>
-<dd><p>if `actSet = TRUE`, the maximum number of variables that can be selected into the new active set for each time when the active set is updated. Default is number of groups.</p></dd>
+<dd><p>if <code>actSet = TRUE</code>, the maximum number of variables that can be selected into the new active set for each time when the active set is updated. Default is number of groups.</p></dd>
 
 
 <dt>actSetRemove</dt>
-<dd><p>if `actSet = TRUE`, whether we remove the zero coefficients from the current active set. Default is FALSE.</p></dd>
+<dd><p>if <code>actSet = TRUE</code>, whether we remove the zero coefficients from the current active set. Default is FALSE.</p></dd>
 
 
 <dt>returnX</dt>
@@ -224,15 +224,15 @@ and the number of columns is equal to nlambda.</p></dd>
 
 
 <dt>lambda</dt>
-<dd><p>the sequence of `lambda` values in the path.</p></dd>
+<dd><p>the sequence of <code>lambda</code> values in the path.</p></dd>
 
 
 <dt>loss</dt>
-<dd><p>the loss of the fitted model at each value of `lambda`.</p></dd>
+<dd><p>the loss of the fitted model at each value of <code>lambda</code>.</p></dd>
 
 
 <dt>linear.predictors</dt>
-<dd><p>the linear predictors of the fitted model at each value of `lambda`.</p></dd>
+<dd><p>the linear predictors of the fitted model at each value of <code>lambda</code>.</p></dd>
 
 
 <dt>df</dt>
@@ -240,7 +240,7 @@ and the number of columns is equal to nlambda.</p></dd>
 
 
 <dt>iter</dt>
-<dd><p>the number of iterations until convergence at each value of `lambda`.</p></dd>
+<dd><p>the number of iterations until convergence at each value of <code>lambda</code>.</p></dd>
 
 </dl></div>
     <div id="details">

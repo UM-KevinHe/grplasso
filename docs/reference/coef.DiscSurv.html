@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ppLasso</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -99,31 +99,31 @@
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="DiscSurv.html">DiscSurv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  0.423    0.3855    0.3512      0.32    0.2916    0.2657</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -1.979501 -1.970063 -1.977011 -1.996579 -2.025967 -2.063341</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -2.110213 -2.069231 -2.043937 -2.030866 -2.027255 -2.025052</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -2.484907 -2.418501 -2.367846 -2.329520 -2.300733 -2.272046</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -2.355695 -2.272305 -2.204511 -2.149006 -2.103027 -2.057250</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -2.958691 -2.863132 -2.784483 -2.719216 -2.664334 -2.608135</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 0.2421    0.2206     0.201    0.1831</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -2.108353 -2.159400 -2.215383 -2.275228</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -2.030142 -2.041161 -2.057165 -2.077177</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -2.250962 -2.236197 -2.226789 -2.221989</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -2.019165 -1.987505 -1.961255 -1.939890</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -2.560254 -2.519361 -2.484400 -2.454884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 0.4261    0.3882    0.3537    0.3223    0.2937    0.2676</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -1.979501 -1.970055 -1.977003 -1.996580 -2.025995 -2.063282</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -2.110213 -2.069229 -2.043936 -2.030857 -2.027109 -2.024876</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -2.484907 -2.418504 -2.367851 -2.329504 -2.300530 -2.271874</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -2.355695 -2.272311 -2.204520 -2.148985 -2.102809 -2.057108</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -2.958691 -2.863140 -2.784495 -2.719193 -2.664056 -2.607945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 0.2438    0.2221    0.2024    0.1844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -2.108324 -2.159493 -2.215493 -2.275318</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -2.029989 -2.041122 -2.057140 -2.077191</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -2.250813 -2.236115 -2.226725 -2.221916</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -2.019042 -1.987404 -1.961175 -1.939720</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -2.560084 -2.519222 -2.484281 -2.454645</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.423     0.3855     0.3512     0.32       0.2916      0.2657     0.2421</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1     0 -0.1556062 -0.2988529 -0.43217 -0.556187069 -0.62851283 -0.6981871</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2     0  0.0000000  0.0000000  0.00000  0.000000000  0.00000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3     0  0.0000000  0.0000000  0.00000  0.000000000  0.00000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4     0  0.0000000  0.0000000  0.00000  0.000000000  0.00000000  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5     0  0.0000000  0.0000000  0.00000 -0.001613817 -0.06538966 -0.1256618</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.2206      0.201      0.1831</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1 -0.7654843 -0.8311672 -0.88944818</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.4261     0.3882     0.3537     0.3223       0.2937      0.2676     0.2438</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.1556065 -0.2988513 -0.4321738 -0.555178202 -0.62730613 -0.6970826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.0000000  0.0000000  0.0000000  0.000000000  0.00000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.0000000  0.0000000  0.0000000  0.000000000  0.00000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.0000000  0.0000000  0.0000000  0.000000000  0.00000000  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.0000000  0.0000000  0.0000000 -0.003017575 -0.06703473 -0.1271785</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.2221     0.2024      0.1844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1 -0.7648658 -0.8305524 -0.89170849</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Z2  0.0000000  0.0000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3  0.0000000  0.0000000 -0.01201072</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3  0.0000000  0.0000000 -0.00595015</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Z4  0.0000000  0.0000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5 -0.1830091 -0.2374294 -0.28377957</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5 -0.1839791 -0.2383722 -0.28747366</span>
 </code></pre></div>
     </div>
   </div>

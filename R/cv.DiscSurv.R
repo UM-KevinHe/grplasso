@@ -1,14 +1,15 @@
-#' Cross-validation for DiscSurv
+#' Cross-validation for penalized discrete survival model (without provider information)
 #'
-#' Performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
+#' Performs k-fold cross validation for penalized discrete survival model (without provider information) over a grid of values of regularization parameter lambda.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
-#' @param Event.char name of the event indicator in `data` as a character string.
+#' @param Event.char name of the event indicator in `data` as a character string. Event indicator should be a 
+#' binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
-#' @param Time.char name of the observation time in `data` as a character string.
+#' @param Time.char name of the follow up time in `data` as a character string.
 #'
 #' @param penalize.x  a vector indicates whether the corresponding covariate will be penalized, as in \code{pp.DiscSurv} function.
 #'
@@ -164,4 +165,24 @@ cv.DiscSurv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1,
   return(result)
 }
 
+
+cvf.DiscSurv <- function(i, data, Event.char, Z.char, Time.char, fold, cv.args){
+  cv.args$data <- data[fold != i, , drop = FALSE]
+  cv.args$Event.char <- Event.char
+  cv.args$Z.char <- Z.char
+  cv.args$Time.char <- Time.char
+  
+  
+  fit.i <- do.call("DiscSurv", cv.args)  
+  data.i <- data[fold == i, , drop = FALSE]
+  yhat.i <- predict(fit.i, data.i, Event.char, Z.char, Time.char, 
+                    lambda = fit.i$lambda, type = "response", return.Array = FALSE)
+  
+  data.small <- data.i[, c(Event.char, Time.char)]
+  Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, 
+                            eventColumn = Event.char, timeAsFactor = TRUE)$y
+  
+  loss <- loss.Disc.Surv(Y.i, yhat.i)  
+  list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
+}
 

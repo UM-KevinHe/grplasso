@@ -35,51 +35,51 @@ grp.lasso(
 )
 }
 \arguments{
-\item{data}{an `dataframe` or `list` object that contains the variables in the model.}
+\item{data}{an \code{dataframe} or \code{list} object that contains the variables in the model.}
 
-\item{Y.char}{name of the response variable in `data` as a character string.}
+\item{Y.char}{name of the response variable in \code{data} as a character string.}
 
-\item{Z.char}{names of covariates in `data` as vector of character strings.}
+\item{Z.char}{names of covariates in \code{data} as vector of character strings.}
 
-\item{prov.char}{name of provider IDs variable in `data` as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.}
+\item{prov.char}{name of provider IDs variable in \code{data} as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.}
 
 \item{group}{a vector describing the grouping of the coefficients. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0").}
 
 \item{group.multiplier}{A vector of values representing multiplicative factors by which each covariate's penalty is to be multiplied. Default is a vector of 1's.}
 
-\item{standardize}{logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is `standardize=TRUE`.}
+\item{standardize}{logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is \code{standardize=TRUE}.}
 
-\item{lambda}{a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on `nlambda` and `lambda.min.ratio`.}
+\item{lambda}{a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on \code{nlambda} and \code{lambda.min.ratio}.}
 
 \item{nlambda}{the number of lambda values. Default is 100.}
 
-\item{lambda.min.ratio}{the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.}
+\item{lambda.min.ratio}{the fraction of the smallest value for lambda with \code{lambda.max} (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.}
 
-\item{lambda.early.stop}{whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is `FALSE`.}
+\item{lambda.early.stop}{whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is \code{FALSE}.}
 
 \item{nvar.max}{number of maximum selected variables. Default is the number of all covariates.}
 
 \item{group.max}{number of maximum selected groups. Default is the number of all groups.}
 
-\item{stop.dev.ratio}{if `lambda.early.stop = TRUE`, the ratio of deviance for early stopping. Default is 1e-3.}
+\item{stop.dev.ratio}{if \code{lambda.early.stop = TRUE}, the ratio of deviance for early stopping. Default is 1e-3.}
 
 \item{bound}{a positive number to avoid inflation of provider effect. Default is 10.}
 
 \item{backtrack}{for updating the provider effect, whether to use the "backtracking line search" with Newton method.}
 
-\item{tol}{convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than `tol`. Default is 1e-4.}
+\item{tol}{convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than \code{tol}. Default is 1e-4.}
 
 \item{max.each.iter}{maximum number of iterations for each lambda. Default is 1e4.}
 
-\item{max.total.iter}{maximum number of iterations for entire path. Default is `max.each.iter` * `nlambda`.}
+\item{max.total.iter}{maximum number of iterations for entire path. Default is \code{max.each.iter} * \code{nlambda}.}
 
 \item{actSet}{whether to use the active method for variable selection. Default is TRUE.}
 
-\item{actIter}{if `actSet = TRUE`, the maximum number of iterations for a new updated active set. Default is `max.each.iter` (i.e. we will update the current active set until convergence ).}
+\item{actIter}{if \code{actSet = TRUE}, the maximum number of iterations for a new updated active set. Default is \code{max.each.iter} (i.e. we will update the current active set until convergence ).}
 
-\item{actGroupNum}{if `actSet = TRUE`, the maximum number of variables that can be selected into the new active set for each time when the active set is updated. Default is number of groups.}
+\item{actGroupNum}{if \code{actSet = TRUE}, the maximum number of variables that can be selected into the new active set for each time when the active set is updated. Default is number of groups.}
 
-\item{actSetRemove}{if `actSet = TRUE`, whether we remove the zero coefficients from the current active set. Default is FALSE.}
+\item{actSetRemove}{if \code{actSet = TRUE}, whether we remove the zero coefficients from the current active set. Default is FALSE.}
 
 \item{returnX}{whether return the standardized design matrix. Default is FALSE.}
 
@@ -100,15 +100,15 @@ and the number of columns is equal to nlambda.}
 
 \item{group}{a vector describing the grouping of the coefficients.}
 
-\item{lambda}{the sequence of `lambda` values in the path.}
+\item{lambda}{the sequence of \code{lambda} values in the path.}
 
-\item{loss}{the loss of the fitted model at each value of `lambda`.}
+\item{loss}{the loss of the fitted model at each value of \code{lambda}.}
 
-\item{linear.predictors}{the linear predictors of the fitted model at each value of `lambda`.}
+\item{linear.predictors}{the linear predictors of the fitted model at each value of \code{lambda}.}
 
 \item{df}{the estimates of effective number of selected variables all the points along the regularization path.}
 
-\item{iter}{the number of iterations until convergence at each value of `lambda`.}
+\item{iter}{the number of iterations until convergence at each value of \code{lambda}.}
 }
 \description{
 Main function for fitting a group penalized generalized regression model

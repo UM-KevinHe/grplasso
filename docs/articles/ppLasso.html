@@ -39,7 +39,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ppLasso</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -285,8 +285,6 @@ illustrate how to utilize it.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Surv_Data</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">data</span></span>
 <span><span class="va">Event.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Event.char</span></span>
-<span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">prov.char</span></span>
-<span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Z.char</span></span>
 <span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   Prov.ID     Z1     Z2     Z3     Z4     Z5  time status</span></span>
@@ -381,7 +379,7 @@ cross-entropy loss is minimized.</p>
 <p><img src="ppLasso_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span><span class="op">$</span><span class="va">lambda.min</span></span>
-<span><span class="co">#&gt; [1] 0.004251107</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.003215807</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="discrete-survival-model-with-no-center-information-provided">Discrete survival model with no center information provided<a class="anchor" aria-label="anchor" href="#discrete-survival-model-with-no-center-information-provided"></a>
@@ -394,42 +392,42 @@ often necessitate data expansion, leading to significantly slow
 convergence.</p>
 <p>For ease of use, we have introduced a new function called
 <code><a href="../reference/DiscSurv.html">DiscSurv()</a></code>, designed to facilitate a similar user
-experience to <code>ppDiscSurv()</code>. However, the key difference
+experience to <code><a href="../reference/pp.DiscSurv.html">pp.DiscSurv()</a></code>. However, the key difference
 lies in the fact that <code><a href="../reference/DiscSurv.html">DiscSurv()</a></code> no longer demands provider
 information from the user, meaning that all observations are now treated
 as originating from the same healthcare provider.</p>
 <p>Additionally, we have provided the <code><a href="../reference/cv.DiscSurv.html">cv.DiscSurv()</a></code>
 function to aid users in selecting optimal <span class="math inline">\(\lambda\)</span>. Moreover, the
-<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code>prediction()</code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
+<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
 functions have also been thoughtfully incorporated.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DiscSurv.html">DiscSurv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span><span class="op">)</span> <span class="co"># no provider information required</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span> <span class="co">#time effect</span></span>
-<span><span class="co">#&gt;                  0.423    0.3855    0.3512      0.32    0.2916    0.2657</span></span>
-<span><span class="co">#&gt; [Time: 0.53] -1.979501 -1.970063 -1.977011 -1.996579 -2.025999 -2.063345</span></span>
-<span><span class="co">#&gt; [Time: 1.03] -2.110213 -2.069231 -2.043937 -2.030866 -2.027256 -2.025055</span></span>
-<span><span class="co">#&gt; [Time: 3.92] -2.484907 -2.418501 -2.367846 -2.329520 -2.300711 -2.272046</span></span>
-<span><span class="co">#&gt; [Time: 6.74] -2.355695 -2.272305 -2.204511 -2.149006 -2.102989 -2.057248</span></span>
-<span><span class="co">#&gt; [Time: 12.5] -2.958691 -2.863132 -2.784483 -2.719216 -2.664288 -2.608132</span></span>
-<span><span class="co">#&gt;                 0.2421    0.2206     0.201    0.1831</span></span>
-<span><span class="co">#&gt; [Time: 0.53] -2.108356 -2.159401 -2.215357 -2.275213</span></span>
-<span><span class="co">#&gt; [Time: 1.03] -2.030140 -2.041163 -2.057181 -2.077173</span></span>
-<span><span class="co">#&gt; [Time: 3.92] -2.250959 -2.236197 -2.226813 -2.221990</span></span>
-<span><span class="co">#&gt; [Time: 6.74] -2.019161 -1.987505 -1.961281 -1.939894</span></span>
-<span><span class="co">#&gt; [Time: 12.5] -2.560249 -2.519361 -2.484438 -2.454890</span></span>
+<span><span class="co">#&gt;                 0.4261    0.3882    0.3537    0.3223    0.2937    0.2676</span></span>
+<span><span class="co">#&gt; [Time: 0.53] -1.979501 -1.970055 -1.977003 -1.996580 -2.025988 -2.063321</span></span>
+<span><span class="co">#&gt; [Time: 1.03] -2.110213 -2.069229 -2.043936 -2.030857 -2.027101 -2.024921</span></span>
+<span><span class="co">#&gt; [Time: 3.92] -2.484907 -2.418504 -2.367851 -2.329504 -2.300521 -2.271905</span></span>
+<span><span class="co">#&gt; [Time: 6.74] -2.355695 -2.272311 -2.204520 -2.148985 -2.102800 -2.057123</span></span>
+<span><span class="co">#&gt; [Time: 12.5] -2.958691 -2.863140 -2.784495 -2.719193 -2.664047 -2.607966</span></span>
+<span><span class="co">#&gt;                 0.2438    0.2221    0.2024    0.1844</span></span>
+<span><span class="co">#&gt; [Time: 0.53] -2.108353 -2.159477 -2.215458 -2.275240</span></span>
+<span><span class="co">#&gt; [Time: 1.03] -2.030027 -2.041112 -2.057105 -2.077161</span></span>
+<span><span class="co">#&gt; [Time: 3.92] -2.250837 -2.236107 -2.226712 -2.221912</span></span>
+<span><span class="co">#&gt; [Time: 6.74] -2.019051 -1.987399 -1.961180 -1.939732</span></span>
+<span><span class="co">#&gt; [Time: 12.5] -2.560100 -2.519218 -2.484282 -2.454667</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span> <span class="co">#covariate coefficient</span></span>
-<span><span class="co">#&gt;    0.423     0.3855     0.3512     0.32       0.2916      0.2657     0.2421</span></span>
-<span><span class="co">#&gt; Z1     0 -0.1556062 -0.2988529 -0.43217 -0.556253124 -0.62852778 -0.6981760</span></span>
-<span><span class="co">#&gt; Z2     0  0.0000000  0.0000000  0.00000  0.000000000  0.00000000  0.0000000</span></span>
-<span><span class="co">#&gt; Z3     0  0.0000000  0.0000000  0.00000  0.000000000  0.00000000  0.0000000</span></span>
-<span><span class="co">#&gt; Z4     0  0.0000000  0.0000000  0.00000  0.000000000  0.00000000  0.0000000</span></span>
-<span><span class="co">#&gt; Z5     0  0.0000000  0.0000000  0.00000 -0.001538485 -0.06537074 -0.1257262</span></span>
-<span><span class="co">#&gt;        0.2206      0.201      0.1831</span></span>
-<span><span class="co">#&gt; Z1 -0.7654899 -0.8313240 -0.88950950</span></span>
-<span><span class="co">#&gt; Z2  0.0000000  0.0000000  0.00000000</span></span>
-<span><span class="co">#&gt; Z3  0.0000000  0.0000000 -0.01194727</span></span>
-<span><span class="co">#&gt; Z4  0.0000000  0.0000000  0.00000000</span></span>
-<span><span class="co">#&gt; Z5 -0.1830054 -0.2372707 -0.28380491</span></span></code></pre></div>
+<span><span class="co">#&gt;    0.4261     0.3882     0.3537     0.3223      0.2937      0.2676     0.2438</span></span>
+<span><span class="co">#&gt; Z1      0 -0.1556065 -0.2988513 -0.4321738 -0.55517516 -0.62749516 -0.6973297</span></span>
+<span><span class="co">#&gt; Z2      0  0.0000000  0.0000000  0.0000000  0.00000000  0.00000000  0.0000000</span></span>
+<span><span class="co">#&gt; Z3      0  0.0000000  0.0000000  0.0000000  0.00000000  0.00000000  0.0000000</span></span>
+<span><span class="co">#&gt; Z4      0  0.0000000  0.0000000  0.0000000  0.00000000  0.00000000  0.0000000</span></span>
+<span><span class="co">#&gt; Z5      0  0.0000000  0.0000000  0.0000000 -0.00308954 -0.06678773 -0.1269325</span></span>
+<span><span class="co">#&gt;        0.2221     0.2024       0.1844</span></span>
+<span><span class="co">#&gt; Z1 -0.7649437 -0.8303314 -0.891731087</span></span>
+<span><span class="co">#&gt; Z2  0.0000000  0.0000000  0.000000000</span></span>
+<span><span class="co">#&gt; Z3  0.0000000  0.0000000 -0.005918913</span></span>
+<span><span class="co">#&gt; Z4  0.0000000  0.0000000  0.000000000</span></span>
+<span><span class="co">#&gt; Z5 -0.1839682 -0.2385202 -0.287438577</span></span></code></pre></div>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, label <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ppLasso_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
@@ -451,12 +449,95 @@ functions have also been thoughtfully incorporated.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span>, type <span class="op">=</span> <span class="st">"response"</span>, which.lambda <span class="op">=</span> <span class="va">cv.fit</span><span class="op">$</span><span class="va">lambda.min</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span></span>
 <span><span class="co">#&gt;   Individual [Time: 0.53] [Time: 1.03] [Time: 3.92] [Time: 6.74] [Time: 12.5]</span></span>
-<span><span class="co">#&gt; 1          1  0.485716502  0.749012874           NA           NA           NA</span></span>
-<span><span class="co">#&gt; 2          2  0.009629263  0.029806514  0.042177176   0.08097597   0.05632874</span></span>
-<span><span class="co">#&gt; 3          3  0.954117273           NA           NA           NA           NA</span></span>
-<span><span class="co">#&gt; 4          4  0.019263017  0.058435833  0.081688137   0.15109937           NA</span></span>
-<span><span class="co">#&gt; 5          5  0.001507539  0.004748041  0.006791432   0.01349758   0.00918398</span></span></code></pre></div>
+<span><span class="co">#&gt; 1          1  0.488457674  0.748327433           NA           NA           NA</span></span>
+<span><span class="co">#&gt; 2          2  0.009739111  0.029715245  0.041766283   0.07970705  0.055379404</span></span>
+<span><span class="co">#&gt; 3          3  0.953383639           NA           NA           NA           NA</span></span>
+<span><span class="co">#&gt; 4          4  0.019696418  0.058881824  0.081764615   0.15033948           NA</span></span>
+<span><span class="co">#&gt; 5          5  0.001620927  0.005030234  0.007143957   0.01409624  0.009585309</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level3">
+<h3 id="stratified-cox-models">Stratified Cox Models<a class="anchor" aria-label="anchor" href="#stratified-cox-models"></a>
+</h3>
+<p>Our R package offers the <code><a href="../reference/Strat.cox.html">Strat.cox()</a></code> and
+<code><a href="../reference/cv.strat_cox.html">cv.strat_cox()</a></code> functions designed for fitting penalized
+stratified Cox models. In the context of our intended scenario, each
+healthcare provider is considered a distinct stratum. The functionality
+of both <code><a href="../reference/Strat.cox.html">Strat.cox()</a></code> and <code><a href="../reference/cv.strat_cox.html">cv.strat_cox()</a></code> extends
+to the incorporation of group information among variables, achieved by
+configuring the “group” parameter.</p>
+<p>We employ the <code>Cox_Data</code> simulation dataset, which is
+included within this package, to illustrate the utilization of these two
+functions. This dataset encompasses five covariates, a provider
+indicator (which serves as stratum information), as well as follow-up
+time and event indicators.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Cox_Data</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">data</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      Prov.ID       Z1       Z2       Z3       Z4       Z5 status      time</span></span>
+<span><span class="co">#&gt; [1,]      11 3.431888 4.397010 3.800101 4.809899 4.049038      1 0.4984520</span></span>
+<span><span class="co">#&gt; [2,]       4 2.789097 2.616714 3.401736 3.510431 3.650074      0 3.0000000</span></span>
+<span><span class="co">#&gt; [3,]       9 5.451523 4.009896 5.473275 4.772835 4.708293      1 0.5987062</span></span>
+<span><span class="co">#&gt; [4,]      15 2.421634 2.284766 1.747758 2.182607 1.072065      1 0.6406964</span></span>
+<span><span class="co">#&gt; [5,]       9 5.827436 5.238138 5.536604 5.265083 4.735679      0 3.0000000</span></span>
+<span><span class="co">#&gt; [6,]      18 2.140707 1.773304 1.792366 1.774502 3.209669      0 3.0000000</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Strat.cox.html">Strat.cox</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Users can utilize the <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> function to obtain
+coefficient estimates for the covariates across the complete sequence of
+<span class="math inline">\(\lambda\)</span> values.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    0.0394      0.0359      0.0327      0.0298      0.0272</span></span>
+<span><span class="co">#&gt; Z1      0 -0.02638174 -0.05109539 -0.07358232 -0.09407973</span></span>
+<span><span class="co">#&gt; Z2      0  0.00000000  0.00000000  0.00000000  0.00000000</span></span>
+<span><span class="co">#&gt; Z3      0  0.00000000  0.00000000  0.00000000  0.00000000</span></span>
+<span><span class="co">#&gt; Z4      0  0.00000000  0.00000000  0.00000000  0.00000000</span></span>
+<span><span class="co">#&gt; Z5      0  0.00000000  0.00000000  0.00000000  0.00000000</span></span></code></pre></div>
+<p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> function facilitates users in visualizing the
+regularization path.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, label <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ppLasso_files/figure-html/unnamed-chunk-29-1.png" width="700">
+Likewise, the <code><a href="../reference/cv.strat_cox.html">cv.strat_cox()</a></code> function can be employed for
+cross-validation, and the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> function can be utilized
+to visualize cross-validation error.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cv.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cv.strat_cox.html">cv.strat_cox</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>, nfolds <span class="op">=</span> <span class="fl">10</span>, se <span class="op">=</span> <span class="st">"quick"</span><span class="op">)</span></span>
+<span><span class="va">cv.fit</span><span class="op">$</span><span class="va">lambda.min</span></span>
+<span><span class="co">#&gt; [1] 0.005590389</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cv.fit</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ppLasso_files/figure-html/unnamed-chunk-31-1.png" width="700"></p>
+</div>
+<div class="section level3">
+<h3 id="linear-models">Linear Models<a class="anchor" aria-label="anchor" href="#linear-models"></a>
+</h3>
+<p>For the convenience of a select group of users dealing with extensive
+healthcare provider data, we offer the <code><a href="../reference/prof_lkd.linear.html">prof_lkd.linear()</a></code>
+function, which help them fit unpenalized linear models. Enhanced
+features and functionalities are currently in the developmental phase
+and will be forthcoming.</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">linear_data</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">linear_data</span><span class="op">$</span><span class="va">data</span></span>
+<span><span class="va">Y.char</span> <span class="op">&lt;-</span> <span class="va">linear_data</span><span class="op">$</span><span class="va">Y.char</span></span>
+<span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">linear_data</span><span class="op">$</span><span class="va">prov.char</span></span>
+<span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">linear_data</span><span class="op">$</span><span class="va">Z.char</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prof_lkd.linear.html">prof_lkd.linear</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Y.char</span>, <span class="va">Z.char</span>, <span class="va">prov.char</span><span class="op">)</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">beta</span></span>
+<span><span class="co">#&gt;              Y</span></span>
+<span><span class="co">#&gt; z1  -0.3523049</span></span>
+<span><span class="co">#&gt; z2   2.0765558</span></span>
+<span><span class="co">#&gt; z3   1.1505062</span></span>
+<span><span class="co">#&gt; z4  -0.1930814</span></span>
+<span><span class="co">#&gt; z5   0.7696218</span></span>
+<span><span class="co">#&gt; z6  -0.5543829</span></span>
+<span><span class="co">#&gt; z7  -0.9292752</span></span>
+<span><span class="co">#&gt; z8   1.4166953</span></span>
+<span><span class="co">#&gt; z9   2.9488029</span></span>
+<span><span class="co">#&gt; z10  0.9256138</span></span></code></pre></div>
 </div>
 </div>
   </div>

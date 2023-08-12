@@ -215,6 +215,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// StratCox_lasso
+List StratCox_lasso(arma::vec& delta_obs, arma::mat& Z, arma::vec& n_each_prov, arma::vec& beta, int K0, arma::vec& K1, arma::vec& lambda_seq, bool lambda_early_stop, double stop_loss_ratio, arma::vec& group_multiplier, int max_total_iter, int max_each_iter, double tol, int initial_active_group, double nvar_max, double group_max, bool trace_lambda, bool actSet, int actIter, int activeGroupNum, bool actSetRemove);
+RcppExport SEXP _ppLasso_StratCox_lasso(SEXP delta_obsSEXP, SEXP ZSEXP, SEXP n_each_provSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_loss_ratioSEXP, SEXP group_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP initial_active_groupSEXP, SEXP nvar_maxSEXP, SEXP group_maxSEXP, SEXP trace_lambdaSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeGroupNumSEXP, SEXP actSetRemoveSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type delta_obs(delta_obsSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type n_each_prov(n_each_provSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< int >::type K0(K0SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type K1(K1SEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type lambda_seq(lambda_seqSEXP);
+    Rcpp::traits::input_parameter< bool >::type lambda_early_stop(lambda_early_stopSEXP);
+    Rcpp::traits::input_parameter< double >::type stop_loss_ratio(stop_loss_ratioSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type group_multiplier(group_multiplierSEXP);
+    Rcpp::traits::input_parameter< int >::type max_total_iter(max_total_iterSEXP);
+    Rcpp::traits::input_parameter< int >::type max_each_iter(max_each_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type initial_active_group(initial_active_groupSEXP);
+    Rcpp::traits::input_parameter< double >::type nvar_max(nvar_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type group_max(group_maxSEXP);
+    Rcpp::traits::input_parameter< bool >::type trace_lambda(trace_lambdaSEXP);
+    Rcpp::traits::input_parameter< bool >::type actSet(actSetSEXP);
+    Rcpp::traits::input_parameter< int >::type actIter(actIterSEXP);
+    Rcpp::traits::input_parameter< int >::type activeGroupNum(activeGroupNumSEXP);
+    Rcpp::traits::input_parameter< bool >::type actSetRemove(actSetRemoveSEXP);
+    rcpp_result_gen = Rcpp::wrap(StratCox_lasso(delta_obs, Z, n_each_prov, beta, K0, K1, lambda_seq, lambda_early_stop, stop_loss_ratio, group_multiplier, max_total_iter, max_each_iter, tol, initial_active_group, nvar_max, group_max, trace_lambda, actSet, actIter, activeGroupNum, actSetRemove));
+    return rcpp_result_gen;
+END_RCPP
+}
 // SerBIN
 List SerBIN(arma::vec& Y, arma::mat& Z, arma::vec& n_prov, arma::vec gamma, arma::vec beta);
 RcppExport SEXP _ppLasso_SerBIN(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP) {
@@ -257,6 +288,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ppLasso_grp_lasso", (DL_FUNC) &_ppLasso_grp_lasso, 27},
     {"_ppLasso_pp_DiscSurv_lasso", (DL_FUNC) &_ppLasso_pp_DiscSurv_lasso, 28},
     {"_ppLasso_DiscSurv_lasso", (DL_FUNC) &_ppLasso_DiscSurv_lasso, 25},
+    {"_ppLasso_StratCox_lasso", (DL_FUNC) &_ppLasso_StratCox_lasso, 21},
     {"_ppLasso_SerBIN", (DL_FUNC) &_ppLasso_SerBIN, 5},
     {"_ppLasso_NR_residuals", (DL_FUNC) &_ppLasso_NR_residuals, 7},
     {NULL, NULL, 0}

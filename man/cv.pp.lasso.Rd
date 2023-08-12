@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.ppLasso.R
 \name{cv.pp.lasso}
 \alias{cv.pp.lasso}
-\title{Cross-validation for pp.lasso}
+\title{Cross-validation for penalized generalized regression model}
 \usage{
 cv.pp.lasso(
   data,
@@ -18,13 +18,13 @@ cv.pp.lasso(
 )
 }
 \arguments{
-\item{data}{an `dataframe` or `list` object that contains the variables in the model.}
+\item{data}{an \code{dataframe} or \code{list} object that contains the variables in the model.}
 
-\item{Y.char}{name of the response variable from `data` as a character string, as in \code{pp.lasso} function.}
+\item{Y.char}{name of the response variable from \code{data} as a character string, as in \code{pp.lasso} function.}
 
-\item{Z.char}{names of covariates from `data` as vector of character strings, as in \code{pp.lasso} function.}
+\item{Z.char}{names of covariates from \code{data} as vector of character strings, as in \code{pp.lasso} function.}
 
-\item{prov.char}{name of provider IDs variable from `data` as a character string, as in \code{pp.lasso} function.}
+\item{prov.char}{name of provider IDs variable from \code{data} as a character string, as in \code{pp.lasso} function.}
 
 \item{penalize.x}{a vector indicates whether the corresponding covariate will be penalized, as in \code{pp.lasso} function.}
 
@@ -36,7 +36,7 @@ cv.pp.lasso(
 
 \item{fold}{a vector that specifies the fold that observations belongs to. By default the observations are randomly assigned.}
 
-\item{trace.cv}{\code{cv.pp.lasso} will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.}
+\item{trace.cv}{\code{cv.pp.lasso} will provide user with the progress of cross validation if \code{trace.cv = TRUE}. Default is FALSE.}
 }
 \value{
 An object with S3 class \code{cv.ppLasso}.

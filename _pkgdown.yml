@@ -4,6 +4,10 @@ template:
     bootswatch: lumen
     ganalytics: UA-54921687-5
 reference:
+- title: Main Fitting Function for Linear Regression Model
+  desc: Fitting a linear model for data with high-dimensional center effect through profile likelihood estimation
+  contents:
+  - prof_lkd.linear
 - title: Main Fitting Functions for Generalized Linear Models
   desc: The main functions to fit the penalized generalized linear models
   contents:
@@ -18,29 +22,39 @@ reference:
   - cv.pp.DiscSurv
   - DiscSurv
   - cv.DiscSurv
+- title: Main Fitting Functions for Stratified Cox Models  
+  desc: The main functions to fit the penalized stratified cox model
+  contents:
+  - Strat.cox
+  - cv.strat_cox
 - title: Plotting functions
   contents:
   - plot.ppLasso
   - plot.gr_ppLasso
   - plot.ppDiscSurv
   - plot.DiscSurv
+  - plot.strat_cox
   - plot.cv.ppLasso
   - plot.cv.gr_ppLasso
   - plot.cv.ppDiscSurv
   - plot.cv.DiscSurv
+  - plot.cv.strat_cox
 - title: Prediction functions
   contents:
   - predict.ppLasso
   - predict.gr_ppLasso
   - predict.ppDiscSurv
   - predict.DiscSurv
+  - predict.strat_cox
 - title: Coefficient functions
   contents:  
   - coef.ppLasso
   - coef.gr_ppLasso
   - coef.ppDiscSurv
   - coef.DiscSurv
+  - coef.strat_cox
 - title: Package Data Sets
   contents:
   - GLM_Data
   - Surv_Data
+  - Cox_Data

@@ -21,20 +21,24 @@
 \arguments{
 \item{fit}{a \code{DiscSurv} object.}
 
-\item{data}{an `dataframe` or `list` object that contains the variables for prediction.}
+\item{data}{an \code{dataframe} or \code{list} object that contains the variables for prediction.}
 
-\item{Event.char}{name of the event indicator in `data` as a character string.}
+\item{Event.char}{name of the event indicator in \code{data} as a character string.}
 
-\item{Z.char}{names of covariates in `data` as vector of character strings.}
+\item{Z.char}{names of covariates in \code{data} as vector of character strings.}
 
-\item{Time.char}{name of the observation time in `data` as a character string.}
+\item{Time.char}{name of the observation time in \code{data} as a character string.}
 
 \item{lambda}{values of the regularization parameter lambda at which predictions are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.}
 
 \item{which}{indices of the penalty parameter lambda at which predictions are required. By default, all indices are returned. If lambda is specified, this will override which.}
 
-\item{type}{type of prediction: \code{response} provides the fitted value of each person at each time point ;
-\code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;}
+\item{type}{type of prediction:
+\itemize{
+\item \code{response}: fitted values (i.e., \code{exp(eta)/(1 + exp(eta))})
+\item \code{vars}: the indices for the non-zero coefficients
+\item \code{nvars}: the number of non-zero coefficients
+}}
 
 \item{which.lambda}{determine which lambda values are included in the output of the prediction. By default, its value is set to "all," resulting in a matrix of predicted values for each lambda presented as a list. However, if specific numeric values are provided, only the predicted matrix corresponding to those specified values will be included in the output.}
 

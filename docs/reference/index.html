@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ppLasso</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -57,6 +57,14 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
+          <h2 id="main-fitting-function-for-linear-regression-model">Main Fitting Function for Linear Regression Model <a href="#main-fitting-function-for-linear-regression-model" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>Fitting a linear model for data with high-dimensional center effect through profile likelihood estimation</p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="prof_lkd.linear.html">prof_lkd.linear()</a></code> </p>
+        </td>
+        <td><p>Fit the linear model using profile likelihood</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="main-fitting-functions-for-generalized-linear-models">Main Fitting Functions for Generalized Linear Models <a href="#main-fitting-functions-for-generalized-linear-models" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>The main functions to fit the penalized generalized linear models</p>
         </th>
@@ -67,7 +75,7 @@
       </tr><tr><td>
           <p><code><a href="cv.pp.lasso.html">cv.pp.lasso()</a></code> </p>
         </td>
-        <td><p>Cross-validation for pp.lasso</p></td>
+        <td><p>Cross-validation for penalized generalized regression model</p></td>
       </tr><tr><td>
           <p><code><a href="grp.lasso.html">grp.lasso()</a></code> </p>
         </td>
@@ -75,7 +83,7 @@
       </tr><tr><td>
           <p><code><a href="cv.grp.lasso.html">cv.grp.lasso()</a></code> </p>
         </td>
-        <td><p>Cross-validation for grp.lasso</p></td>
+        <td><p>Cross-validation for group penalized generalized regression model</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="main-fitting-functions-for-discrete-survival-models">Main Fitting Functions for Discrete Survival Models <a href="#main-fitting-functions-for-discrete-survival-models" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p><p>The main functions to fit the penalized discrete survival model</p>
@@ -87,7 +95,7 @@
       </tr><tr><td>
           <p><code><a href="cv.pp.DiscSurv.html">cv.pp.DiscSurv()</a></code> </p>
         </td>
-        <td><p>Cross-validation for pp.DiscSurv</p></td>
+        <td><p>Cross-validation for penalized discrete survival model (with provider information)</p></td>
       </tr><tr><td>
           <p><code><a href="DiscSurv.html">DiscSurv()</a></code> </p>
         </td>
@@ -95,7 +103,19 @@
       </tr><tr><td>
           <p><code><a href="cv.DiscSurv.html">cv.DiscSurv()</a></code> </p>
         </td>
-        <td><p>Cross-validation for DiscSurv</p></td>
+        <td><p>Cross-validation for penalized discrete survival model (without provider information)</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="main-fitting-functions-for-stratified-cox-models">Main Fitting Functions for Stratified Cox Models <a href="#main-fitting-functions-for-stratified-cox-models" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p><p>The main functions to fit the penalized stratified cox model</p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="Strat.cox.html">Strat.cox()</a></code> </p>
+        </td>
+        <td><p>Fit a penalized stratified cox model</p></td>
+      </tr><tr><td>
+          <p><code><a href="cv.strat_cox.html">cv.strat_cox()</a></code> </p>
+        </td>
+        <td><p>Cross-validation for penalized stratified cox model</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="plotting-functions">Plotting functions <a href="#plotting-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -113,6 +133,10 @@
         </td>
         <td><p>Plot regularization path of coefficients from a DiscSurv object</p></td>
       </tr><tr><td>
+          <p><code><a href="plot.strat_cox.html">plot(<i>&lt;strat_cox&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot regularization path of coefficients from a strat_cox object</p></td>
+      </tr><tr><td>
           <p><code><a href="plot.cv.ppLasso.html">plot(<i>&lt;cv.ppLasso&gt;</i>)</a></code> <code><a href="plot.cv.ppLasso.html">plot(<i>&lt;cv.gr_ppLasso&gt;</i>)</a></code> </p>
         </td>
         <td><p>Plot the cross entropy loss from a cv.ppLasso or cv.gr_ppLasso object</p></td>
@@ -124,6 +148,10 @@
           <p><code><a href="plot.cv.DiscSurv.html">plot(<i>&lt;cv.DiscSurv&gt;</i>)</a></code> </p>
         </td>
         <td><p>Plot the cross entropy loss from a cv.DiscSurv object</p></td>
+      </tr><tr><td>
+          <p><code><a href="plot.cv.strat_cox.html">plot(<i>&lt;cv.strat_cox&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Plot the cross entropy loss from a cv.strat_cox object</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="prediction-functions">Prediction functions <a href="#prediction-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -140,6 +168,10 @@
           <p><code><a href="predict.DiscSurv.html">predict(<i>&lt;DiscSurv&gt;</i>)</a></code> </p>
         </td>
         <td><p>Predictions of a DiscSurv object</p></td>
+      </tr><tr><td>
+          <p><code><a href="predict.strat_cox.html">predict(<i>&lt;strat_cox&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Predictions of a strat_cox object</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="coefficient-functions">Coefficient functions <a href="#coefficient-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -156,6 +188,10 @@
           <p><code><a href="coef.DiscSurv.html">coef(<i>&lt;DiscSurv&gt;</i>)</a></code> </p>
         </td>
         <td><p>Extract coefficients of a DiscSurv object</p></td>
+      </tr><tr><td>
+          <p><code><a href="coef.strat_cox.html">coef(<i>&lt;strat_cox&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Extract coefficients of a strat_cox object</p></td>
       </tr></tbody><tbody><tr><th colspan="2">
           <h2 id="package-data-sets">Package Data Sets <a href="#package-data-sets" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
@@ -168,6 +204,10 @@
           <p><code><a href="Surv_Data.html">Surv_Data</a></code> </p>
         </td>
         <td><p>Example data for discrete survival model</p></td>
+      </tr><tr><td>
+          <p><code><a href="Cox_Data.html">Cox_Data</a></code> </p>
+        </td>
+        <td><p>Example data for Cox model</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

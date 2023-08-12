@@ -14,10 +14,12 @@
 #'
 #' @param which indices of the penalty parameter lambda at which predictions are required. By default, all indices are returned. If lambda is specified, this will override which.
 #'
-#' @param type type of prediction: \code{response} provides the fitted value; \code{class} returns the binomial outcome with the largest probability;
-#' \code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;
-#' \code{groups} returns the indices for the non-zero groups; \code{ngroups} returns the number of non-zero coefficients;
-#' \code{beta.norm} returns L2 norm of the coefficients in each group
+#' @param type type of prediction: 
+#'   * `link`: linear predictors
+#'   * `response`: fitted values (i.e., `exp(link)/(1 + exp(link))`)
+#'   * `class`: the binomial outcome with the largest probability
+#'   * `vars`: the indices for the non-zero coefficients
+#'   * `nvars`: the number of non-zero coefficients
 #'
 #' @param ...
 #'
@@ -36,7 +38,7 @@
 #'
 
 predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:length(fit$lambda),
-                            type = c("response", "class", "vars", "nvars"),  ...){
+                            type = c("link", "response", "class", "vars", "nvars"),  ...){
   beta <- coef.ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$gamma
 
@@ -63,9 +65,13 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
   } else {
     eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + t(obs.prov.effect)
   }
-
-  pred.prob <- plogis(eta)
+  
+  if (type == "link") {
+    return(eta)
+  }
+  
   if (type == "response") {
+    pred.prob <- plogis(eta)
     return(pred.prob)
   }
 
@@ -89,10 +95,16 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
 #'
 #' @param which indices of the penalty parameter lambda at which predictions are required. By default, all indices are returned. If lambda is specified, this will override which.
 #'
-#' @param type type of prediction: \code{response} provides the fitted value; \code{class} returns the binomial outcome with the largest probability;
-#' \code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;
-#' \code{groups} returns the indices for the non-zero groups; \code{ngroups} returns the number of non-zero coefficients;
-#' \code{beta.norm} returns L2 norm of the coefficients in each group
+#' @param type type of prediction: 
+#'   * `link`: linear predictors
+#'   * `response`: fitted values (i.e., `exp(link)/(1 + exp(link))`)
+#'   * `class`: the binomial outcome with the largest probability
+#'   * `vars`: the indices for the non-zero coefficients
+#'   * `nvars`: the number of non-zero coefficients
+#'   * `groups`: the indices for the non-zero groups
+#'   * `ngroups`: the number of non-zero coefficients
+#'   * `beta.norm`: L2 norm of the coefficients in each group
+#'
 #'
 #' @param ...
 #'
@@ -112,7 +124,7 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
 #' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "groups")
 
 predict.gr_ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:length(fit$lambda),
-                               type = c("response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){
+                               type = c("link", "response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){
   beta <- coef.gr_ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.gr_ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$gamma
 
@@ -160,9 +172,13 @@ predict.gr_ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:l
   } else {
     eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + t(obs.prov.effect)
   }
+  
+  if (type == "link") {
+    return(eta)
+  }
 
-  pred.prob <- plogis(eta)
   if (type == "response") {
+    pred.prob <- plogis(eta)
     return(pred.prob)
   }
 

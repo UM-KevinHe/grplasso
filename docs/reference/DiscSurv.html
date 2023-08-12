@@ -23,7 +23,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ppLasso</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0</span>
       </span>
     </div>
 
@@ -68,12 +68,12 @@
 <span>  <span class="va">Event.char</span>,</span>
 <span>  <span class="va">Z.char</span>,</span>
 <span>  <span class="va">Time.char</span>,</span>
+<span>  standardize <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  <span class="va">lambda</span>,</span>
 <span>  nlambda <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  lambda.min.ratio <span class="op">=</span> <span class="fl">1e-04</span>,</span>
 <span>  penalize.x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Z.char</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="va">penalized.multiplier</span>,</span>
-<span>  lambda.early.stop <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nvar.max <span class="op">=</span> <span class="va">p</span>,</span>
 <span>  stop.dev.ratio <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  bound <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -97,23 +97,28 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data</dt>
-<dd><p>an `dataframe` or `list` object that contains the variables in the model.</p></dd>
+<dd><p>an <code>dataframe</code> or <code>list</code> object that contains the variables in the model.</p></dd>
 
 
 <dt>Event.char</dt>
-<dd><p>name of the event indicator in `data` as a character string.</p></dd>
+<dd><p>name of the event indicator in <code>data</code> as a character string. Event indicator should be a
+binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.</p></dd>
 
 
 <dt>Z.char</dt>
-<dd><p>names of covariates in `data` as vector of character strings.</p></dd>
+<dd><p>names of covariates in <code>data</code> as vector of character strings.</p></dd>
 
 
 <dt>Time.char</dt>
-<dd><p>name of the observation time in `data` as a character string.</p></dd>
+<dd><p>name of the follow up time in <code>data</code> as a character string.</p></dd>
+
+
+<dt>standardize</dt>
+<dd><p>logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is <code>standardize=TRUE</code>.</p></dd>
 
 
 <dt>lambda</dt>
-<dd><p>a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on `nlambda` and `lambda.min.ratio`.</p></dd>
+<dd><p>a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on <code>nlambda</code> and <code>lambda.min.ratio</code>.</p></dd>
 
 
 <dt>nlambda</dt>
@@ -121,7 +126,7 @@
 
 
 <dt>lambda.min.ratio</dt>
-<dd><p>the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.</p></dd>
+<dd><p>the fraction of the smallest value for lambda with <code>lambda.max</code> (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.</p></dd>
 
 
 <dt>penalize.x</dt>
@@ -132,16 +137,8 @@
 <dd><p>A vector of values representing multiplicative factors by which each covariate's penalty is to be multiplied. Default is a vector of 1's.</p></dd>
 
 
-<dt>lambda.early.stop</dt>
-<dd><p>whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is `FALSE`.</p></dd>
-
-
 <dt>nvar.max</dt>
 <dd><p>number of maximum selected variables. Default is the number of all covariates.</p></dd>
-
-
-<dt>stop.dev.ratio</dt>
-<dd><p>if `lambda.early.stop = TRUE`, the ratio of deviance for early stopping. Default is 1e-3.</p></dd>
 
 
 <dt>bound</dt>
@@ -153,7 +150,7 @@
 
 
 <dt>tol</dt>
-<dd><p>convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than `tol`. Default is 1e-4.</p></dd>
+<dd><p>convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than <code>tol</code>. Default is 1e-4.</p></dd>
 
 
 <dt>max.each.iter</dt>
@@ -161,7 +158,7 @@
 
 
 <dt>max.total.iter</dt>
-<dd><p>maximum number of iterations for entire path. Default is `max.each.iter` * `nlambda`.</p></dd>
+<dd><p>maximum number of iterations for entire path. Default is <code>max.each.iter</code> * <code>nlambda</code>.</p></dd>
 
 
 <dt>actSet</dt>
@@ -169,11 +166,11 @@
 
 
 <dt>actIter</dt>
-<dd><p>if `actSet = TRUE`, the maximum number of iterations for a new updated active set. Default is `max.each.iter` (i.e. we will update the current active set until convergence ).</p></dd>
+<dd><p>if <code>actSet = TRUE</code>, the maximum number of iterations for a new updated active set. Default is <code>max.each.iter</code> (i.e. we will update the current active set until convergence ).</p></dd>
 
 
 <dt>actSetRemove</dt>
-<dd><p>if `actSet = TRUE`, whether we remove the zero coefficients from the current active set. Default is FALSE.</p></dd>
+<dd><p>if <code>actSet = TRUE</code>, whether we remove the zero coefficients from the current active set. Default is FALSE.</p></dd>
 
 
 <dt>returnX</dt>
@@ -212,7 +209,7 @@ and the number of columns is equal to nlambda.</p></dd>
 
 
 <dt>lambda</dt>
-<dd><p>the sequence of `lambda` values in the path.</p></dd>
+<dd><p>the sequence of <code>lambda</code> values in the path.</p></dd>
 
 
 <dt>df</dt>
@@ -220,7 +217,7 @@ and the number of columns is equal to nlambda.</p></dd>
 
 
 <dt>iter</dt>
-<dd><p>the number of iterations until convergence at each value of `lambda`.</p></dd>
+<dd><p>the number of iterations until convergence at each value of <code>lambda</code>.</p></dd>
 
 </dl></div>
     <div id="details">
@@ -247,19 +244,19 @@ and the number of columns is equal to nlambda.</p></dd>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Surv_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">DiscSurv</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span><span class="op">)</span> <span class="co"># fit a discrete survival model without any given provider information.</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span> <span class="co"># covariate coefficient</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.423     0.3855     0.3512     0.32       0.2916</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1     0 -0.1556062 -0.2988529 -0.43217 -0.556237942</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2     0  0.0000000  0.0000000  0.00000  0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3     0  0.0000000  0.0000000  0.00000  0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4     0  0.0000000  0.0000000  0.00000  0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5     0  0.0000000  0.0000000  0.00000 -0.001611679</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.4261     0.3882     0.3537     0.3223       0.2937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.1556065 -0.2988513 -0.4321738 -0.555173274</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.0000000  0.0000000  0.0000000  0.000000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.0000000  0.0000000  0.0000000  0.000000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.0000000  0.0000000  0.0000000  0.000000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.0000000  0.0000000  0.0000000 -0.003082009</span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">alpha</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span> <span class="co">#time effect</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  0.423    0.3855    0.3512      0.32    0.2916</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -1.979501 -1.970063 -1.977011 -1.996579 -2.025967</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -2.110213 -2.069231 -2.043937 -2.030866 -2.027255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -2.484907 -2.418501 -2.367846 -2.329520 -2.300733</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -2.355695 -2.272305 -2.204511 -2.149006 -2.103027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -2.958691 -2.863132 -2.784483 -2.719216 -2.664334</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 0.4261    0.3882    0.3537    0.3223    0.2937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 0.53] -1.979501 -1.970055 -1.977003 -1.996580 -2.025945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 1.03] -2.110213 -2.069229 -2.043936 -2.030857 -2.027089</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 3.92] -2.484907 -2.418504 -2.367851 -2.329504 -2.300533</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 6.74] -2.355695 -2.272311 -2.204520 -2.148985 -2.102827</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [Time: 12.5] -2.958691 -2.863140 -2.784495 -2.719193 -2.664082</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

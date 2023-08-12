@@ -12,7 +12,7 @@
   prov.char,
   lambda,
   which = 1:length(fit$lambda),
-  type = c("response", "class", "vars", "nvars"),
+  type = c("link", "response", "class", "vars", "nvars"),
   ...
 )
 
@@ -23,27 +23,35 @@
   prov.char,
   lambda,
   which = 1:length(fit$lambda),
-  type = c("response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),
+  type = c("link", "response", "class", "vars", "groups", "nvars", "ngroups",
+    "beta.norm"),
   ...
 )
 }
 \arguments{
 \item{fit}{a \code{ppLasso} or \code{gr_ppLasso}.}
 
-\item{data}{an `dataframe` or `list` object that contains the variables for prediction.}
+\item{data}{an \code{dataframe} or \code{list} object that contains the variables for prediction.}
 
-\item{Z.char}{names of covariates in `data` as vector of character strings.}
+\item{Z.char}{names of covariates in \code{data} as vector of character strings.}
 
-\item{prov.char}{name of provider IDs variable in `data` as a character string.}
+\item{prov.char}{name of provider IDs variable in \code{data} as a character string.}
 
 \item{lambda}{values of the regularization parameter lambda at which predictions are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.}
 
 \item{which}{indices of the penalty parameter lambda at which predictions are required. By default, all indices are returned. If lambda is specified, this will override which.}
 
-\item{type}{type of prediction: \code{response} provides the fitted value; \code{class} returns the binomial outcome with the largest probability;
-\code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;
-\code{groups} returns the indices for the non-zero groups; \code{ngroups} returns the number of non-zero coefficients;
-\code{beta.norm} returns L2 norm of the coefficients in each group}
+\item{type}{type of prediction:
+\itemize{
+\item \code{link}: linear predictors
+\item \code{response}: fitted values (i.e., \code{exp(link)/(1 + exp(link))})
+\item \code{class}: the binomial outcome with the largest probability
+\item \code{vars}: the indices for the non-zero coefficients
+\item \code{nvars}: the number of non-zero coefficients
+\item \code{groups}: the indices for the non-zero groups
+\item \code{ngroups}: the number of non-zero coefficients
+\item \code{beta.norm}: L2 norm of the coefficients in each group
+}}
 
 \item{...}{}
 }

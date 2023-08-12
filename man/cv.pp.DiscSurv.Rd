@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.ppDiscSurv.R
 \name{cv.pp.DiscSurv}
 \alias{cv.pp.DiscSurv}
-\title{Cross-validation for pp.DiscSurv}
+\title{Cross-validation for penalized discrete survival model (with provider information)}
 \usage{
 cv.pp.DiscSurv(
   data,
@@ -19,15 +19,16 @@ cv.pp.DiscSurv(
 )
 }
 \arguments{
-\item{data}{an `dataframe` or `list` object that contains the variables in the model.}
+\item{data}{an \code{dataframe} or \code{list} object that contains the variables in the model.}
 
-\item{Event.char}{name of the event indicator in `data` as a character string.}
+\item{Event.char}{name of the event indicator in \code{data} as a character string. Event indicator should be a
+binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.}
 
-\item{prov.char}{name of provider IDs variable in `data` as a character string.}
+\item{prov.char}{name of provider IDs variable in \code{data} as a character string.}
 
-\item{Z.char}{names of covariates in `data` as vector of character strings.}
+\item{Z.char}{names of covariates in \code{data} as vector of character strings.}
 
-\item{Time.char}{name of the observation time in `data` as a character string.}
+\item{Time.char}{name of the follow up time in \code{data} as a character string.}
 
 \item{penalize.x}{a vector indicates whether the corresponding covariate will be penalized, as in \code{pp.DiscSurv} function.}
 
@@ -39,7 +40,7 @@ cv.pp.DiscSurv(
 
 \item{fold}{a vector that specifies the fold that observations belongs to. By default the observations are randomly assigned.}
 
-\item{trace.cv}{\code{cv.pp.DiscSurv} will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.}
+\item{trace.cv}{\code{cv.pp.DiscSurv} will provide user with the progress of cross validation if \code{trace.cv = TRUE}. Default is FALSE.}
 }
 \value{
 An object with S3 class \code{cv.pp.DiscSurv}.
@@ -59,7 +60,7 @@ An object with S3 class \code{cv.pp.DiscSurv}.
 \item{lambda.min}{the value of lambda with the minimum cross-validation error.}
 }
 \description{
-Performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
+Performs k-fold cross validation for penalized discrete survival model (with provider information) over a grid of values of regularization parameter lambda.
 }
 \examples{
 data(Surv_Data)

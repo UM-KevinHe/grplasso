@@ -19,6 +19,9 @@
     <loc>https://github.com/UM-KevinHe/grplasso/index.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/Cox_Data.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/DiscSurv.html</loc>
   </url>
   <url>
@@ -26,6 +29,9 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/GLM_Data.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/Strat.cox.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/Surv_Data.html</loc>
@@ -40,6 +46,9 @@
     <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.ppLasso.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.strat_cox.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.DiscSurv.html</loc>
   </url>
   <url>
@@ -50,6 +59,9 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.pp.lasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.strat_cox.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/grp.lasso.html</loc>
@@ -73,6 +85,9 @@
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.ppLasso.html</loc>
   </url>
   <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.strat_cox.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.gr_ppLasso.html</loc>
   </url>
   <url>
@@ -80,6 +95,9 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.ppLasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.strat_cox.html</loc>
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/pp.DiscSurv.html</loc>
@@ -95,5 +113,11 @@
   </url>
   <url>
     <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.ppLasso.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.strat_cox.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/UM-KevinHe/grplasso/reference/prof_lkd.linear.html</loc>
   </url>
 </urlset>

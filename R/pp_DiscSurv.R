@@ -4,13 +4,14 @@
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
-#' @param Event.char name of the event indicator in `data` as a character string.
+#' @param Event.char name of the event indicator in `data` as a character string. Event indicator should be a 
+#' binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.
 #'
 #' @param prov.char name of provider IDs variable in `data` as a character string.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
-#' @param Time.char name of the observation time in `data` as a character string.
+#' @param Time.char name of the follow up time in `data` as a character string.
 #'
 #' @param lambda a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on `nlambda` and `lambda.min.ratio`.
 #'

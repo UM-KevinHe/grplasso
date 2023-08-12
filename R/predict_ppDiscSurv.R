@@ -20,9 +20,11 @@
 #'
 #' @param which.lambda determine which lambda values are included in the output of the prediction. By default, its value is set to "all," resulting in a matrix of predicted values for each lambda presented as a list. However, if specific numeric values are provided, only the predicted matrix corresponding to those specified values will be included in the output.
 #' 
-#' @param type type of prediction: \code{response} provides the fitted value of each person at each time point ;
-#' \code{vars} returns the indices for the non-zero coefficients; \code{nvars} returns the number of non-zero coefficients;
-#'
+#' @param type type of prediction:
+#'   * `response`: fitted values (i.e., `exp(eta)/(1 + exp(eta))`)
+#'   * `vars`: the indices for the non-zero coefficients
+#'   * `nvars`: the number of non-zero coefficients
+#'   
 #' @param ...
 #'
 #' @exportS3Method predict ppDiscSurv
@@ -63,7 +65,7 @@ predict.ppDiscSurv <- function(fit, data, Event.char, prov.char, Z.char, Time.ch
     return(nvars)
   }
   
-  # predict response
+  # predict link
   if (missing(data) | is.null(data)) {
     stop("Must supply data for predictions", call. = FALSE)
   }
@@ -120,5 +122,4 @@ predict.ppDiscSurv <- function(fit, data, Event.char, prov.char, Z.char, Time.ch
       return(pred.prob)
     }
   }
-  
 }

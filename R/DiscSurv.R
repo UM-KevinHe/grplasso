@@ -4,11 +4,14 @@
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
-#' @param Event.char name of the event indicator in `data` as a character string.
-
+#' @param Event.char name of the event indicator in `data` as a character string. Event indicator should be a 
+#' binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.
+#' 
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
-#' @param Time.char name of the observation time in `data` as a character string.
+#' @param Time.char name of the follow up time in `data` as a character string.
+#' 
+#' @param standardize logical flag for x variable standardization, prior to fitting the model sequence. The coefficients are always returned on the original scale. Default is `standardize=TRUE`.
 #'
 #' @param lambda a user supplied lambda sequence. Typical usage is to have the program compute its own lambda sequence based on `nlambda` and `lambda.min.ratio`.
 #'
@@ -20,12 +23,8 @@
 #'
 #' @param penalized.multiplier A vector of values representing multiplicative factors by which each covariate's penalty is to be multiplied. Default is a vector of 1's.
 #'
-#' @param lambda.early.stop whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is `FALSE`.
-#'
 #' @param nvar.max number of maximum selected variables. Default is the number of all covariates.
 #'
-#' @param stop.dev.ratio if `lambda.early.stop = TRUE`, the ratio of deviance for early stopping. Default is 1e-3.
-#
 #' @param bound a positive number to avoid inflation of provider effect. Default is 10.
 #'
 #' @param backtrack for updating the provider effect, whether to use the "backtracking line search" with Newton method.
@@ -91,8 +90,8 @@
 #' \emph{Lifetime Data Analysis}, \strong{19}: 490-512.
 #' \cr
 
-DiscSurv <- function(data, Event.char, Z.char, Time.char, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
-                     penalize.x = rep(1, length(Z.char)), penalized.multiplier, lambda.early.stop = FALSE, 
+DiscSurv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
+                     penalize.x = rep(1, length(Z.char)), penalized.multiplier, 
                      nvar.max = p, stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, 
                      max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE,
                      actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE,
@@ -117,10 +116,14 @@ DiscSurv <- function(data, Event.char, Z.char, Time.char, lambda, nlambda = 100,
   sum.failure <- fit$n.event
   KM.baseline.hazard <- c(fit$cumhaz[1], fit$cumhaz[2:length(fit$cumhaz)] - fit$cumhaz[1:(length(fit$cumhaz) - 1)])
 
-  std.Z <- newZG.Unstd.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
-  Z <- std.Z$std.Z[, , drop = F]
-  pseudo.group <- std.Z$g
-  penalized.multiplier <- std.Z$m
+  if (standardize == T){
+    std.Z <- newZG.Std.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
+  } else {
+    std.Z <- newZG.Unstd.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
+  }
+  Z <- std.Z$std.Z[, , drop = F] 
+  pseudo.group <- std.Z$g 
+  penalized.multiplier <- std.Z$m 
 
   delta.obs <- data[, Event.char]
   time <- data[, Time.char]
@@ -190,6 +193,12 @@ DiscSurv <- function(data, Event.char, Z.char, Time.char, lambda, nlambda = 100,
   rownames(beta) <- colnames(Z)
   if (std.Z$reorder == TRUE){  # original order of beta
     beta <- beta[std.Z$ord.inv, , drop = F]
+  }
+  
+  if (standardize == T) {
+    unstandardize.para <- unstandardize(beta, alpha, std.Z)
+    beta <- unstandardize.para$beta
+    alpha <- unstandardize.para$gamma
   }
   
   # Names

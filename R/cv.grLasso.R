@@ -1,4 +1,4 @@
-#' Cross-validation for grp.lasso
+#' Cross-validation for group penalized generalized regression model
 #'
 #' Performs k-fold cross validation for group penalized regression models over a grid of values of regularization parameter lambda.
 #'
@@ -109,7 +109,7 @@ cv.grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.cha
   }
 
   # Do Cross-Validation
-  E <- Y <- matrix(NA, nrow = length(y), ncol = length(fit$lambda))
+  E <- Y <- matrix(NA, nrow = n.obs, ncol = length(fit$lambda))
   PE <- E
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
@@ -148,4 +148,22 @@ cv.grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.cha
                            lambda.min = lambda[min]),
                       class = "cv.gr_ppLasso")
   return(result)
+}
+
+
+
+cvf.grplasso <- function(i, data, Y.char, Z.char, prov.char, fold, cv.args){
+  cv.args$data <- data[fold != i, , drop = FALSE]
+  cv.args$Y.char <- Y.char
+  cv.args$Z.char <- Z.char
+  cv.args$prov.char <- prov.char
+  
+  fit.i <- do.call("grp.lasso", cv.args)
+  
+  data.i <- data[fold == i, , drop = FALSE]
+  Y.i <- data.i[, Y.char]
+  yhat.i <- matrix(predict(fit.i, data.i, Z.char, prov.char, type = "response"), nrow(data.i)) #y-hat matrix across all given lambda
+  loss <- loss.grp.lasso(Y.i, yhat.i)  ## cross entropy loss
+  pe <- (yhat.i < 0.5) == Y.i  # wrong prediction
+  list(loss = loss, pe = pe, nl = length(fit.i$lambda), yhat = yhat.i)
 }

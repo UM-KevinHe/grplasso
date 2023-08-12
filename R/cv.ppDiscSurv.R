@@ -1,16 +1,17 @@
-#' Cross-validation for pp.DiscSurv
+#' Cross-validation for penalized discrete survival model (with provider information)
 #'
-#' Performs k-fold cross validation for penalized regression models over a grid of values of regularization parameter lambda.
+#' Performs k-fold cross validation for penalized discrete survival model (with provider information) over a grid of values of regularization parameter lambda.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
-#' @param Event.char name of the event indicator in `data` as a character string.
+#' @param Event.char name of the event indicator in `data` as a character string. Event indicator should be a 
+#' binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.
 #'
 #' @param prov.char name of provider IDs variable in `data` as a character string.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
-#' @param Time.char name of the observation time in `data` as a character string.
+#' @param Time.char name of the follow up time in `data` as a character string.
 #'
 #' @param penalize.x  a vector indicates whether the corresponding covariate will be penalized, as in \code{pp.DiscSurv} function.
 #'
@@ -170,4 +171,24 @@ cv.pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, penal
   return(result)
 }
 
+
+cvf.ppDiscSurv <- function(i, data, Event.char, prov.char, Z.char, Time.char, fold, cv.args){
+  cv.args$data <- data[fold != i, , drop = FALSE]  #current training data (should have all time points
+  cv.args$Event.char <- Event.char
+  cv.args$prov.char <- prov.char
+  cv.args$Z.char <- Z.char
+  cv.args$Time.char <- Time.char
+  
+  fit.i <- do.call("pp.DiscSurv", cv.args)  #fit the discrete survival model using one training data set (9/10 data)
+  data.i <- data[fold == i, , drop = FALSE]  #current validation data
+  yhat.i <- predict(fit.i, data.i, Event.char, prov.char, Z.char, Time.char, 
+                    lambda = fit.i$lambda, type = "response", return.Array = FALSE) # y-hat matrix across all given lambda; data has been expanded
+  
+  data.small <- data.i[, c(Event.char, Time.char)]
+  Y.i <- discSurv::dataLong(dataShort = data.small, timeColumn = Time.char, 
+                            eventColumn = Event.char, timeAsFactor = TRUE)$y
+  
+  loss <- loss.Disc.Surv(Y.i, yhat.i)  ## cross entropy loss
+  list(loss = loss, nl = length(fit.i$lambda), yhat = yhat.i)
+}
 

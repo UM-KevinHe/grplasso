@@ -2,7 +2,7 @@
 % Please edit documentation in R/cv.grLasso.R
 \name{cv.grp.lasso}
 \alias{cv.grp.lasso}
-\title{Cross-validation for grp.lasso}
+\title{Cross-validation for group penalized generalized regression model}
 \usage{
 cv.grp.lasso(
   data,
@@ -18,13 +18,13 @@ cv.grp.lasso(
 )
 }
 \arguments{
-\item{data}{an `dataframe` or `list` object that contains the variables in the model.}
+\item{data}{an \code{dataframe} or \code{list} object that contains the variables in the model.}
 
-\item{Y.char}{name of the response variable from `data` as a character string, as in \code{grp.lasso} function.}
+\item{Y.char}{name of the response variable from \code{data} as a character string, as in \code{grp.lasso} function.}
 
-\item{Z.char}{names of covariates from `data` as vector of character strings, as in \code{grp.lasso} function.}
+\item{Z.char}{names of covariates from \code{data} as vector of character strings, as in \code{grp.lasso} function.}
 
-\item{prov.char}{name of provider IDs variable from `data` as a character string, as in \code{grp.lasso} function.}
+\item{prov.char}{name of provider IDs variable from \code{data} as a character string, as in \code{grp.lasso} function.}
 
 \item{group}{a vector describing the grouping of the coefficients. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0").}
 
@@ -36,7 +36,7 @@ cv.grp.lasso(
 
 \item{fold}{a vector that specifies the fold that observations belongs to. By default the observations are randomly assigned.}
 
-\item{trace.cv}{\code{cv.grp.lasso} will provide user with the progress of cross validation if `trace.cv = TRUE`. Default is FALSE.}
+\item{trace.cv}{\code{cv.grp.lasso} will provide user with the progress of cross validation if \code{trace.cv = TRUE}. Default is FALSE.}
 }
 \value{
 An object with S3 class \code{cv.gr_ppLasso}.

@@ -1,11 +1,11 @@
 Package: ppLasso
 Type: Package
-Title: Efficient Variable Selection Algorithm for High-Dimensional Center Effects in Generalized Linear and Discrete Survival Models
-Version: 2.1
-Date: 2023-07-25
+Title: Efficient Variable Selection Algorithm for Data with High-Dimensional Center Effects
+Version: 1.0
+Date: 2023-08-11
 Author: Yubo Shao
 Maintainer: Yubo Shao <ybshao@umich.edu>
-Description: Efficient Algorithm for Handling Generalized Linear and Discrete Survival Models with a High Volume of Health Centers
+Description: Efficient Algorithm for Handling Generalized Linear and Survival Models with a High Volume of Health Centers
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -24,3 +24,4 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
