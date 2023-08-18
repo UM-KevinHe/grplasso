@@ -68,3 +68,25 @@
 #' data <- Cox_Data$data
 #' head(data)
 "Cox_Data"
+
+#' Example data for linear model
+#'
+#' A simulated data set containing response variable, provider information and 10 covariates.
+#' @name linear_data
+#' @docType data
+#' @usage data(linear_data)
+#' @keywords datasets
+#' 
+#' @format A list containing the following elements:
+#' \describe{
+#'   \item{data}{example data.\code{time} represents the observation time; \code{status} is the event indicator; \code{Prov.ID} is the center indicator (include 5 centers); \code{Z1}, ..., \code{Z5} are 5 continuous covariates.}
+#'   \item{Y.char}{variable name of the response variable.}
+#'   \item{prov.char}{variable name of the provider indicator.}
+#'   \item{Z.char}{variable names of covariates.}
+#' }
+#' 
+#' @examples
+#' data(linear_data)
+#' data <- linear_data$data
+#' head(data)
+"linear_data"

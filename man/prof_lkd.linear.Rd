@@ -21,6 +21,8 @@ prof_lkd.linear(data, Y.char, Z.char, prov.char, ...)
 An object with S3 class \code{proflkd.linear}
 
 \item{beta}{the fitted matrix of covariate coefficients.}
+
+\item{gamma}{the fitted matrix of provider effects.}
 }
 \description{
 Fitting a linear model for data with high-dimensional center effect through profile likelihood estimation
@@ -32,6 +34,7 @@ Y.char <- linear_data$Y.char
 prov.char <- linear_data$prov.char
 Z.char <- linear_data$Z.char
 fit <- prof_lkd.linear(data, Y.char, Z.char, prov.char)
-fit$beta
+fit$beta[1:5, ]
+fit$gamma[1:5, ]
 
 }

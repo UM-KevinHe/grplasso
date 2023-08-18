@@ -98,14 +98,14 @@
 <span class="r-in"><span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">prov.char</span></span></span>
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="Strat.cox.html">Strat.cox</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="Strat.cox.html">Strat.cox</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, <span class="va">prov.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0394      0.0359      0.0327      0.0298      0.0272</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.02638174 -0.05109539 -0.07358232 -0.09407973</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0394      0.0368     0.0343       0.032      0.0298</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.01983922 -0.0390155 -0.05686517 -0.07358008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
 </code></pre></div>
     </div>
   </div>

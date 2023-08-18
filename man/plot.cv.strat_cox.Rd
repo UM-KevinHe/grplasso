@@ -29,6 +29,6 @@ Event.char <- Cox_Data$Event.char
 prov.char <- Cox_Data$prov.char
 Z.char <- Cox_Data$Z.char
 Time.char <- Cox_Data$Time.char
-cv.fit.strat_cox <- cv.strat_cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3), nfolds = 10)
+cv.fit.strat_cox <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10)
 plot(cv.fit.strat_cox)
 }

@@ -15,6 +15,8 @@
 #' @return An object with S3 class \code{proflkd.linear}
 #'
 #' \item{beta}{the fitted matrix of covariate coefficients.}
+#' 
+#' \item{gamma}{the fitted matrix of provider effects.}
 #'
 #' @export
 #'
@@ -25,7 +27,8 @@
 #' prov.char <- linear_data$prov.char
 #' Z.char <- linear_data$Z.char
 #' fit <- prof_lkd.linear(data, Y.char, Z.char, prov.char)
-#' fit$beta
+#' fit$beta[1:5, ]
+#' fit$gamma[1:5, ]
 #'
 #' @importFrom Rcpp evalCpp
 #'
@@ -47,8 +50,20 @@ prof_lkd.linear <- function(data, Y.char, Z.char, prov.char, ...){
     sum.second.term <- sum.second.term + t(temp.X) %*% Qn %*% temp.Y
   }
   beta <- solve(sum.first.term) %*% sum.second.term
+  colnames(beta) <- "coef"
   
-  result <- structure(list(beta = beta),
+  gamma <- c()
+  for (j in names(n.prov)){
+    temp.y_bar <- mean(as.matrix(data[which(data$prov.ID == j), Y.char, drop = F]))
+    temp.x_bar <- as.matrix(colMeans(as.matrix(data[which(data$prov.ID == j), Z.char])))
+    gamma <- c(gamma, temp.y_bar - t(temp.x_bar) %*% beta)
+  }
+  gamma <- as.matrix(gamma)
+  colnames(gamma) <- "coef"
+  rownames(gamma)<- names(n.prov)
+  
+  result <- structure(list(beta = beta,
+                           gamma = gamma),
                       class = "proflkd.linear")  #define a list for prediction
   return(result)
 }

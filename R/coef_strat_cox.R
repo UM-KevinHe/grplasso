@@ -21,7 +21,7 @@
 #' prov.char <- Cox_Data$prov.char
 #' Z.char <- Cox_Data$Z.char
 #' Time.char <- Cox_Data$Time.char
-#' fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+#' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 #' coef(fit, lambda = fit$lambda)[, 1:5]
 
 coef.strat_cox <- function(fit, lambda, which=1:length(fit$lambda), drop = TRUE, ...) {
@@ -38,8 +38,6 @@ coef.strat_cox <- function(fit, lambda, which=1:length(fit$lambda), drop = TRUE,
     colnames(beta) <- round(lambda, 4)
   } else {  #specify lambda value as index
     beta <- fit$beta[, which, drop = FALSE]
-    gamma <- fit$gamma[, which, drop = FALSE]
-    alpha <- fit$alpha[, which, drop = FALSE]
   }
   if (drop == TRUE){
     beta <- drop(beta)

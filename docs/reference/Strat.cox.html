@@ -66,15 +66,15 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Strat.cox</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">Event.char</span>,</span>
-<span>  <span class="va">prov.char</span>,</span>
 <span>  <span class="va">Z.char</span>,</span>
 <span>  <span class="va">Time.char</span>,</span>
+<span>  <span class="va">prov.char</span>,</span>
 <span>  group <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Z.char</span><span class="op">)</span>,</span>
 <span>  <span class="va">group.multiplier</span>,</span>
 <span>  standardize <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  <span class="va">lambda</span>,</span>
 <span>  nlambda <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  lambda.min.ratio <span class="op">=</span> <span class="fl">1e-04</span>,</span>
+<span>  lambda.min.ratio <span class="op">=</span> <span class="fl">0.001</span>,</span>
 <span>  lambda.early.stop <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nvar.max <span class="op">=</span> <span class="va">p</span>,</span>
 <span>  group.max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">group</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -103,16 +103,17 @@
 binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.</p></dd>
 
 
-<dt>prov.char</dt>
-<dd><p>name of provider IDs variable in <code>data</code> as a character string. (can be seen as "stratum")</p></dd>
-
-
 <dt>Z.char</dt>
 <dd><p>names of covariates in <code>data</code> as vector of character strings.</p></dd>
 
 
 <dt>Time.char</dt>
 <dd><p>name of the follow up time in <code>data</code> as a character string.</p></dd>
+
+
+<dt>prov.char</dt>
+<dd><p>name of stratum indicator in <code>data</code> as a character string.
+If "prov.char" is not specified, all observations are are considered to be from the same stratum.</p></dd>
 
 
 <dt>group</dt>
@@ -136,7 +137,7 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 
 
 <dt>lambda.min.ratio</dt>
-<dd><p>the fraction of the smallest value for lambda with <code>lambda.max</code> (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.</p></dd>
+<dd><p>the fraction of the smallest value for lambda with <code>lambda.max</code> (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-03.</p></dd>
 
 
 <dt>lambda.early.stop</dt>
@@ -253,14 +254,14 @@ and the number of columns is equal to nlambda.</p></dd>
 <span class="r-in"><span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">prov.char</span></span></span>
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Strat.cox</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">Strat.cox</span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, <span class="va">prov.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0394      0.0359      0.0327      0.0298      0.0272</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.02638174 -0.05109539 -0.07358232 -0.09407973</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.00000000  0.00000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0394      0.0368     0.0343       0.032      0.0298</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z1      0 -0.01983922 -0.0390155 -0.05686517 -0.07358008</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z2      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z3      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z4      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Z5      0  0.00000000  0.0000000  0.00000000  0.00000000</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

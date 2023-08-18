@@ -95,7 +95,6 @@ coef(fit.no_prov)$beta[, 1:5]
 coef(fit.no_prov)$gamma[1:5] #"gamma" is treated as the common intercept
 ```
 
-
 #### regularization parameter selection for glm problems 
 
 The optimal regularization parameter ($\lambda$) is determined through cross-validation. To find the best $\lambda$, users can employ either the `cv.pp.lasso()` or `cv.grp.lasso()` function, depending on the specific type of model they are working with. These cross-validation functions inherit the parameters required for the model fitting process, providing a seamless and straightforward experience for users. By default, both functions utilize 10-fold cross-validation.
@@ -214,7 +213,7 @@ data <- Cox_Data$data
 head(data)
 ```
 ```{r}
-fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 ```
 
 Users can utilize the `coef()` function to obtain coefficient estimates for the covariates across the complete sequence of $\lambda$ values.
@@ -225,10 +224,19 @@ The `plot()` function facilitates users in visualizing the regularization path.
 ```{r}
 plot(fit, label = T)
 ```
+
+It's important to highlight that the `prov.char` parameter here is also discretionary. In the absence of user input, the program will automatically assign all observations to a single stratum by default. Consequently, the conventional Cox model will be employed for fitting.
+
+```{r}
+fit.no_stratum <- Strat.cox(data, Event.char, Z.char, Time.char)
+coef(fit.no_stratum)[, 1:5]
+```
+
+
 Likewise, the `cv.strat_cox()` function can be employed for cross-validation, and the `plot()` function can be utilized to visualize cross-validation error.
 
 ```{r}
-cv.fit <- cv.strat_cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
+cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
 cv.fit$lambda.min
 ```
 
@@ -247,6 +255,7 @@ Y.char <- linear_data$Y.char
 prov.char <- linear_data$prov.char
 Z.char <- linear_data$Z.char
 fit <- prof_lkd.linear(data, Y.char, Z.char, prov.char)
-fit$beta
+fit$beta[1:5, ]
+fit$gamma[1:5, ]
 ```
 

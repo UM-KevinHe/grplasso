@@ -5,14 +5,8 @@
 #' @param fit a \code{strat_cox} object.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
-#' 
-#' @param Event.char name of the event indicator in `data` as a character string.
-#'
-#' @param prov.char name of provider IDs variable in `data` as a character string.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
-#'
-#' @param Time.char name of the observation time in `data` as a character string.
 #'
 #' @param lambda values of the regularization parameter lambda at which predictions are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.
 #'
@@ -37,10 +31,10 @@
 #' prov.char <- Cox_Data$prov.char
 #' Z.char <- Cox_Data$Z.char
 #' Time.char <- Cox_Data$Time.char
-#' fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
-#' predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response")[1:5, 1:5]
+#' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
+#' predict(fit, data, Z.char, lambda = fit$lambda, type = "response")[1:5, 1:5]
 
-predict.strat_cox <- function(fit, data, Event.char, prov.char, Z.char, Time.char, lambda, which = 1:length(fit$lambda),
+predict.strat_cox <- function(fit, data, Z.char, lambda, which = 1:length(fit$lambda),
                                type = c("link", "response", "vars", "nvars", "groups", "ngroups"), ...){
   beta <- coef.strat_cox(fit, lambda = lambda, which = which, drop = FALSE)
 

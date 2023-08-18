@@ -58,6 +58,7 @@
 cv.pp.lasso <- function(data, Y.char, Z.char, prov.char, penalize.x = rep(1, length(Z.char)), ..., nfolds = 10,
                         seed, fold, trace.cv = FALSE){
   if (missing(prov.char)){ #single intercept
+    warning("Provider information not provided. All data is assumed to originate from a single provider!", call. = FALSE)
     prov.char <- "intercept"
     data$intercept <- matrix(1, nrow = nrow(data))
   }

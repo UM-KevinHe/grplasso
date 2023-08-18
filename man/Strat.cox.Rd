@@ -7,15 +7,15 @@
 Strat.cox(
   data,
   Event.char,
-  prov.char,
   Z.char,
   Time.char,
+  prov.char,
   group = 1:length(Z.char),
   group.multiplier,
   standardize = T,
   lambda,
   nlambda = 100,
-  lambda.min.ratio = 1e-04,
+  lambda.min.ratio = 0.001,
   lambda.early.stop = FALSE,
   nvar.max = p,
   group.max = length(unique(group)),
@@ -38,11 +38,12 @@ Strat.cox(
 \item{Event.char}{name of the event indicator in \code{data} as a character string. Event indicator should be a
 binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.}
 
-\item{prov.char}{name of provider IDs variable in \code{data} as a character string. (can be seen as "stratum")}
-
 \item{Z.char}{names of covariates in \code{data} as vector of character strings.}
 
 \item{Time.char}{name of the follow up time in \code{data} as a character string.}
+
+\item{prov.char}{name of stratum indicator in \code{data} as a character string.
+If "prov.char" is not specified, all observations are are considered to be from the same stratum.}
 
 \item{group}{a vector describing the grouping of the coefficients. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0").}
 
@@ -54,7 +55,7 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 
 \item{nlambda}{the number of lambda values. Default is 100.}
 
-\item{lambda.min.ratio}{the fraction of the smallest value for lambda with \code{lambda.max} (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.}
+\item{lambda.min.ratio}{the fraction of the smallest value for lambda with \code{lambda.max} (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-03.}
 
 \item{lambda.early.stop}{whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is \code{FALSE}.}
 
@@ -116,7 +117,7 @@ Event.char <- Cox_Data$Event.char
 prov.char <- Cox_Data$prov.char
 Z.char <- Cox_Data$Z.char
 Time.char <- Cox_Data$Time.char
-fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 fit$beta[, 1:5]
 
 }

@@ -27,6 +27,6 @@ Event.char <- Cox_Data$Event.char
 prov.char <- Cox_Data$prov.char
 Z.char <- Cox_Data$Z.char
 Time.char <- Cox_Data$Time.char
-fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 coef(fit, lambda = fit$lambda)[, 1:5]
 }

@@ -19,7 +19,7 @@
 #' prov.char <- Cox_Data$prov.char
 #' Z.char <- Cox_Data$Z.char
 #' Time.char <- Cox_Data$Time.char
-#' fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+#' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 #' plot(fit, label = T)
 
 plot.strat_cox <- function(fit, log.x = T, label = F){

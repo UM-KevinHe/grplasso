@@ -67,10 +67,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
 <span>  <span class="va">fit</span>,</span>
 <span>  <span class="va">data</span>,</span>
-<span>  <span class="va">Event.char</span>,</span>
-<span>  <span class="va">prov.char</span>,</span>
 <span>  <span class="va">Z.char</span>,</span>
-<span>  <span class="va">Time.char</span>,</span>
 <span>  <span class="va">lambda</span>,</span>
 <span>  which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">lambda</span><span class="op">)</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"link"</span>, <span class="st">"response"</span>, <span class="st">"vars"</span>, <span class="st">"nvars"</span>, <span class="st">"groups"</span>, <span class="st">"ngroups"</span><span class="op">)</span>,</span>
@@ -88,20 +85,8 @@
 <dd><p>an <code>dataframe</code> or <code>list</code> object that contains the variables for prediction.</p></dd>
 
 
-<dt>Event.char</dt>
-<dd><p>name of the event indicator in <code>data</code> as a character string.</p></dd>
-
-
-<dt>prov.char</dt>
-<dd><p>name of provider IDs variable in <code>data</code> as a character string.</p></dd>
-
-
 <dt>Z.char</dt>
 <dd><p>names of covariates in <code>data</code> as vector of character strings.</p></dd>
-
-
-<dt>Time.char</dt>
-<dd><p>name of the observation time in <code>data</code> as a character string.</p></dd>
 
 
 <dt>lambda</dt>
@@ -135,14 +120,14 @@
 <span class="r-in"><span><span class="va">prov.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">prov.char</span></span></span>
 <span class="r-in"><span><span class="va">Z.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">Z.char</span></span></span>
 <span class="r-in"><span><span class="va">Time.char</span> <span class="op">&lt;-</span> <span class="va">Cox_Data</span><span class="op">$</span><span class="va">Time.char</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="Strat.cox.html">Strat.cox</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">prov.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.0394    0.0359    0.0327    0.0298    0.0272</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]      1 0.9134386 0.8391602 0.7768358 0.7240672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]      1 0.9290607 0.8671789 0.8144614 0.7692052</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]      1 0.8660430 0.7568822 0.6695592 0.5987700</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]      1 0.9381111 0.8836146 0.8367839 0.7962623</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]      1 0.8574967 0.7424831 0.6512926 0.5779641</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="Strat.cox.html">Strat.cox</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">Event.char</span>, <span class="va">Z.char</span>, <span class="va">Time.char</span>, <span class="va">prov.char</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">data</span>, <span class="va">Z.char</span>, lambda <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">lambda</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.0394    0.0368    0.0343     0.032    0.0298</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]      1 0.9341802 0.8746803 0.8227072 0.7768418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]      1 0.9461696 0.8968936 0.8533355 0.8144665</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]      1 0.8974894 0.8084036 0.7334456 0.6695674</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]      1 0.9530925 0.9098448 0.8713543 0.8367885</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]      1 0.8908210 0.7966337 0.7179336 0.6513011</span>
 </code></pre></div>
     </div>
   </div>

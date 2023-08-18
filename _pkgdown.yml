@@ -58,3 +58,4 @@ reference:
   - GLM_Data
   - Surv_Data
   - Cox_Data
+  - linear_data

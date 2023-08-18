@@ -51,7 +51,7 @@
 #' prov.char <- Cox_Data$prov.char
 #' Z.char <- Cox_Data$Z.char
 #' Time.char <- Cox_Data$Time.char
-#' cv.fit <- cv.strat_cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
+#' cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
 #' # the best lambda using cross validation
 #' cv.fit$lambda.min
 #'
@@ -60,12 +60,15 @@
 #' \emph{Lifetime Data Analysis}, \strong{19}: 490-512.
 #' \cr
 
-cv.strat_cox <- function(data, Event.char, prov.char, Z.char, Time.char, group = 1:length(Z.char), 
+cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group = 1:length(Z.char), 
                          se=c('quick', 'bootstrap'), ...,  nfolds = 10, seed, fold, trace.cv = FALSE){
   if (missing(prov.char)){
-    stop("stratum information must be provided!", call. = FALSE)
+    warning("Provider information not provided. All data is assumed to originate from a single provider!", call. = FALSE)
+    prov.char <- "intercept"
+    data$intercept <- matrix(1, nrow = nrow(data))
+  } else {
+    data <- data[order(data[, prov.char], data[, Time.char]), ]
   }
-  data <- data[order(data[, prov.char], data[, Time.char]), ]
   
   # "...": additional arguments to "grp.lasso"
   # "fold": a vector that specifies the fold that observations belongs to
@@ -176,8 +179,7 @@ cvf.strat_cox <- function(i, data, Event.char, Z.char, prov.char, Time.char, fol
   
   fit.i <- do.call("Strat.cox", cv.args)  #fit the discrete survival model using one training data set (9/10 data)
   data.i <- data[fold == i, , drop = FALSE]  #current validation data
-  yhat.i <- predict(fit.i, data.i, Event.char, prov.char, Z.char, Time.char, 
-                    lambda = fit.i$lambda, type = "link") # exp(eta) over all given lambda
+  yhat.i <- predict(fit.i, data.i, Z.char, lambda = fit.i$lambda, type = "link") # exp(eta) over all given lambda
   list(nl = length(fit.i$lambda), 
        yhat = yhat.i)
 }

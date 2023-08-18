@@ -7,7 +7,8 @@
 #' @param Event.char name of the event indicator in `data` as a character string. Event indicator should be a 
 #' binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.
 #'
-#' @param prov.char name of provider IDs variable in `data` as a character string. (can be seen as "stratum")
+#' @param prov.char name of stratum indicator in `data` as a character string.
+#' If "prov.char" is not specified, all observations are are considered to be from the same stratum.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
@@ -23,7 +24,7 @@
 #'
 #' @param nlambda the number of lambda values. Default is 100.
 #'
-#' @param lambda.min.ratio the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.
+#' @param lambda.min.ratio the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-03.
 #'
 #' @param lambda.early.stop whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is `FALSE`.
 #'
@@ -50,7 +51,7 @@
 #' @param returnX whether return the standardized design matrix. Default is FALSE.
 #'
 #' @param trace.lambda whether display the progress for fitting the entire path. Default is FALSE.
-#'
+#' 
 #' @param ... extra arguments to be passed to function.
 #'
 #'
@@ -83,7 +84,7 @@
 #' prov.char <- Cox_Data$prov.char
 #' Z.char <- Cox_Data$Z.char
 #' Time.char <- Cox_Data$Time.char
-#' fit <- Strat.cox(data, Event.char, prov.char, Z.char, Time.char, group = c(1, 2, 2, 3, 3))
+#' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 #' fit$beta[, 1:5]
 #'
 #' @importFrom Rcpp evalCpp
@@ -97,28 +98,31 @@
 #' \cr
 
 
-Strat.cox <- function(data, Event.char, prov.char, Z.char, Time.char, group = 1:length(Z.char), group.multiplier,
-                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE,
+Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, group = 1:length(Z.char), group.multiplier,
+                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-3, lambda.early.stop = FALSE,
                       nvar.max = p, group.max = length(unique(group)), stop.loss.ratio = 1e-3, tol = 1e-4, 
                       max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE, 
                       actIter = max.each.iter, actGroupNum = sum(unique(group) != 0), actSetRemove = F,
-                      returnX = FALSE, trace.lambda = FALSE, ...){
+                      returnX = FALSE, trace.lambda = FALSE,...){
   
-  # re-order original data based on observed time (stratified by provider)
-  if (missing(prov.char)){
-    stop("stratum information must be provided!", call. = FALSE)
+  if (missing(prov.char)){ #single intercept
+    warning("Provider information not provided. All data is assumed to originate from a single provider!", call. = FALSE)
+    ID <- matrix(1, nrow = nrow(data))
+    colnames(ID) <- "intercept"
+    data <- data[order(data[, Time.char]), ]
+  } else {
+    # re-order original data based on observed time (stratified by provider)
+    data <- data[order(data[, prov.char], data[, Time.char]), ]
+    #recode prov.ID as {1, 2, 3, .....}
+    unique.prov <- unique(data[, prov.char])
+    prov.ref <- cbind(1:length(unique.prov), unique.prov)
+    colnames(prov.ref) <- c("New.ID", prov.char)
+    ID <- as.matrix(data[, prov.char])  #stratum indicator
+    colnames(ID) <- prov.char
+    ID <- merge(ID, prov.ref, by = prov.char)[, 2, drop = F] # now, ID has been recoded as 1, 2, 3, ....
+    colnames(ID) <- prov.char
   }
-  data <- data[order(data[, prov.char], data[, Time.char]), ]
-  
-  #recode prov.ID as {1, 2, 3, .....}
-  unique.prov <- unique(data[, prov.char])
-  prov.ref <- cbind(1:length(unique.prov), unique.prov)
-  colnames(prov.ref) <- c("New.ID", prov.char)
-  ID <- as.matrix(data[, prov.char])  #stratum indicator
-  colnames(ID) <- prov.char
-  ID <- merge(ID, prov.ref, by = prov.char)[, 2, drop = F] # now, ID has been recoded as 1, 2, 3, ....
-  colnames(ID) <- prov.char
-  
+
   n.each_prov <- table(ID)
 
   initial.group <- group

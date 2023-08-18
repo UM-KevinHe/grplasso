@@ -107,11 +107,12 @@ pp.lasso <- function(data, Y.char, Z.char, prov.char, standardize = T, lambda, n
                      max.total.iter = (max.each.iter * nlambda), actSet = TRUE, actIter = max.each.iter, actVarNum = sum(penalize.x == 1),
                      actSetRemove = F, returnX = FALSE, trace.lambda = FALSE, threads = 1, MM = FALSE, ...){
 
-  if (!is.null(data$included)){
-    data <- data[data$included == 1, ]
-  }
+  #if (!is.null(data$included)){
+  #  data <- data[data$included == 1, ]
+  #}
 
   if (missing(prov.char)){ #single intercept
+    warning("Provider information not provided. All data is assumed to originate from a single provider!", call. = FALSE)
     ID <- matrix(1, nrow = nrow(data))
     colnames(ID) <- "intercept"
     prov.char <- "intercept"

@@ -1583,7 +1583,7 @@ tuple<arma::vec, arma::vec, double, double, int> StratCox_lasso_fit(arma::vec &d
   arma::vec old_beta = beta, r(n_obs), r_shift;
   arma::vec haz(n_obs), rsk(n_obs), h(n_obs); // (1) haz: exp(eta); (2) rsk: sum(eta); (3) h: delta/sum(eta);
   double loss, df, MaxChange_beta, shift, lambda_g;
-  double s, v = 1; // (1) s: l'(eta); (2) v: l''(eta) qpproximate to 1
+  double s, v = 1; // (1) s: l'(eta); (2) v: -l''(eta) qpproximate to 1
   int iter = 0;
 
   while (tol_iter < max_total_iter) {
