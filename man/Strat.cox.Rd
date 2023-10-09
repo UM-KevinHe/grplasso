@@ -105,7 +105,8 @@ and the number of columns is equal to nlambda.}
 \item{iter}{the number of iterations until convergence at each value of \code{lambda}.}
 }
 \description{
-Main function for fitting a penalized stratified cox model
+Main function for fitting a penalized stratified cox model.
+check whether we can use \insertequation{\hat{\gamma}_i} and \eqn{\hat{\gamma}_i}
 }
 \details{
 The model is fit by Newton method and coordinate descent method.

@@ -1,6 +1,6 @@
 #' Fit a penalized stratified cox model
 #'
-#' Main function for fitting a penalized stratified cox model
+#' Main function for fitting a penalized stratified cox model. 
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
