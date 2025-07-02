@@ -6,7 +6,7 @@ template:
     ganalytics: UA-54921687-5
     
 vignettes:
-  - vignettes/ppLasso.Rmd
+  - vignettes/grplasso.Rmd
 
 navbar:
  components:
