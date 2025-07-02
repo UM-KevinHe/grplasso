@@ -13,11 +13,11 @@
 #' @exportS3Method plot cv.ppLasso
 #'
 #' @examples
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
 #' cv.fit.pplasso <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 #' plot(cv.fit.pplasso)
 
@@ -44,7 +44,7 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
           axis.title = element_text(size = 12, family = "serif"))  +
-    theme(axis.text = element_text(face = "italic", size = 11, family = "serif")) +
+    theme(axis.text = element_text(size = 11, family = "serif")) +
     scale_x_continuous(trans = scales::reverse_trans(),
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
 
@@ -63,12 +63,12 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(log(lambda)),
-           y = "cross validation error")
+           y = "Cross Validation Error")
   } else {
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(lambda),
-           y = "cross validation error")
+           y = "Cross Validation Error")
   }
   return(cv.plot)
 }
@@ -86,12 +86,12 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
 #' @exportS3Method plot cv.gr_ppLasso
 #'
 #' @examples
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
-#' group <- GLM_Data$group
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
+#' group <- BinaryData$group
 #' cv.fit.grplasso <- cv.grp.lasso(data, Y.char, Z.char, prov.char, group = group, nfolds = 10)
 #' plot(cv.fit.grplasso)
 #'

@@ -20,19 +20,19 @@
 Return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
-data(GLM_Data)
-data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char
+prov.char <- BinaryData$prov.char
+Z.char <- BinaryData$Z.char
 fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 plot(fit, label = T)
-data(GLM_Data)
-data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
-group <- GLM_Data$group
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char
+prov.char <- BinaryData$prov.char
+Z.char <- BinaryData$Z.char
+group <- BinaryData$group
 fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 plot(fit, label = T)
 }

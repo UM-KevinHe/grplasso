@@ -106,18 +106,17 @@ and the number of columns is equal to nlambda.}
 }
 \description{
 Main function for fitting a penalized stratified cox model.
-check whether we can use \insertequation{\hat{\gamma}_i} and \eqn{\hat{\gamma}_i}
 }
 \details{
 The model is fit by Newton method and coordinate descent method.
 }
 \examples{
-data(Cox_Data)
-data <- Cox_Data$data
-Event.char <- Cox_Data$Event.char
-prov.char <- Cox_Data$prov.char
-Z.char <- Cox_Data$Z.char
-Time.char <- Cox_Data$Time.char
+data(ContTime)
+data <- ContTime$data
+Event.char <- ContTime$Event.char
+prov.char <- ContTime$prov.char
+Z.char <- ContTime$Z.char
+Time.char <- ContTime$Time.char
 fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 fit$beta[, 1:5]
 

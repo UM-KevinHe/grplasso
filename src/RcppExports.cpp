@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // Z_max_grLasso
 double Z_max_grLasso(arma::mat& x, arma::vec& r, arma::vec& K, arma::vec& m);
-RcppExport SEXP _ppLasso_Z_max_grLasso(SEXP xSEXP, SEXP rSEXP, SEXP KSEXP, SEXP mSEXP) {
+RcppExport SEXP _grplasso_Z_max_grLasso(SEXP xSEXP, SEXP rSEXP, SEXP KSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,7 +27,7 @@ END_RCPP
 }
 // Deviance
 double Deviance(arma::vec& Y, arma::vec& p);
-RcppExport SEXP _ppLasso_Deviance(SEXP YSEXP, SEXP pSEXP) {
+RcppExport SEXP _grplasso_Deviance(SEXP YSEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,7 @@ END_RCPP
 }
 // DiscSurv_residuals
 arma::vec DiscSurv_residuals(int n_obs, arma::vec& delta_obs, arma::vec& time, arma::vec& alpha, arma::vec& eta);
-RcppExport SEXP _ppLasso_DiscSurv_residuals(SEXP n_obsSEXP, SEXP delta_obsSEXP, SEXP timeSEXP, SEXP alphaSEXP, SEXP etaSEXP) {
+RcppExport SEXP _grplasso_DiscSurv_residuals(SEXP n_obsSEXP, SEXP delta_obsSEXP, SEXP timeSEXP, SEXP alphaSEXP, SEXP etaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -54,7 +54,7 @@ END_RCPP
 }
 // predict_linear_predictor
 arma::mat predict_linear_predictor(int n_lambda, int n_obs, int expand_n_obs, arma::vec& time, arma::mat& gamma, arma::mat& eta);
-RcppExport SEXP _ppLasso_predict_linear_predictor(SEXP n_lambdaSEXP, SEXP n_obsSEXP, SEXP expand_n_obsSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP etaSEXP) {
+RcppExport SEXP _grplasso_predict_linear_predictor(SEXP n_lambdaSEXP, SEXP n_obsSEXP, SEXP expand_n_obsSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP etaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -70,7 +70,7 @@ END_RCPP
 }
 // pp_lasso
 List pp_lasso(arma::vec& Y, arma::mat& Z, arma::vec& n_prov, arma::vec& gamma, arma::vec& beta, int K0, arma::vec& K1, arma::vec& lambda_seq, bool lambda_early_stop, double stop_dev_ratio, arma::vec& penalized_multiplier, int max_total_iter, int max_each_iter, double tol, double nullDev, bool backtrack, bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, bool single_intercept, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove);
-RcppExport SEXP _ppLasso_pp_lasso(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_dev_ratioSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP nullDevSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP single_interceptSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
+RcppExport SEXP _grplasso_pp_lasso(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_dev_ratioSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP nullDevSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP single_interceptSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -107,7 +107,7 @@ END_RCPP
 }
 // grp_lasso
 List grp_lasso(arma::vec& Y, arma::mat& Z, arma::vec& n_prov, arma::vec& gamma, arma::vec& beta, int K0, arma::vec& K1, arma::vec& lambda_seq, bool lambda_early_stop, double stop_dev_ratio, arma::vec& group_multiplier, int max_total_iter, int max_each_iter, double tol, double nullDev, bool backtrack, double bound, int initial_active_group, double nvar_max, double group_max, bool trace_lambda, bool single_intercept, int threads, bool actSet, int actIter, int activeGroupNum, bool actSetRemove);
-RcppExport SEXP _ppLasso_grp_lasso(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_dev_ratioSEXP, SEXP group_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP nullDevSEXP, SEXP backtrackSEXP, SEXP boundSEXP, SEXP initial_active_groupSEXP, SEXP nvar_maxSEXP, SEXP group_maxSEXP, SEXP trace_lambdaSEXP, SEXP single_interceptSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeGroupNumSEXP, SEXP actSetRemoveSEXP) {
+RcppExport SEXP _grplasso_grp_lasso(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_dev_ratioSEXP, SEXP group_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP nullDevSEXP, SEXP backtrackSEXP, SEXP boundSEXP, SEXP initial_active_groupSEXP, SEXP nvar_maxSEXP, SEXP group_maxSEXP, SEXP trace_lambdaSEXP, SEXP single_interceptSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeGroupNumSEXP, SEXP actSetRemoveSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -144,7 +144,7 @@ END_RCPP
 }
 // pp_DiscSurv_lasso
 List pp_DiscSurv_lasso(arma::vec& delta_obs, int max_timepoint, arma::mat& Z, arma::vec& n_prov, arma::vec& time, arma::vec& gamma, arma::vec& beta, arma::vec& alpha, int K0, arma::vec& K1, arma::vec& sum_failure, arma::vec failure_each_center, arma::vec& lambda_seq, arma::vec& penalized_multiplier, int max_total_iter, int max_each_iter, double tol, bool backtrack, bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove);
-RcppExport SEXP _ppLasso_pp_DiscSurv_lasso(SEXP delta_obsSEXP, SEXP max_timepointSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP alphaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP sum_failureSEXP, SEXP failure_each_centerSEXP, SEXP lambda_seqSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
+RcppExport SEXP _grplasso_pp_DiscSurv_lasso(SEXP delta_obsSEXP, SEXP max_timepointSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP alphaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP sum_failureSEXP, SEXP failure_each_centerSEXP, SEXP lambda_seqSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -182,7 +182,7 @@ END_RCPP
 }
 // DiscSurv_lasso
 List DiscSurv_lasso(arma::vec& delta_obs, int max_timepoint, arma::mat& Z, arma::vec& time, arma::vec& gamma, arma::vec& beta, int K0, arma::vec& K1, arma::vec& sum_failure, arma::vec& lambda_seq, arma::vec& penalized_multiplier, int max_total_iter, int max_each_iter, double tol, bool backtrack, bool MM, double bound, int initial_active_var, double nvar_max, bool trace_lambda, int threads, bool actSet, int actIter, int activeVarNum, bool actSetRemove);
-RcppExport SEXP _ppLasso_DiscSurv_lasso(SEXP delta_obsSEXP, SEXP max_timepointSEXP, SEXP ZSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP sum_failureSEXP, SEXP lambda_seqSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
+RcppExport SEXP _grplasso_DiscSurv_lasso(SEXP delta_obsSEXP, SEXP max_timepointSEXP, SEXP ZSEXP, SEXP timeSEXP, SEXP gammaSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP sum_failureSEXP, SEXP lambda_seqSEXP, SEXP penalized_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP backtrackSEXP, SEXP MMSEXP, SEXP boundSEXP, SEXP initial_active_varSEXP, SEXP nvar_maxSEXP, SEXP trace_lambdaSEXP, SEXP threadsSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeVarNumSEXP, SEXP actSetRemoveSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -217,7 +217,7 @@ END_RCPP
 }
 // StratCox_lasso
 List StratCox_lasso(arma::vec& delta_obs, arma::mat& Z, arma::vec& n_each_prov, arma::vec& beta, int K0, arma::vec& K1, arma::vec& lambda_seq, bool lambda_early_stop, double stop_loss_ratio, arma::vec& group_multiplier, int max_total_iter, int max_each_iter, double tol, int initial_active_group, double nvar_max, double group_max, bool trace_lambda, bool actSet, int actIter, int activeGroupNum, bool actSetRemove);
-RcppExport SEXP _ppLasso_StratCox_lasso(SEXP delta_obsSEXP, SEXP ZSEXP, SEXP n_each_provSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_loss_ratioSEXP, SEXP group_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP initial_active_groupSEXP, SEXP nvar_maxSEXP, SEXP group_maxSEXP, SEXP trace_lambdaSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeGroupNumSEXP, SEXP actSetRemoveSEXP) {
+RcppExport SEXP _grplasso_StratCox_lasso(SEXP delta_obsSEXP, SEXP ZSEXP, SEXP n_each_provSEXP, SEXP betaSEXP, SEXP K0SEXP, SEXP K1SEXP, SEXP lambda_seqSEXP, SEXP lambda_early_stopSEXP, SEXP stop_loss_ratioSEXP, SEXP group_multiplierSEXP, SEXP max_total_iterSEXP, SEXP max_each_iterSEXP, SEXP tolSEXP, SEXP initial_active_groupSEXP, SEXP nvar_maxSEXP, SEXP group_maxSEXP, SEXP trace_lambdaSEXP, SEXP actSetSEXP, SEXP actIterSEXP, SEXP activeGroupNumSEXP, SEXP actSetRemoveSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -248,7 +248,7 @@ END_RCPP
 }
 // SerBIN
 List SerBIN(arma::vec& Y, arma::mat& Z, arma::vec& n_prov, arma::vec gamma, arma::vec beta);
-RcppExport SEXP _ppLasso_SerBIN(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP) {
+RcppExport SEXP _grplasso_SerBIN(SEXP YSEXP, SEXP ZSEXP, SEXP n_provSEXP, SEXP gammaSEXP, SEXP betaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -263,7 +263,7 @@ END_RCPP
 }
 // NR_residuals
 List NR_residuals(arma::vec t, arma::mat X, arma::vec delta_obs, arma::vec alpha, arma::vec beta, double tol, int max_iter);
-RcppExport SEXP _ppLasso_NR_residuals(SEXP tSEXP, SEXP XSEXP, SEXP delta_obsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP tolSEXP, SEXP max_iterSEXP) {
+RcppExport SEXP _grplasso_NR_residuals(SEXP tSEXP, SEXP XSEXP, SEXP delta_obsSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP tolSEXP, SEXP max_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -280,21 +280,21 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ppLasso_Z_max_grLasso", (DL_FUNC) &_ppLasso_Z_max_grLasso, 4},
-    {"_ppLasso_Deviance", (DL_FUNC) &_ppLasso_Deviance, 2},
-    {"_ppLasso_DiscSurv_residuals", (DL_FUNC) &_ppLasso_DiscSurv_residuals, 5},
-    {"_ppLasso_predict_linear_predictor", (DL_FUNC) &_ppLasso_predict_linear_predictor, 6},
-    {"_ppLasso_pp_lasso", (DL_FUNC) &_ppLasso_pp_lasso, 27},
-    {"_ppLasso_grp_lasso", (DL_FUNC) &_ppLasso_grp_lasso, 27},
-    {"_ppLasso_pp_DiscSurv_lasso", (DL_FUNC) &_ppLasso_pp_DiscSurv_lasso, 28},
-    {"_ppLasso_DiscSurv_lasso", (DL_FUNC) &_ppLasso_DiscSurv_lasso, 25},
-    {"_ppLasso_StratCox_lasso", (DL_FUNC) &_ppLasso_StratCox_lasso, 21},
-    {"_ppLasso_SerBIN", (DL_FUNC) &_ppLasso_SerBIN, 5},
-    {"_ppLasso_NR_residuals", (DL_FUNC) &_ppLasso_NR_residuals, 7},
+    {"_grplasso_Z_max_grLasso", (DL_FUNC) &_grplasso_Z_max_grLasso, 4},
+    {"_grplasso_Deviance", (DL_FUNC) &_grplasso_Deviance, 2},
+    {"_grplasso_DiscSurv_residuals", (DL_FUNC) &_grplasso_DiscSurv_residuals, 5},
+    {"_grplasso_predict_linear_predictor", (DL_FUNC) &_grplasso_predict_linear_predictor, 6},
+    {"_grplasso_pp_lasso", (DL_FUNC) &_grplasso_pp_lasso, 27},
+    {"_grplasso_grp_lasso", (DL_FUNC) &_grplasso_grp_lasso, 27},
+    {"_grplasso_pp_DiscSurv_lasso", (DL_FUNC) &_grplasso_pp_DiscSurv_lasso, 28},
+    {"_grplasso_DiscSurv_lasso", (DL_FUNC) &_grplasso_DiscSurv_lasso, 25},
+    {"_grplasso_StratCox_lasso", (DL_FUNC) &_grplasso_StratCox_lasso, 21},
+    {"_grplasso_SerBIN", (DL_FUNC) &_grplasso_SerBIN, 5},
+    {"_grplasso_NR_residuals", (DL_FUNC) &_grplasso_NR_residuals, 7},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_ppLasso(DllInfo *dll) {
+RcppExport void R_init_grplasso(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

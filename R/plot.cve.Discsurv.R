@@ -13,11 +13,11 @@
 #' @exportS3Method plot cv.DiscSurv
 #'
 #' @examples
-#' data(Surv_Data)
-#' data <- Surv_Data$data
-#' Event.char <- Surv_Data$Event.char
-#' Z.char <- Surv_Data$Z.char
-#' Time.char <- Surv_Data$Time.char
+#' data(DiscTime)
+#' data <- DiscTime$data
+#' Event.char <- DiscTime$Event.char
+#' Z.char <- DiscTime$Z.char
+#' Time.char <- DiscTime$Time.char
 #' cv.fit.DiscSurv <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10)
 #' plot(cv.fit.DiscSurv)
 
@@ -44,7 +44,7 @@ plot.cv.DiscSurv <- function(fit, log.x = T, vertical.line = T, col.vertical.lin
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
           axis.title = element_text(size = 12, family = "serif"))  +
-    theme(axis.text = element_text(face = "italic", size = 11, family = "serif")) +
+    theme(axis.text = element_text(size = 11, family = "serif")) +
     scale_x_continuous(trans = scales::reverse_trans(),
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
   
@@ -63,12 +63,12 @@ plot.cv.DiscSurv <- function(fit, log.x = T, vertical.line = T, col.vertical.lin
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(log(lambda)),
-           y = "cross validation error")
+           y = "Cross Validation Error")
   } else {
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(lambda),
-           y = "cross validation error")
+           y = "Cross Validation Error")
   }
   return(cv.plot)
 }

@@ -60,11 +60,11 @@ An object with S3 class \code{cv.DiscSurv}.
 Performs k-fold cross validation for penalized discrete survival model (without provider information) over a grid of values of regularization parameter lambda.
 }
 \examples{
-data(Surv_Data)
-data <- Surv_Data$data
-Event.char <- Surv_Data$Event.char
-Z.char <- Surv_Data$Z.char
-Time.char <- Surv_Data$Time.char
+data(DiscTime)
+data <- DiscTime$data
+Event.char <- DiscTime$Event.char
+Z.char <- DiscTime$Z.char
+Time.char <- DiscTime$Time.char
 cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
 cv.fit$cve
 cv.fit$lambda.min

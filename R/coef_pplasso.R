@@ -16,11 +16,11 @@
 #'
 #' @examples
 #' #fit glm without grouped covariates
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
 #' fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 #' coef(fit, lambda = fit$lambda)$beta[, 1:10]
 #' coef(fit, lambda = fit$lambda)$gamma[1:10, 1:5]
@@ -69,12 +69,12 @@ coef.ppLasso <- function(fit, lambda, which=1:length(fit$lambda), drop = TRUE, .
 #'
 #' @examples
 #' #fit glm with grouped covariates
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
-#' group <- GLM_Data$group
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
+#' group <- BinaryData$group
 #' fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 #' coef(fit, lambda = fit$lambda)$beta[, 1:5]
 #' coef(fit, lambda = fit$lambda)$gamma[1:10, 1:5]

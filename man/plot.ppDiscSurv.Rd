@@ -17,12 +17,12 @@
 Return the plot the regularization path from a \code{ppDiscSurv} object
 }
 \examples{
-data(Surv_Data)
-data <- Surv_Data$data
-Event.char <- Surv_Data$Event.char
-prov.char <- Surv_Data$prov.char
-Z.char <- Surv_Data$Z.char
-Time.char <- Surv_Data$Time.char
+data(DiscTime)
+data <- DiscTime$data
+Event.char <- DiscTime$Event.char
+prov.char <- DiscTime$prov.char
+Z.char <- DiscTime$Z.char
+Time.char <- DiscTime$Time.char
 fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
 plot(fit, label = T)
 }

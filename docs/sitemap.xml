@@ -1,126 +1,46 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/404.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/articles/Models.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/articles/ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/index.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/Cox_Data.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/ExampleData.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/GLM_Data.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/Strat.cox.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/Surv_Data.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.ppDiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/coef.strat_cox.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.grp.lasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.pp.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.pp.lasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/cv.strat_cox.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/grp.lasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/linear_data.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.gr_ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.ppDiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.cv.strat_cox.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.gr_ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.ppDiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/plot.strat_cox.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/pp.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/pp.lasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.DiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.ppDiscSurv.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.ppLasso.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/predict.strat_cox.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/UM-KevinHe/grplasso/reference/prof_lkd.linear.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://um-kevinhe.github.io/grplasso/404.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/articles/grplasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/articles/index.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/articles/Models.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/articles/ppLasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/authors.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/index.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/BinaryData.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/coef.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/coef.ppDiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/coef.ppLasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/coef.strat_cox.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/ContTime.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/Cox_Data.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/cv.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/cv.grp.lasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/cv.pp.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/cv.pp.lasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/cv.strat_cox.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/DiscTime.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/ExampleData.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/GLM_Data.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/grp.lasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/index.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/linear_data.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.cv.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.cv.ppDiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.cv.ppLasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.cv.strat_cox.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.ppDiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.ppLasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/plot.strat_cox.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/pp.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/pp.lasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/predict.DiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/predict.ppDiscSurv.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/predict.ppLasso.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/predict.strat_cox.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/prof_lkd.linear.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/Strat.cox.html</loc></url>
+<url><loc>https://um-kevinhe.github.io/grplasso/reference/Surv_Data.html</loc></url>
 </urlset>
+

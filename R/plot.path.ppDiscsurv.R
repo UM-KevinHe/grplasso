@@ -13,12 +13,12 @@
 #' @exportS3Method plot ppDiscSurv
 #'
 #' @examples
-#' data(Surv_Data)
-#' data <- Surv_Data$data
-#' Event.char <- Surv_Data$Event.char
-#' prov.char <- Surv_Data$prov.char
-#' Z.char <- Surv_Data$Z.char
-#' Time.char <- Surv_Data$Time.char
+#' data(DiscTime)
+#' data <- DiscTime$data
+#' Event.char <- DiscTime$Event.char
+#' prov.char <- DiscTime$prov.char
+#' Z.char <- DiscTime$Z.char
+#' Time.char <- DiscTime$Time.char
 #' fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
 #' plot(fit, label = T)
 
@@ -40,12 +40,12 @@ plot.ppDiscSurv <- function(fit, log.x = T, label = F){
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
           axis.title = element_text(size = 12, family = "serif")) +
-    theme(axis.text = element_text(face = "italic", size = 11)) +
+    theme(axis.text = element_text(size = 11)) +
     scale_x_continuous(trans = scales::reverse_trans(), breaks = round(seq(round(max(iter.num), 0), round(min(iter.num), 0), by = - 1), 1))
   
   if (label == T) {
     Regularization.path <- Regularization.path +
-      theme(legend.text = element_text(size = 8, face = "italic", family = "serif"),
+      theme(legend.text = element_text(size = 8, family = "serif"),
             legend.text.align = 0, legend.title = element_blank(),
             legend.title.align = 0.5) +
       scale_color_manual(values = 1:nrow(beta), name = expression(paste(beta)),

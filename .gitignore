@@ -6,3 +6,9 @@
 .Rproj
 .Rbuildignore
 inst/doc
+
+src/*.o
+src/*.so
+
+*.dll
+*.dylib

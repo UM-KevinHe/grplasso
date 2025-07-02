@@ -650,11 +650,11 @@ tuple<arma::vec, arma::vec, arma::vec, double, double, int> grp_lasso_fit(arma::
   double Dev, df, MaxChange_beta, shift, lambda_g, v = 0.25;
   int iter = 0;
 
-  while (tol_iter < max_total_iter) {
+  while (tol_iter < max_total_iter && iter < max_each_iter) {
     int inner_loop_iter = -1;
     inner_loop_iter = inner_loop_iter +1; //just for removing unused warning.
     R_CheckUserInterrupt();
-    while (tol_iter < max_total_iter && iter < max_each_iter) {
+    while (tol_iter < max_total_iter && iter < max_each_iter && inner_loop_iter < actIter) { //within each active set
       R_CheckUserInterrupt();
       df = 0;
       tol_iter++;
@@ -749,7 +749,7 @@ tuple<arma::vec, arma::vec, arma::vec, double, double, int> grp_lasso_fit(arma::
       // update penalized beta
       // note that all groups are iterated without "active set method"
       for (int g = 0; g < n_group; g++){
-        if (active_group(g) == 1){
+        if (active_group(g) == 1){ 
           lambda_g = lambda * group_multiplier(g);
           gd_glm_grplasso(beta, Z, r, eta, old_beta, g, K1, n_obs, lambda_g, df, MaxChange_beta);
         }

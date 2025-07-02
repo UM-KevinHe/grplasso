@@ -109,7 +109,7 @@ Simulation_data_GroupLasso <- function(ls, prov.size.mean = 80, unpenalized.beta
 }
 
 
-##################---------Discrete Survival----------##################
+##################---------Discrete Survival Model----------##################
 # ls <- list(n.center = 1000, n.beta = 5, n.time.point = 10, n.groups = 5, prop.outlier.center = 0, prop.NonZero.group = 1)
 # data <- sim.disc(ls, censor_max_t = 10, non_integer_time = F)$data
 sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8, prov.size.mean = 80, 

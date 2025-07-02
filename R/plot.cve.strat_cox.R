@@ -13,12 +13,12 @@
 #' @exportS3Method plot cv.strat_cox
 #'
 #' @examples
-#' data(Cox_Data)
-#' data <- Cox_Data$data
-#' Event.char <- Cox_Data$Event.char
-#' prov.char <- Cox_Data$prov.char
-#' Z.char <- Cox_Data$Z.char
-#' Time.char <- Cox_Data$Time.char
+#' data(ContTime)
+#' data <- ContTime$data
+#' Event.char <- ContTime$Event.char
+#' prov.char <- ContTime$prov.char
+#' Z.char <- ContTime$Z.char
+#' Time.char <- ContTime$Time.char
 #' cv.fit.strat_cox <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10)
 #' plot(cv.fit.strat_cox)
 
@@ -45,7 +45,7 @@ plot.cv.strat_cox <- function(fit, log.x = T, vertical.line = T, col.vertical.li
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
           axis.title = element_text(size = 12, family = "serif"))  +
-    theme(axis.text = element_text(face = "italic", size = 11, family = "serif")) +
+    theme(axis.text = element_text(size = 11, family = "serif")) +
     scale_x_continuous(trans = scales::reverse_trans(),
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
   
@@ -64,12 +64,12 @@ plot.cv.strat_cox <- function(fit, log.x = T, vertical.line = T, col.vertical.li
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(log(lambda)),
-           y = "cross validation error")
+           y = "Cross Validation Error")
   } else {
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(lambda),
-           y = "cross validation error")
+           y = "Cross Validation Error")
   }
   return(cv.plot)
 }

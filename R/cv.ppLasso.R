@@ -41,11 +41,11 @@
 #' @export
 #'
 #' @examples
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
 #' cv.fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 #' # the best lambda using cross validation
 #' cv.fit$lambda.min

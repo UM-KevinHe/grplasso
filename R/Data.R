@@ -1,9 +1,9 @@
-#' Example data for generalize linear model
+#' Example data for generalized linear models
 #'
 #' A simulated data set containing response variable, provider information and 5 covariates.
-#' @name GLM_Data
+#' @name BinaryData
 #' @docType data
-#' @usage data(GLM_Data)
+#' @usage data(BinaryData)
 #' @keywords datasets
 #'
 #' @format A list containing the following elements:
@@ -17,18 +17,18 @@
 #' }
 #' 
 #' @examples
-#' data(GLM_Data)
-#' data <- GLM_Data$data
+#' data(BinaryData)
+#' data <- BinaryData$data
 #' head(data)
 #' 
-"GLM_Data"
+"BinaryData"
 
-#' Example data for discrete survival model
+#' Example data for discrete survival models
 #'
 #' A simulated data set containing observation time, event indicator, provider information and 5 covariates.
-#' @name Surv_Data
+#' @name DiscTime
 #' @docType data
-#' @usage data(Surv_Data)
+#' @usage data(DiscTime)
 #' @keywords datasets
 #' 
 #' @format A list containing the following elements:
@@ -41,17 +41,17 @@
 #' }
 #' 
 #' @examples
-#' data(Surv_Data)
-#' data <- Surv_Data$data
+#' data(DiscTime)
+#' data <- DiscTime$data
 #' head(data)
-"Surv_Data"
+"DiscTime"
 
-#' Example data for Cox model
+#' Example data for Cox models
 #'
 #' A simulated data set containing observation time, event indicator, provider information and 5 covariates.
-#' @name Cox_Data
+#' @name ContTime
 #' @docType data
-#' @usage data(Cox_Data)
+#' @usage data(ContTime)
 #' @keywords datasets
 #' 
 #' @format A list containing the following elements:
@@ -64,29 +64,9 @@
 #' }
 #' 
 #' @examples
-#' data(Cox_Data)
-#' data <- Cox_Data$data
+#' data(ContTime)
+#' data <- ContTime$data
 #' head(data)
-"Cox_Data"
+"ContTime"
 
-#' Example data for linear model
-#'
-#' A simulated data set containing response variable, provider information and 10 covariates.
-#' @name linear_data
-#' @docType data
-#' @usage data(linear_data)
-#' @keywords datasets
-#' 
-#' @format A list containing the following elements:
-#' \describe{
-#'   \item{data}{example data.\code{time} represents the observation time; \code{status} is the event indicator; \code{Prov.ID} is the center indicator (include 5 centers); \code{Z1}, ..., \code{Z5} are 5 continuous covariates.}
-#'   \item{Y.char}{variable name of the response variable.}
-#'   \item{prov.char}{variable name of the provider indicator.}
-#'   \item{Z.char}{variable names of covariates.}
-#' }
-#' 
-#' @examples
-#' data(linear_data)
-#' data <- linear_data$data
-#' head(data)
-"linear_data"
+

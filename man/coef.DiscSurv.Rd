@@ -21,11 +21,11 @@
 Return the model coefficients of a \code{DiscSurv} object
 }
 \examples{
-data(Surv_Data)
-data <- Surv_Data$data
-Event.char <- Surv_Data$Event.char
-Z.char <- Surv_Data$Z.char
-Time.char <- Surv_Data$Time.char
+data(DiscTime)
+data <- DiscTime$data
+Event.char <- DiscTime$Event.char
+Z.char <- DiscTime$Z.char
+Time.char <- DiscTime$Time.char
 fit <- DiscSurv(data, Event.char, Z.char, Time.char)
 coef(fit, lambda = fit$lambda)$alpha[, 1:10]
 coef(fit, lambda = fit$lambda)$beta[, 1:10]

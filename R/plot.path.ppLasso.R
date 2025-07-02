@@ -13,11 +13,11 @@
 #' @exportS3Method plot ppLasso
 #'
 #' @examples
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
 #' fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 #' plot(fit, label = T)
 
@@ -39,12 +39,12 @@ plot.ppLasso <- function(fit, log.x = T, label = F){
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
           axis.title = element_text(size = 12, family = "serif")) +
-    theme(axis.text = element_text(face = "italic", size = 11)) +
+    theme(axis.text = element_text(size = 11)) +
     scale_x_continuous(trans = scales::reverse_trans(), breaks = round(seq(round(max(iter.num), 0), round(min(iter.num), 0), by = - 1), 1))
 
   if (label == T) {
     Regularization.path <- Regularization.path +
-      theme(legend.text = element_text(size = 8, face = "italic", family = "serif"),
+      theme(legend.text = element_text(size = 8, family = "serif"),
             legend.text.align = 0, legend.title = element_blank(),
             legend.title.align = 0.5) +
       scale_color_manual(values = 1:nrow(beta), name = expression(paste(beta)),
@@ -81,12 +81,12 @@ plot.ppLasso <- function(fit, log.x = T, label = F){
 #' @exportS3Method plot gr_ppLasso
 #'
 #' @examples
-#' data(GLM_Data)
-#' data <- GLM_Data$data
-#' Y.char <- GLM_Data$Y.char
-#' prov.char <- GLM_Data$prov.char
-#' Z.char <- GLM_Data$Z.char
-#' group <- GLM_Data$group
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
+#' group <- BinaryData$group
 #' fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 #' plot(fit, label = T)
 
@@ -108,12 +108,12 @@ plot.gr_ppLasso <- function(fit, log.x = T, label = F){
           axis.line = element_line(colour = "black")) +
     theme(plot.title = element_text(size = 13, face="bold", family = "serif"),
           axis.title = element_text(size = 12, family = "serif")) +
-    theme(axis.text = element_text(face = "italic", size = 11)) +
+    theme(axis.text = element_text(size = 11)) +
     scale_x_continuous(trans = scales::reverse_trans(), breaks = round(seq(round(max(iter.num), 0), round(min(iter.num), 0), by = - 1), 1))
 
   if (label == T) {
     Regularization.path <- Regularization.path +
-      theme(legend.text = element_text(size = 8, face = "italic", family = "serif"),
+      theme(legend.text = element_text(size = 8, family = "serif"),
             legend.text.align = 0, legend.title = element_blank(),
             legend.title.align = 0.5) +
       scale_color_manual(values = 1:nrow(beta), name = expression(paste(beta)),

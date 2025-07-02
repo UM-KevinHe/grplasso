@@ -17,12 +17,12 @@
 Return the plot the regularization path from a \code{strat_cox} object
 }
 \examples{
-data(Cox_Data)
-data <- Cox_Data$data
-Event.char <- Cox_Data$Event.char
-prov.char <- Cox_Data$prov.char
-Z.char <- Cox_Data$Z.char
-Time.char <- Cox_Data$Time.char
+data(ContTime)
+data <- ContTime$data
+Event.char <- ContTime$Event.char
+prov.char <- ContTime$prov.char
+Z.char <- ContTime$Z.char
+Time.char <- ContTime$Time.char
 fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 plot(fit, label = T)
 }

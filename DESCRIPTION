@@ -1,27 +1,31 @@
-Package: ppLasso
+Package: grplasso
 Type: Package
-Title: Efficient Variable Selection Algorithm for Data with High-Dimensional Center Effects
+Title: Computationally Efficient Variable Selection Framework for Data with High-Dimensional clustered Effects
 Version: 1.0
-Date: 2023-08-11
-Author: Yubo Shao
-Maintainer: Yubo Shao <ybshao@umich.edu>
-Description: Efficient Algorithm for Handling Generalized Linear and Survival Models with a High Volume of Health Centers
-License: GPL (>= 2)
+Date: 2025-07-02
+Authors@R: person("Yubo", "Shao", email = "ybshao@umich.edu", role = c("aut", "cre"))
+Description: A computationally efficient framework for penalized regression modeling of generalized linear and survival models, specifically designed to handle high-dimensional grouped effects in clustered data.
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: 
-    Rcpp (>= 1.0.7),
+    Rcpp,
     dplyr,
     ggplot2,
     survival,
     fastDummies,
     discSurv
-LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 7.2.1
+LinkingTo: 
+    Rcpp, 
+    RcppArmadillo
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+URL: https://github.com/UM-KevinHe/grplasso, https://um-kevinhe.github.io/grplasso/
 Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.2

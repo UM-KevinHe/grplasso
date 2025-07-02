@@ -1,0 +1,251 @@
+---
+title: "grplasso"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{grplasso}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction:
+
+`grplasso` is a specialized R package designed for fitting penalized regression models in settings involving high-dimensional grouped (or clustered) effects. Unlike traditional lasso approaches that treat all covariates equally, grplasso distinguishes and efficiently handles group structures to improve the computational performance.
+
+This tutorial demonstrates how to apply `grplasso` in practice using illustrative example datasets.
+
+
+
+## Installation:
+
+```{r ,include=TRUE,eval=FALSE}
+require("devtools")
+require("remotes")
+remotes::install_github("UM-KevinHe/grplasso", ref = "main")
+```
+
+## Quick Start:
+
+In this section, we will explore the fundamental usage of the functions integrated into the current R package, providing a detailed interpretation of the resulting values obtained from these functions. To enhance users' understanding of the R package, we will employ example datasets, enabling a comprehensive grasp of its functionalities. 
+
+```{r}
+library(grplasso)
+```
+
+### 1. Generalized Linear Models (GLMs)
+
+To exemplify the process of fitting a generalized linear model, we will utilize the "BinaryData" dataset included in the package. This dataset consists of five predictors, an indicator for provider information, and a binary outcome variable. 
+
+```{r}
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char # variable name of outcome variable
+prov.char <- BinaryData$prov.char # variable name of provider indicator
+Z.char <- BinaryData$Z.char # variable names of predictors
+head(data)
+```
+
+#### Without grouped covariate  
+
+The `pp.lasso()` function is employed to fit a generalized linear model when the covariate does not include any group information. When the user does not specify the regularization coefficient $\lambda$, our function automatically generates a sequence of $\lambda$ values by default. The sequence starts with the largest $\lambda$, which penalizes all covariates to zero, and then gradually decreases $\lambda$ to allow for variable selection and modeling flexibility. 
+
+```{r}
+fit <- pp.lasso(data, Y.char, Z.char, prov.char)
+```
+
+The `coef()` function serves to provide estimates of the coefficients in the fitted model. The resulting coefficient matrix is structured such that the column names correspond to the $\lambda$ values used in the modeling process. 
+
+```{r}
+coef(fit)$beta[, 1:5]
+coef(fit)$gamma[1:5, 1:5]
+```
+
+The `plot()` function is designed to generate a figure depicting the regularization path. This path illustrates the behavior of the coefficients for each predictor variable as the regularization parameter $\lambda$ varies. By visualizing the regularization path, users can gain valuable insights into the impact of different regularization strengths on the coefficients, aiding in model interpretation and selection. 
+
+```{r, fig.alt = "Coefficient selection path for the generalized linear model without grouped covariates"}
+plot(fit, label = TRUE)
+
+```
+
+The `predict()` function is utilized to generate model predictions for a given dataset based on the coefficient estimates obtained from the fitted model. Once the model has been trained using the `pp.lasso()` function and the coefficients have been estimated, the predict function can be applied to new data to obtain predictions for the outcome variable. 
+
+This function offers various types of outputs to suit different analysis needs. For instance, when fitting a penalized logistic regression model, using **type = "response"** provides the probabilities of "Y = 1" for each observation, while **type = "class"** provides the predicted class.
+
+```{r}
+predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:5, 1:5]
+predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:5]
+```
+
+#### With grouped covariate  
+
+The utilization of the `grp.lasso()` function is similar to the previously mentioned methods, with the added requirement of providing group information for the covariates. When calling the function, users should provide the necessary group information to ensure proper grouping of variables for regularization. However, if the user does not explicitly provide the group information, the `grp.lasso()` function will automatically assume that each variable is treated as an individual group on its own. This default behavior simplifies the process for users who do not wish to specify explicit groups, ensuring that the function can still be applied effectively without the need for additional input. 
+
+```{r, fig.alt = "Coefficient selection path for the generalized linear model with grouped covariates"}
+group <- BinaryData$group
+fit2 <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
+plot(fit2, label = T)
+```
+
+Please note that for both `pp.lasso()` and `grp.lasso()` functions, the parameter "prov.char" is optional. In the event that the user does not specify the provider information for the observations, the program will automatically assume that all observations originate from the same health provider, resulting in the generation of one common intercept.
+
+```{r}
+fit.no_prov <- pp.lasso(data, Y.char, Z.char)
+coef(fit.no_prov)$beta[, 1:5]
+coef(fit.no_prov)$gamma[1:5] #"gamma" is treated as the common intercept
+```
+
+#### Regularization parameter selection for GLM problems 
+
+The optimal regularization parameter ($\lambda$) is determined through cross-validation. To find the best $\lambda$, users can employ either the `cv.pp.lasso()` or `cv.grp.lasso()` function, depending on the specific type of model they are working with. These cross-validation functions inherit the parameters required for the model fitting process, providing a seamless and straightforward experience for users. By default, both functions utilize 10-fold cross-validation.
+
+```{r}
+fit <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
+```
+
+The `plot()` function, applied to a `cv.pp.lasso` or `cv.grp.lasso` object, generates a figure that enables users to assess how the cross-entropy loss changes with varying values of $\lambda$. By observing the plot, users can easily identify the point at which the cross-entropy loss is minimized.
+
+```{r, fig.alt = "Regularization parameter selection for GLM problems"}
+plot(fit)
+```
+
+Indeed, users can directly use the *fit$lambda.min* command to obtain the optimal value of $\lambda$.
+
+```{r}
+fit$lambda.min
+```
+
+### 2. Discrete Survival Models
+
+The `pp.DiscSurv()` function is utilized for fitting a penalized discrete survival model. In contrast to the current R package, this function does not necessitate data expansion based on discrete time points, resulting in a significant reduction in memory usage and convergence time required for operation.
+
+The `DiscTime` dataset, included in this package, comprises of 5 covariates, provider information, observation time, and event indicator. We will be using this dataset as an example to illustrate how to utilize it.
+
+
+```{r}
+data(DiscTime)
+data <- DiscTime$data
+Event.char <- DiscTime$Event.char
+Time.char <- DiscTime$Time.char
+head(data)
+```
+
+```{r}
+fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
+```
+
+The `pp.DiscSurv()` function yields three main sets of coefficients as its primary output. These coefficients pertain to the covariate estimates, log-transformed baseline hazard for various time points, and provider effects. To avoid multicollinearity problems, we designate the first provider as the reference group.
+
+Similar to the GLM fitting functions mentioned earlier, `pp.DiscSurv()` is also furnished with a `coef()` function. This function facilitates the provision of coefficient estimates within the fitted penalized discrete survival model across the entire sequence of $\lambda$ values employed in the modeling procedure.
+
+```{r}
+coef(fit)$beta[, 1:5]
+coef(fit)$gamma[, 1:5]
+coef(fit)$alpha[, 1:5]
+```
+
+Users have the option to utilize the `plot()` function, which generates a figure illustrating the regularization path. This visual representation showcases the behavior of the coefficients for each predictor variable as $\lambda$ varies.
+
+```{r, fig.alt = "Coefficient selection path for the discrete survival model"}
+plot(fit, label = T)
+```
+
+The `predict()` function is employed to generate model predictions for a given dataset using the coefficient estimates obtained from the fitted model. It is essential to note that the discrete time points within the prediction data set must align with the discrete time points used during model fitting. If they do not match, the baseline hazard of mismatches cannot be estimated accurately.
+
+```{r}
+predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[1:5,]
+```
+
+#### Regularization parameter selection for discrete survival models 
+
+The optimal regularization parameter ($\lambda$) is determined through cross-validation, utilizing the cross-validation error as the guiding metric. Users can identify the best $\lambda$ value by employing the `cv.pp.DiscSurv()` function.
+
+```{r}
+fit <- cv.pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+```
+
+Users can either utilize the `plot()` function or directly access the *fit$lambda.min* command to identify the optimal value of $\lambda$ at which the cross-entropy loss is minimized. 
+
+```{r, fig.alt = "Regularization parameter selection for discrete survival models"}
+plot(fit)
+fit$lambda.min
+```
+
+#### Discrete survival model with no grouped (or clusted) information provided
+
+Similar with our GLM-related functions, we present a solution for fitting a discrete survival model without requiring provider information. This approach tackles the issue commonly encountered with existing statistical tools used to fit discrete survival models, which often necessitate data expansion, leading to significantly slow convergence.
+
+For ease of use, we have introduced a new function called `DiscSurv()`, designed to facilitate a similar user experience to `pp.DiscSurv()`. However, the key difference lies in the fact that `DiscSurv()` no longer demands provider information from the user, meaning that all observations are now treated as originating from the same healthcare provider.
+
+Additionally, we have provided the `cv.DiscSurv()` function to aid users in selecting optimal $\lambda$. Moreover, the `coef()`, `predict()`, and `plot()` functions have also been thoughtfully incorporated.
+
+```{r}
+fit <- DiscSurv(data, Event.char, Z.char, Time.char) # no provider information required
+coef(fit, lambda = fit$lambda)$alpha[, 1:10] #time effect
+coef(fit, lambda = fit$lambda)$beta[, 1:10] #covariate coefficient
+```
+
+```{r, fig.alt = "Coefficient selection path for the discrete survival model with no center information provided"}
+plot(fit, label = T)
+```
+
+```{r}
+cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+```
+
+```{r, fig.alt = "Regularization parameter selection for discrete survival models with no center information provided"}
+plot(cv.fit)
+```
+
+```{r}
+predict(fit, data, Event.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = cv.fit$lambda.min)[1:5,]
+```
+
+### 3. Stratified Cox Models
+
+Our R package offers the `Strat.cox()` and `cv.strat_cox()` functions designed for fitting penalized stratified Cox models. In the context of our intended scenario, each healthcare provider is considered a distinct stratum. The functionality of both `Strat.cox()` and `cv.strat_cox()` extends to the incorporation of group information among variables, achieved by configuring the "group" parameter.
+
+We employ the `ContTime` simulation dataset, which is included within this package, to illustrate the utilization of these two functions. This dataset encompasses five covariates, a provider indicator (which serves as stratum information), as well as follow-up time and event indicators.
+
+```{r}
+data(ContTime)
+data <- ContTime$data
+head(data)
+```
+```{r}
+fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
+```
+
+Users can utilize the `coef()` function to obtain coefficient estimates for the covariates across the complete sequence of $\lambda$ values.
+```{r}
+coef(fit)[, 1:5]
+```
+The `plot()` function facilitates users in visualizing the regularization path.
+```{r, fig.alt = "Coefficient selection path for the stratified Cox model with grouped covariates"}
+plot(fit, label = T)
+```
+
+It's important to highlight that the `prov.char` parameter here is also discretionary. In the absence of user input, the program will automatically assign all observations to a single stratum by default. Consequently, the conventional Cox model will be employed for fitting.
+
+```{r}
+fit.no_stratum <- Strat.cox(data, Event.char, Z.char, Time.char)
+coef(fit.no_stratum)[, 1:5]
+```
+
+
+Likewise, the `cv.strat_cox()` function can be employed for cross-validation, and the `plot()` function can be utilized to visualize cross-validation error.
+
+```{r}
+cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
+cv.fit$lambda.min
+```
+
+```{r, fig.alt = "Regularization parameter selection for stratified Cox models"}
+plot(cv.fit)
+```
+

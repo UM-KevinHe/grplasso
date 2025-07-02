@@ -32,19 +32,19 @@
 Return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 }
 \examples{
-data(GLM_Data)
-data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char
+prov.char <- BinaryData$prov.char
+Z.char <- BinaryData$Z.char
 cv.fit.pplasso <- cv.pp.lasso(data, Y.char, Z.char, prov.char, nfolds = 10)
 plot(cv.fit.pplasso)
-data(GLM_Data)
-data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
-group <- GLM_Data$group
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char
+prov.char <- BinaryData$prov.char
+Z.char <- BinaryData$Z.char
+group <- BinaryData$group
 cv.fit.grplasso <- cv.grp.lasso(data, Y.char, Z.char, prov.char, group = group, nfolds = 10)
 plot(cv.fit.grplasso)
 

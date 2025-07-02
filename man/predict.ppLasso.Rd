@@ -59,22 +59,22 @@
 Return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
 }
 \examples{
-data(GLM_Data)
-data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char
+prov.char <- BinaryData$prov.char
+Z.char <- BinaryData$Z.char
 fit <- pp.lasso(data, Y.char, Z.char, prov.char)
 predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
 predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
 predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
 
-data(GLM_Data)
-data <- GLM_Data$data
-Y.char <- GLM_Data$Y.char
-prov.char <- GLM_Data$prov.char
-Z.char <- GLM_Data$Z.char
-group <- GLM_Data$group
+data(BinaryData)
+data <- BinaryData$data
+Y.char <- BinaryData$Y.char
+prov.char <- BinaryData$prov.char
+Z.char <- BinaryData$Z.char
+group <- BinaryData$group
 fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
 predict(fit, data, Z.char, prov.char, lambda = fit$lambda, type = "response")[1:10, 1:5]
 predict(fit, data, Z.char, prov.char, lambda = 0.001, type = "class")[1:10]
