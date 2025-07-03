@@ -147,6 +147,18 @@ newZG.Std.grplasso <- function(data, Z.char, g, m){
   std.Z <- std[[1]]
   center <- std[[2]]
   scale <- std[[3]]
+  
+  small_scales <- which(scale <= 1e-6)
+  if (length(small_vals) > 0) {
+    stop(
+      paste0(
+        "The following variables have (near) constant columns: ",
+        paste(names(scale)[small_vals], collapse = ", ")
+      )
+    )
+  }
+  
+  
   nz <- which(scale > 1e-6)   # non-constant columns
   if (length(nz) != ncol(Z)) {
     std.Z <- std.Z[, nz, drop = F]
@@ -184,6 +196,18 @@ newZG.Unstd.grplasso <- function(data, Z.char, g, m){
     sqrt(sum((x - mean(x))^2)/length(x))
   }
   scale <- apply(as.matrix(Z), 2, mysd)
+  
+  
+  small_scales <- which(scale <= 1e-6)
+  if (length(small_vals) > 0) {
+    stop(
+      paste0(
+        "The following variables have (near) constant columns: ",
+        paste(names(scale)[small_vals], collapse = ", ")
+      )
+    )
+  }
+  
   nz <- which(scale > 1e-6) #remove constant columns
   if (length(nz) != ncol(Z)) {
     std.Z <- Z[, nz, drop = F]

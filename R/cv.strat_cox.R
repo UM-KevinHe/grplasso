@@ -177,7 +177,7 @@ cvf.strat_cox <- function(i, data, Event.char, Z.char, prov.char, Time.char, fol
   cv.args$Z.char <- Z.char
   cv.args$Time.char <- Time.char
   
-  fit.i <- do.call("Strat.cox", cv.args)  #fit the discrete survival model using one training data set (9/10 data)
+  fit.i <- do.call("Strat.cox", cv.args)  #fit the discrete stratified model using one training data set (9/10 data)
   data.i <- data[fold == i, , drop = FALSE]  #current validation data
   yhat.i <- predict(fit.i, data.i, Z.char, lambda = fit.i$lambda, type = "link") # exp(eta) over all given lambda
   list(nl = length(fit.i$lambda), 
