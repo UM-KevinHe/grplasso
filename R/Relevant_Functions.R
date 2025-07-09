@@ -149,11 +149,11 @@ newZG.Std.grplasso <- function(data, Z.char, g, m){
   scale <- std[[3]]
   
   small_scales <- which(scale <= 1e-6)
-  if (length(small_vals) > 0) {
+  if (length(small_scales) > 0) {
     stop(
       paste0(
         "The following variables have (near) constant columns: ",
-        paste(names(scale)[small_vals], collapse = ", ")
+        paste(names(scale)[small_scales], collapse = ", ")
       )
     )
   }
@@ -199,11 +199,11 @@ newZG.Unstd.grplasso <- function(data, Z.char, g, m){
   
   
   small_scales <- which(scale <= 1e-6)
-  if (length(small_vals) > 0) {
+  if (length(small_scales) > 0) {
     stop(
       paste0(
         "The following variables have (near) constant columns: ",
-        paste(names(scale)[small_vals], collapse = ", ")
+        paste(names(scale)[small_scales], collapse = ", ")
       )
     )
   }
