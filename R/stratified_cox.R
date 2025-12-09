@@ -113,21 +113,12 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
     colnames(ID) <- "intercept"
     
     ord <- order(data[, Time.char])  # get ordering index
-    data <- data[ord, ]
   } else {
-    # re-order original data based on observed time (stratified by provider)
-    ord <- order(data[, prov.char], data[, Time.char])  # get ordering index
-    data <- data[ord, ]
-    
-    # recode prov.ID as {1, 2, 3, .....}
-    unique.prov <- unique(data[, prov.char])
-    prov.ref <- cbind(1:length(unique.prov), unique.prov)
-    colnames(prov.ref) <- c("New.ID", prov.char)
-    ID <- as.matrix(data[, prov.char])  # stratum indicator
-    colnames(ID) <- prov.char
-    ID <- merge(ID, prov.ref, by = prov.char)[, 2, drop = FALSE]  # recoded as 1, 2, 3, ...
-    colnames(ID) <- prov.char
+    ID <- as.matrix(match(data[, prov.char], unique(data[, prov.char])))
+    ord <- order(ID, data[, Time.char])
   }
+  data <- data[ord, ]
+  
   
   if (!missing(weight)) {
     if (length(weight) != nrow(data)) {
@@ -149,6 +140,10 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
   Z <- std.Z$std.Z[, , drop = F]
   group <- std.Z$g  
   group.multiplier <- std.Z$m 
+  
+  # print(head(Z, 10))
+  
+  
   
   delta.obs <- data[, Event.char]
   time <- data[, Time.char]
@@ -229,16 +224,24 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
   dimnames(beta) <- list(Z.char, round(lambda, digits = 4))
   colnames(eta) <- round(lambda, digits = 4)
   
+  #recover the original order of linear predictors
+  eta_original <- matrix(NA_real_, nrow = length(ord), ncol = ncol(eta))
+  eta_original[ord, ] <- eta
+  
+  
   result <- structure(list(beta = beta,
                            group = factor(initial.group),
                            lambda = lambda,
                            loss = loss,
-                           linear.predictors = eta,  # rescale beta will not change the linear predictors (Z matrix is also standardized)
+                           linear.predictors = eta_original,  # rescale beta will not change the linear predictors (Z matrix is also standardized)
                            df = df,
                            iter = iter,
                            group.multiplier = group.multiplier),
                       class = "strat_cox")  #define a list for prediction
   if (returnX == TRUE){
+    #recover the original order of standardized design matrix
+    # XX <- matrix(NA_real_, nrow = length(ord), ncol = ncol(std.Z$std.Z))
+    # XX[ord, ] <- Z
     result$returnX <- std.Z
   }
   return(result)

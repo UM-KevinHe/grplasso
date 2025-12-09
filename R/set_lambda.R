@@ -107,7 +107,14 @@ set.lambda.cox <- function(delta.obs, Z, time, ID, beta, weight, group, group.mu
     for (i in unique(ID)){
       rsk <- c(rsk, rev(cumsum(rev(exp(eta[ID == i])))))
     }
-    r <- weight * (delta.obs - exp(eta) * cumsum(delta.obs / rsk))
+    # r <- weight * (delta.obs - exp(eta) * cumsum(delta.obs / rsk))
+    
+    r <- numeric(length(delta.obs))
+    for (i in unique(ID)) {
+      idx <- which(ID == i)
+      r[idx] <- weight[idx] * (delta.obs[idx] - exp(eta[idx]) * cumsum(delta.obs[idx] / rsk[idx]))
+    }
+    
   } else { ## all covariates are penalized
     w <- c()
     h <- c()
@@ -120,6 +127,9 @@ set.lambda.cox <- function(delta.obs, Z, time, ID, beta, weight, group, group.mu
     r <- weight * (delta.obs - h)
     beta.initial <- beta
   }
+  
+  # print(head(Z, 10))
+  
   lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
   lambda.seq[1] <- lambda.seq[1] + 1e-5

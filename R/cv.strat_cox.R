@@ -130,7 +130,14 @@ cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group =
     if (trace.cv == TRUE){
       cat("Starting CV fold #", i, sep="","...\n")
     }
+    
+    
+    
+    #### remark: this following line use "data" not standardized ZG$std.Z, this should be check, it's different with grpreg source code
+    #### see https://github.com/pbreheny/grpreg/blob/master/R/cv-grpreg.R line #164
     res <- cvf.strat_cox(i, data, Event.char, Z.char, prov.char, Time.char, fold, cv.args)
+    
+    
     Y[fold == i, 1:res$nl] <- res$yhat # predicted "eta"
   }
   

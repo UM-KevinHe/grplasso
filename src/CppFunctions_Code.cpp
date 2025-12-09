@@ -1554,8 +1554,28 @@ void gd_stratCox(arma::vec &beta, arma::mat &Z, arma::vec &r, arma::vec &eta, ar
   int K = K1(g + 1) - K1(g); 
   arma::vec beta_initial(K);
   for (int j = K1(g); j < K1(g + 1); j++){
+    // double r_min = r.min();
+    // double r_max = r.max();
+    // double r_mean = arma::mean(r);
+    // double r_median = arma::median(r);
+    // double r_sd = arma::stddev(r);
+
+    // Rcout << "r summary: "
+    //       << "min=" << r_min
+    //       << ", mean=" << r_mean
+    //       << ", median=" << r_median
+    //       << ", sd=" << r_sd
+    //       << ", max=" << r_max
+    //       << std::endl;
+
     beta_initial(j - K1(g)) = mean_crossprod(Z, r, j, n_obs) + old_beta(j);
+
+  //   double aaa = mean_crossprod(Z, r, j, n_obs);
+  // Rcout << "aaa =  " << aaa << endl;
   }
+
+  
+
   double beta_initial_norm = arma::norm(beta_initial, 2);
   double len = Soft_thres(beta_initial_norm, lambda/1); //v = 1
 
@@ -1573,6 +1593,8 @@ void gd_stratCox(arma::vec &beta, arma::mat &Z, arma::vec &r, arma::vec &eta, ar
   if (len > 0){
     df += K * len / beta_initial_norm;
   }
+
+  // Rcout << "beta after update =  " << beta << endl;
 }
 
 double gd_stratCox_BetaChange(arma::mat &Z, arma::vec &r, int g, arma::vec &K1, int n_obs, double lambda){
@@ -1598,10 +1620,11 @@ tuple<arma::vec, arma::vec, double, double, int> StratCox_lasso_fit(arma::vec &d
                                                                     bool actSet, int actIter, int activeGroupNum, bool actSetRemove){
 
   arma::vec old_beta = beta, r(n_obs), r_shift;
-  arma::vec haz(n_obs), rsk(n_obs), h(n_obs); // (1) haz: exp(eta); (2) rsk: sum(eta); (3) h: sum(delta/sum(eta));
+  arma::vec haz(n_obs), rsk(n_obs), h(n_obs); // (1) haz: exp(eta); (2) rsk: sum(exp(eta)); (3) h: sum(delta/sum(eta));
   double loss = 0, df, MaxChange_beta, shift, lambda_g;
   double s, v = 1.0; // (1) s: l'(eta); (2) v: -l''(eta) approximate to 1
   int iter = 0;
+
 
   while (tol_iter < max_total_iter) {
     int inner_loop_iter = -1;
@@ -1645,6 +1668,8 @@ tuple<arma::vec, arma::vec, double, double, int> StratCox_lasso_fit(arma::vec &d
         }
       }
 
+
+
       loss = 0; //loss: current likelihood function (before update beta) without penalty
       for (int i = 0; i < n_obs; i++){
          loss += delta_obs(i) *(weight(i) * eta(i) - log(weight(i) * rsk(i)));
@@ -1663,6 +1688,20 @@ tuple<arma::vec, arma::vec, double, double, int> StratCox_lasso_fit(arma::vec &d
         df++;
       }
 
+      //       double r_min = r.min();
+      // double r_max = r.max();
+      // double r_mean = arma::mean(r);
+      // double r_median = arma::median(r);
+      // double r_sd = arma::stddev(r);
+
+      // Rcout << "Iteration " << iter << "| r summary: "
+      //       << "min=" << r_min
+      //       << ", mean=" << r_mean
+      //       << ", median=" << r_median
+      //       << ", sd=" << r_sd
+      //       << ", max=" << r_max
+      //       << std::endl;
+
       // Update penalized groups
       // note that all groups are iterated if user choose not using the "active set method"
       for (int g = 0; g < n_group; g++){
@@ -1671,6 +1710,7 @@ tuple<arma::vec, arma::vec, double, double, int> StratCox_lasso_fit(arma::vec &d
           gd_stratCox(beta, Z, r, eta, old_beta, g, K1, n_obs, lambda_g, df, MaxChange_beta);
         }
       }
+
       old_beta = beta;
 
       if (MaxChange_beta < tol){
