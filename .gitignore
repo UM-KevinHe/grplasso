@@ -12,3 +12,7 @@ src/*.so
 
 *.dll
 *.dylib
+
+# AI-generated files — do not commit
+CLAUDE.md
+.claude/

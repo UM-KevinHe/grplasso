@@ -64,16 +64,20 @@ cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group =
                          se=c('quick', 'bootstrap'), ...,  nfolds = 10, seed, fold, trace.cv = FALSE){
   if (missing(prov.char)){
     warning("Provider information not provided. All data is assumed to originate from a single provider!", call. = FALSE)
+    sort_ord <- seq_len(nrow(data))
     prov.char <- "intercept"
     data$intercept <- matrix(1, nrow = nrow(data))
   } else {
-    data <- data[order(data[, prov.char], data[, Time.char]), ]
+    sort_ord <- order(data[, prov.char], data[, Time.char])
+    data <- data[sort_ord, ]
   }
-  
+
   # "...": additional arguments to "grp.lasso"
   # "fold": a vector that specifies the fold that observations belongs to
   se <- match.arg(se)
   fit.args <- list(...)
+  # extract weight in sorted data order for use in loss evaluation
+  w_for_loss <- if (!is.null(fit.args$weight)) as.vector(fit.args$weight)[sort_ord] else rep(1.0, nrow(data))
   fit.args$data <- data
   fit.args$Event.char <- Event.char
   fit.args$prov.char <- prov.char
@@ -135,6 +139,7 @@ cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group =
     
     #### remark: this following line use "data" not standardized ZG$std.Z, this should be check, it's different with grpreg source code
     #### see https://github.com/pbreheny/grpreg/blob/master/R/cv-grpreg.R line #164
+    #### 04/08/2026 grpreg always use "standardized" data for cv see https://github.com/pbreheny/grpreg/blob/main/R/cv-grpsurv.R
     res <- cvf.strat_cox(i, data, Event.char, Z.char, prov.char, Time.char, fold, cv.args)
     
     
@@ -155,13 +160,14 @@ cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group =
   ID <- merge(ID, prov.ref, by = prov.char)[, 2, drop = F] 
   colnames(ID) <- prov.char
   
+  w_denom <- sum(w_for_loss * as.vector(delta.obs))  # weighted event count for normalisation
   if (se == "quick") {
-    L <- loss.strat_cox(delta.obs, Y, ID, total=FALSE)
-    cve <- apply(L, 2, sum)/sum(delta.obs)
-    cvse <- apply(L, 2, sd)*sqrt(nrow(L))/sum(delta.obs)
+    L <- loss.strat_cox(delta.obs, Y, ID, weight = w_for_loss, total = FALSE)
+    cve  <- apply(L, 2, sum) / w_denom
+    cvse <- apply(L, 2, sd) * sqrt(nrow(L)) / w_denom
   } else {
-    cve <- as.double(loss.strat_cox(delta.obs, Y, ID, total = TRUE))/sum(delta.obs)
-    cvse <- se.strat_cox(delta.obs, Y, ID)/sum(delta.obs)
+    cve  <- as.double(loss.strat_cox(delta.obs, Y, ID, weight = w_for_loss, total = TRUE)) / w_denom
+    cvse <- se.strat_cox(delta.obs, Y, ID, weight = w_for_loss) / w_denom
   }
 
   min <- which.min(cve)  #find index of lambda with minimum cve
@@ -179,6 +185,9 @@ cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group =
 
 cvf.strat_cox <- function(i, data, Event.char, Z.char, prov.char, Time.char, fold, cv.args){
   cv.args$data <- data[fold != i, , drop = FALSE]  #will not change the (increasing) order of time within each provider
+  if (!is.null(cv.args$weight)) {
+    cv.args$weight <- cv.args$weight[fold != i]  # subset weight to match training fold
+  }
   cv.args$Event.char <- Event.char
   cv.args$prov.char <- prov.char
   cv.args$Z.char <- Z.char
@@ -191,11 +200,17 @@ cvf.strat_cox <- function(i, data, Event.char, Z.char, prov.char, Time.char, fol
        yhat = yhat.i)
 }
 
-se.strat_cox <-function(delta.obs, y.hat, ID, B = 100) {
+se.strat_cox <- function(delta.obs, y.hat, ID, weight = NULL, B = 100) {
+  n <- nrow(y.hat)
+  if (is.null(weight)) weight <- rep(1.0, n)
   cve <- matrix(NA, B, ncol(y.hat))
   for (b in 1:B) {
-    ind <- sort(sample(1:nrow(y.hat), replace=TRUE)) #"sort" to keep the time order
-    cve[b,] <- loss.strat_cox(delta.obs[ind, , drop = F], y.hat[ind, , drop = F], ID[ind, , drop = F])
+    ind <- sort(sample(1:n, replace = TRUE))  # "sort" to keep time order within strata
+    cve[b, ] <- loss.strat_cox(delta.obs[ind, , drop = FALSE],
+                                y.hat[ind,   , drop = FALSE],
+                                ID[ind,       , drop = FALSE],
+                                weight = weight[ind],
+                                total  = TRUE)
   }
   return(apply(cve, 2, sd))
 }

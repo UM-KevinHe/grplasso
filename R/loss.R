@@ -47,19 +47,29 @@ loss.Disc.Surv <- function(Y.i, yhat.i){
   return(val)
 }
 
-loss.strat_cox <- function(delta.obs, y.hat, ID, total=TRUE){
+loss.strat_cox <- function(delta.obs, y.hat, ID, weight = NULL, total = TRUE){
   y.hat <- as.matrix(y.hat)
+  n <- nrow(y.hat)
+  if (is.null(weight)) weight <- rep(1.0, n)
+  weight <- as.vector(weight)
+
   revCumsum.strat <- function(temp.ID){
-    temp.y.hat <- y.hat[which(ID == temp.ID), , drop=FALSE] # "time" still keep increasing order
-    temp.rsk <- apply(temp.y.hat, 2, function(x) rev(cumsum(rev(exp(x)))))
+    idx <- which(ID == temp.ID)
+    temp.y.hat <- y.hat[idx, , drop = FALSE]  # "time" still keeps increasing order
+    temp.w    <- weight[idx]
+    # weighted risk set: rev(cumsum(rev(w * exp(eta)))) for each lambda
+    temp.rsk <- apply(temp.y.hat, 2, function(x) rev(cumsum(rev(temp.w * exp(x)))))
     return(temp.rsk)
   }
   rsk <- do.call(rbind, lapply(1:nrow(unique(ID)), function(i) revCumsum.strat(i)))
-  
+
   if (total == TRUE) {
-    return(-2 * (crossprod(delta.obs, y.hat) - crossprod(delta.obs, log(rsk))))
+    # -2 * sum_i  w_i * delta_i * (eta_i - log(rsk_i))
+    return(-2 * crossprod(weight * delta.obs, y.hat - log(rsk)))
   } else {
-    return(-2 * (y.hat[delta.obs == 1, , drop = FALSE] - log(rsk)[delta.obs == 1, , drop = FALSE]))
+    # per-event weighted contribution (one row per event)
+    idx1 <- which(delta.obs == 1)
+    return(-2 * weight[idx1] * (y.hat[idx1, , drop = FALSE] - log(rsk)[idx1, , drop = FALSE]))
   }
 }
 

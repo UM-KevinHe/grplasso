@@ -1,6 +1,8 @@
 #####----- pplasso & grplasso -----#####
 set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier,
-                                nlambda = 100, lambda.min.ratio = 1e-04){
+                                nlambda = 100, lambda.min.ratio = 1e-04,
+                                firth = FALSE){
+  # *** MODIFIED: added firth parameter ***
   n <- nrow(Z)
   K <- table(group)
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
@@ -13,9 +15,22 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
   } else {
     mean.Y <- sapply(split(Y, ID), mean)
     n.prov <- sapply(split(Y, ID), length)
-    r <- Y - rep(mean.Y, n.prov)
+    # *** MODIFIED: Firth-corrected gamma when beta = 0 ***
+    if (firth) {
+      gamma.init <- log(mean.Y / (1 - mean.Y))
+      # handle boundary cases (Ybar = 0 or 1)
+      gamma.init[is.infinite(gamma.init) & gamma.init > 0] <- 5
+      gamma.init[is.infinite(gamma.init) & gamma.init < 0] <- -5
+      gamma.initial <- FirthGamma(as.double(mean.Y), as.double(n.prov),
+                                  as.double(gamma.init), 50L, 1e-10)
+      mu.obs <- rep(1 / (1 + exp(-gamma.initial)), n.prov)
+      r <- Y - mu.obs
+    } else {
+      r <- Y - rep(mean.Y, n.prov)
+      gamma.initial <- gamma.prov
+    }
+    # *** END MODIFIED ***
     beta.initial <- beta
-    gamma.initial <- gamma.prov
   }
   lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
@@ -92,47 +107,107 @@ set.lambda.DiscSurv <- function(delta.obs, Z, time, alpha, beta, group, group.mu
 }
 
 #####----- stratified cox -----#####
+# set.lambda.cox <- function(delta.obs, Z, time, ID, beta, weight, group, group.multiplier, n.each_prov,
+#                            nlambda = 100, lambda.min.ratio = 1e-04){
+#   K <- table(group)
+#   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
+#   storage.mode(K1) <- "integer"
+#   n <- sum(n.each_prov)
+#   if (K1[1] != 0) {  ## some covariates are not penalized (use cox stratified)
+#     nullFit <- survival::coxph(survival::Surv(time, delta.obs) ~ Z[, group == 0, drop = F] + strata(ID),
+#                                weights = weight)
+#     eta <- nullFit$linear.predictors
+#     beta.initial <- c(nullFit$beta, rep(0, length(beta) - length(nullFit$beta)))
+#     rsk <- c()
+#     for (i in unique(ID)){
+#       rsk <- c(rsk, rev(cumsum(rev(exp(eta[ID == i])))))
+#     }
+#     # r <- weight * (delta.obs - exp(eta) * cumsum(delta.obs / rsk))
+#     
+#     r <- numeric(length(delta.obs))
+#     for (i in unique(ID)) {
+#       idx <- which(ID == i)
+#       r[idx] <- weight[idx] * (delta.obs[idx] - exp(eta[idx]) * cumsum(delta.obs[idx] / rsk[idx]))
+#     }
+#     
+#   } else { ## all covariates are penalized
+#     w <- c()
+#     h <- c()
+#     for (i in 1:nrow(unique(ID))){
+#       temp.w <- 1 / (n.each_prov[i] - (1:n.each_prov[i]) + 1)
+#       w <- c(w, temp.w)
+#       h <- c(h, cumsum(delta.obs[ID == i] * temp.w))
+#     }
+#     
+#     r <- weight * (delta.obs - h)
+#     beta.initial <- beta
+#   }
+#   
+#   # print(head(Z, 10))
+#   
+#   lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
+#   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
+#   lambda.seq[1] <- lambda.seq[1] + 1e-5
+#   ls <- list(beta = beta.initial, lambda.seq = lambda.seq)
+#   return(ls)
+# }
+
+## modified at 04/08/2026
 set.lambda.cox <- function(delta.obs, Z, time, ID, beta, weight, group, group.multiplier, n.each_prov,
                            nlambda = 100, lambda.min.ratio = 1e-04){
   K <- table(group)
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
   storage.mode(K1) <- "integer"
   n <- sum(n.each_prov)
+  
   if (K1[1] != 0) {  ## some covariates are not penalized (use cox stratified)
     nullFit <- survival::coxph(survival::Surv(time, delta.obs) ~ Z[, group == 0, drop = F] + strata(ID),
                                weights = weight)
     eta <- nullFit$linear.predictors
     beta.initial <- c(nullFit$beta, rep(0, length(beta) - length(nullFit$beta)))
+    
+    # weighted risk set: sum_{l >= j} w_l * exp(eta_l), stratified by provider
     rsk <- c()
     for (i in unique(ID)){
-      rsk <- c(rsk, rev(cumsum(rev(exp(eta[ID == i])))))
+      idx <- which(ID == i)
+      wi <- weight[idx]
+      rsk <- c(rsk, rev(cumsum(rev(wi * exp(eta[idx])))))
     }
-    # r <- weight * (delta.obs - exp(eta) * cumsum(delta.obs / rsk))
     
+    # weighted residual: r_j = w_j * (delta_j - exp(eta_j) * sum_{k<=j} w_k*delta_k / rsk_k)
     r <- numeric(length(delta.obs))
     for (i in unique(ID)) {
       idx <- which(ID == i)
-      r[idx] <- weight[idx] * (delta.obs[idx] - exp(eta[idx]) * cumsum(delta.obs[idx] / rsk[idx]))
+      wi <- weight[idx]
+      r[idx] <- wi * (delta.obs[idx] - exp(eta[idx]) * cumsum(wi * delta.obs[idx] / rsk[idx]))
     }
     
   } else { ## all covariates are penalized
-    w <- c()
+    rsk <- c()
     h <- c()
-    for (i in 1:nrow(unique(ID))){
-      temp.w <- 1 / (n.each_prov[i] - (1:n.each_prov[i]) + 1)
-      w <- c(w, temp.w)
-      h <- c(h, cumsum(delta.obs[ID == i] * temp.w))
+    for (i in unique(ID)){
+      idx <- which(ID == i)
+      wi <- weight[idx]
+      di <- delta.obs[idx]
+      
+      # weighted risk set: sum_{l >= j} w_l
+      denom <- rev(cumsum(rev(wi)))
+      
+      # weighted cumulative baseline hazard: sum_{k <= j} w_k * delta_k / denom_k
+      temp.w <- wi / denom
+      rsk <- c(rsk, denom)
+      h <- c(h, cumsum(di * temp.w))
     }
     
+    # weighted residual: r_j = w_j * (delta_j - h_j)
     r <- weight * (delta.obs - h)
     beta.initial <- beta
   }
   
-  # print(head(Z, 10))
-  
-  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier))/n
+  lambda.max <- Z_max_grLasso(Z, r, K1, as.double(group.multiplier)) / n
   lambda.seq <- exp(seq(log(lambda.max), log(lambda.min.ratio * lambda.max), length = nlambda))
   lambda.seq[1] <- lambda.seq[1] + 1e-5
+  
   ls <- list(beta = beta.initial, lambda.seq = lambda.seq)
   return(ls)
 }

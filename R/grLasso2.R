@@ -1,20 +1,14 @@
-#' Fit a penalized stratified cox model
+#' Fit a group penalized generalized regression model
 #'
-#' Main function for fitting a penalized stratified cox model. 
+#' Main function for fitting a group penalized generalized regression model
 #'
 #' @param data an `dataframe` or `list` object that contains the variables in the model.
 #'
-#' @param Event.char name of the event indicator in `data` as a character string. Event indicator should be a 
-#' binary variable with 1 indicating that the event has occurred and 0 indicating (right) censoring.
+#' @param Y.char name of the response variable in `data` as a character string.
 #'
 #' @param Z.char names of covariates in `data` as vector of character strings.
 #'
-#' @param Time.char name of the follow up time in `data` as a character string.
-#' 
-#' @param prov.char name of stratum indicator in `data` as a character string.
-#' If "prov.char" is not specified, all observations are are considered to be from the same stratum.
-#' 
-#' @param weight a vector of weights for each observation in `data`. If not specified, all observations are assumed to have equal weight.
+#' @param prov.char name of provider IDs variable in `data` as a character string. If "prov.char" is not specified, all observations are are considered to be from the same provider.
 #'
 #' @param group a vector describing the grouping of the coefficients. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0").
 #'
@@ -26,16 +20,20 @@
 #'
 #' @param nlambda the number of lambda values. Default is 100.
 #'
-#' @param lambda.min.ratio the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-03.
+#' @param lambda.min.ratio the fraction of the smallest value for lambda with `lambda.max` (smallest lambda for which all coefficients are zero) on log scale. Default is 1e-04.
 #'
 #' @param lambda.early.stop whether the program stop before running the entire sequence of lambda. Early stop based on the ratio of deviance for models under two successive lambda. Default is `FALSE`.
 #'
 #' @param nvar.max number of maximum selected variables. Default is the number of all covariates.
-#' 
+#'
 #' @param group.max number of maximum selected groups. Default is the number of all groups.
 #'
-#' @param stop.loss.ratio if `lambda.early.stop = TRUE`, the ratio of loss for early stopping. Default is 1e-3.
+#' @param stop.dev.ratio if `lambda.early.stop = TRUE`, the ratio of deviance for early stopping. Default is 1e-3.
 #
+#' @param bound a positive number to avoid inflation of provider effect. Default is 10.
+#'
+#' @param backtrack for updating the provider effect, whether to use the "backtracking line search" with Newton method.
+#'
 #' @param tol convergence threshold. For each lambda, the program will stop if the maximum change of covariate coefficient is smaller than `tol`. Default is 1e-4.
 #'
 #' @param max.each.iter maximum number of iterations for each lambda. Default is 1e4.
@@ -53,22 +51,28 @@
 #' @param returnX whether return the standardized design matrix. Default is FALSE.
 #'
 #' @param trace.lambda whether display the progress for fitting the entire path. Default is FALSE.
-#' 
+#'
+#' @param threads number of cores that are used for parallel computing.
+#'
+#' @param firth whether to apply Firth's bias correction to the provider effects (gamma). Default is FALSE. # *** MODIFIED: added firth doc ***
+#'
 #' @param ... extra arguments to be passed to function.
 #'
 #'
-#' @return An object with S3 class \code{strat_cox}.
+#' @return An object with S3 class \code{gr_ppLasso}.
 #'
 #' \item{beta}{the fitted matrix of covariate coefficients.
 #' The number of rows is equal to the number of coefficients,
 #' and the number of columns is equal to nlambda.}
-#' 
+#'
+#' \item{gamma}{the fitted value of provider effects.}
+#'
 #' \item{group}{a vector describing the grouping of the coefficients.}
 #'
 #' \item{lambda}{the sequence of `lambda` values in the path.}
-#' 
-#' \item{loss}{the likelihood of the fitted model at each value of `lambda`.}
-#' 
+#'
+#' \item{loss}{the loss of the fitted model at each value of `lambda`.}
+#'
 #' \item{linear.predictors}{the linear predictors of the fitted model at each value of `lambda`.}
 #'
 #' \item{df}{the estimates of effective number of selected variables all the points along the regularization path.}
@@ -80,14 +84,17 @@
 #' @seealso \code{\link{coef}}, \code{\link{plot}} function.
 #'
 #' @examples
-#' data(ContTime)
-#' data <- ContTime$data
-#' Event.char <- ContTime$Event.char
-#' prov.char <- ContTime$prov.char
-#' Z.char <- ContTime$Z.char
-#' Time.char <- ContTime$Time.char
-#' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
-#' fit$beta[, 1:5]
+#' data(BinaryData)
+#' data <- BinaryData$data
+#' Y.char <- BinaryData$Y.char
+#' prov.char <- BinaryData$prov.char
+#' Z.char <- BinaryData$Z.char
+#' group <- BinaryData$group
+#' fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
+#' # fitted values of covariate coefficients (under the lambda sequence that was automatically generated by the package).
+#' round(fit$beta[1:5, 1:5], 5)
+#' # estimated center effects
+#' round(fit$gamma[1:5, 1:5], 5)
 #'
 #' @importFrom Rcpp evalCpp
 #'
@@ -99,77 +106,78 @@
 #' \emph{Lifetime Data Analysis}, \strong{19}: 490-512.
 #' \cr
 
+# *** MODIFIED: added firth = FALSE parameter ***
+grp.lasso <- function(data, Y.char, Z.char, prov.char, group = 1:length(Z.char), group.multiplier,
+                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, lambda.early.stop = FALSE,
+                      nvar.max = p, group.max = length(unique(group)), stop.dev.ratio = 1e-3, bound = 10.0,
+                      backtrack = FALSE, tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda),
+                      actSet = TRUE, actIter = max.each.iter, actGroupNum = sum(unique(group) != 0), actSetRemove = F,
+                      returnX = FALSE, trace.lambda = FALSE, threads = 1, firth = FALSE, ...){
+# *** END MODIFIED ***
+  #if (!is.null(data$included)){  # data after using preparation function
+  #  data <- data[data$included == 1, ]
+  #}
 
-Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, group = 1:length(Z.char), group.multiplier,
-                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-3, lambda.early.stop = FALSE,
-                      nvar.max = p, group.max = length(unique(group)), stop.loss.ratio = 1e-3, tol = 1e-4, 
-                      max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE, 
-                      actIter = max.each.iter, actGroupNum = sum(unique(group) != 0), actSetRemove = F,
-                      returnX = FALSE, trace.lambda = FALSE,...){
-  
-  if (missing(prov.char)) {  # single intercept
+  if (missing(prov.char)){ #single intercept
     warning("Provider information not provided. All data is assumed to originate from a single provider!", call. = FALSE)
     ID <- matrix(1, nrow = nrow(data))
     colnames(ID) <- "intercept"
-    
-    ord <- order(data[, Time.char])  # get ordering index
+    prov.char <- "intercept"
+    single.intercept <- TRUE
   } else {
-    ID <- as.matrix(match(data[, prov.char], unique(data[, prov.char])))
-    ord <- order(ID, data[, Time.char])
+    data <- data[order(factor(data[, prov.char])),] #data should be sorted by "prov.char"
+    ID <- as.matrix(data[, prov.char])
+    colnames(ID) <- prov.char
+    single.intercept <- FALSE
   }
-  data <- data[ord, ]
-  ID <- ID[ord, , drop = FALSE]   # reorder ID to match sorted data
-
-
-  if (!missing(weight)) {
-    if (length(weight) != nrow(data)) {
-      stop("Length of weight must be equal to the number of rows in data", call. = FALSE)
-    }
-    weight <- weight[ord]
-  } else {
-    weight <- rep(1, nrow(data))
-  }
-  
-  n.each_prov <- table(ID)
 
   initial.group <- group
   if (standardize == T){
     std.Z <- newZG.Std.grplasso(data, Z.char, group, group.multiplier)
+    Z <- std.Z$std.Z[, , drop = F]  # standardized covariate matrix
+    group <- std.Z$g  # new group order
+    group.multiplier <- std.Z$m # new group multiplier
   } else {
     std.Z <- newZG.Unstd.grplasso(data, Z.char, group, group.multiplier)
+    Z <- std.Z$std.Z[, , drop = F]
+    group <- std.Z$g
+    group.multiplier <- std.Z$m
   }
-  Z <- std.Z$std.Z[, , drop = F]
-  group <- std.Z$g  
-  group.multiplier <- std.Z$m 
+  Y <- newY(data, Y.char)
 
-  
-  delta.obs <- data[, Event.char]
-  time <- data[, Time.char]
   p <- ncol(Z)
   nvar.max <- as.integer(nvar.max)
   group.max <- as.integer(group.max)
-  
-  beta <- rep(0, ncol(Z)) #initial value of beta
-  
+
+  n.prov <- sapply(split(Y, ID), length)
+  gamma.prov <- rep(log(mean(Y)/(1 - mean(Y))), length(n.prov))
+  beta <- rep(0, ncol(Z))
+
   if (missing(lambda)) {
     if (nlambda < 2) {
       stop("nlambda must be at least 2", call. = FALSE)
     } else if (nlambda != round(nlambda)){
       stop("nlambda must be a positive integer", call. = FALSE)
     }
-    lambda.fit <- set.lambda.cox(delta.obs, Z, time, ID, beta, weight, group, group.multiplier, n.each_prov,
-                                 nlambda = nlambda, lambda.min.ratio = lambda.min.ratio)
+    lambda.fit <- set.lambda.grplasso(Y, Z, ID, group, n.prov, gamma.prov, beta, group.multiplier,
+                                      nlambda = nlambda, lambda.min.ratio = lambda.min.ratio,
+                                      firth = firth)  # *** MODIFIED: pass firth ***
     lambda.seq <- lambda.fit$lambda.seq
     beta <- lambda.fit$beta
+    gamma.prov <- lambda.fit$gamma
   } else {
     nlambda <- length(lambda)  # Note: lambda can be a single value
     lambda.seq <- as.vector(sort(lambda, decreasing = TRUE))
   }
-  
+
+  # nullDev: theoretical deviance of the model that only contains provider effects
+  mean.Y.obs <- rep(sapply(split(Y, ID), mean), n.prov)
+  nullDev <- Deviance(Y, mean.Y.obs)
+
   K <- as.integer(table(group)) #number of features in each group
   K0 <- as.integer(if (min(group) == 0) K[1] else 0)
   K1 <- as.integer(if (min(group) == 0) cumsum(K) else c(0, cumsum(K)))
-  
+
   initial.active.group <- -1
   if (actSet == TRUE){
     if (K0 == 0){
@@ -178,36 +186,39 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
   } else {
     actIter <- max.each.iter
   }
-  
-  #### 04/08/2026 "weight" term contribution should be rewrite
 
-  fit <- StratCox_lasso(delta.obs, Z, weight, n.each_prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.loss.ratio, 
-                        group.multiplier, max.total.iter, max.each.iter, tol, initial.active.group, nvar.max, 
-                        group.max, trace.lambda, actSet, actIter, actGroupNum, actSetRemove)
-  
+  # main algorithm (note: "MM" algorithm must be used for group lasso problem)
+  # *** MODIFIED: pass firth to grp_lasso ***
+  fit <- grp_lasso(Y, Z, n.prov, gamma.prov, beta, K0, K1, lambda.seq, lambda.early.stop, stop.dev.ratio, group.multiplier,
+                   max.total.iter, max.each.iter, tol, nullDev, backtrack, bound, initial.active.group, nvar.max, group.max,
+                   trace.lambda, single.intercept, threads, actSet, actIter, actGroupNum, actSetRemove,
+                   firth)  # *** MODIFIED: added firth ***
+
+  gamma <- fit$gamma
   beta <- fit$beta
+  loss <- fit$Deviance
   eta <- fit$Eta
   df <- fit$Df
   iter <- fit$iter
-  loss <- fit$loss
-  
+
   # Eliminate saturated lambda values
   ind <- !is.na(iter)
   lambda <- lambda.seq[ind]
   beta <- beta[, ind, drop = FALSE]
+  gamma <- gamma[, ind, drop = FALSE]
   loss <- loss[ind]
   eta <- eta[, ind, drop = FALSE]
   df <- df[ind]
   iter <- iter[ind]
-  
+
   if (iter[1] == max.total.iter){
     stop("Algorithm failed to converge for any values of lambda", call. = FALSE)
   }
   if (sum(iter) == max.total.iter){
     warning("Algorithm failed to converge for all values of lambda", call. = FALSE)
   }
-  
-  
+
+
   # Original scale
   beta <- unorthogonalize(beta, std.Z$std.Z, group)
   rownames(beta) <- colnames(Z)
@@ -215,42 +226,31 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
     beta <- beta[std.Z$ord.inv, , drop = F]
   }
   if (standardize == T) {
-    original.beta <- matrix(0, nrow = length(std.Z$scale), ncol = ncol(beta))
-    original.beta[std.Z$nz, ] <- beta / std.Z$scale[std.Z$nz]
-    beta <- original.beta
+    unstandardize.para <- unstandardize(beta, gamma, std.Z)
+    beta <- unstandardize.para$beta
+    gamma <- unstandardize.para$gamma
   }
-  
+
   # Names
   dimnames(beta) <- list(Z.char, round(lambda, digits = 4))
+  if (nrow(gamma) == 1 & length(lambda.seq) == 1){
+    gamma <- t(gamma)
+  }
+  dimnames(gamma) <- list(names(n.prov), round(lambda, digits = 4))
   colnames(eta) <- round(lambda, digits = 4)
-  
-  #recover the original order of linear predictors
-  eta_original <- matrix(NA_real_, nrow = length(ord), ncol = ncol(eta))
-  eta_original[ord, ] <- eta
-  
-  
+
   result <- structure(list(beta = beta,
+                           gamma = gamma,
                            group = factor(initial.group),
                            lambda = lambda,
                            loss = loss,
-                           linear.predictors = eta_original,  # rescale beta will not change the linear predictors (Z matrix is also standardized)
+                           linear.predictors = eta,
                            df = df,
                            iter = iter,
                            group.multiplier = group.multiplier),
-                      class = "strat_cox")  #define a list for prediction
+                      class = "gr_ppLasso")  #define a list for prediction
   if (returnX == TRUE){
-    #recover the original order of standardized design matrix
-    # XX <- matrix(NA_real_, nrow = length(ord), ncol = ncol(std.Z$std.Z))
-    # XX[ord, ] <- Z
     result$returnX <- std.Z
   }
   return(result)
 }
-
-
-
-
-
-
-
-
