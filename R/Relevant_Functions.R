@@ -76,7 +76,7 @@ standardize.Z <- function(Z){
   new.Z <- scale(as.matrix(Z), scale = apply(as.matrix(Z), 2, mysd))
   center.Z <- attributes(new.Z)$`scaled:center`
   scale.Z <- attributes(new.Z)$`scaled:scale`
-  new.Z <- new.Z[, , drop = F]
+  new.Z <- new.Z[, , drop = FALSE]
   res <- list(new.Z = new.Z, center.Z = center.Z, scale.Z = scale.Z)
   return(res)
 }
@@ -135,7 +135,7 @@ unorthogonalize <- function(beta, Z, group) {
 
 # standardize + orthogonalize covariate matrix
 newZG.Std.grplasso <- function(data, Z.char, g, m){
-  Z <- as.matrix(data[, Z.char, drop = F])
+  Z <- as.matrix(data[, Z.char, drop = FALSE])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
   }
@@ -161,7 +161,7 @@ newZG.Std.grplasso <- function(data, Z.char, g, m){
   
   nz <- which(scale > 1e-6)   # non-constant columns
   if (length(nz) != ncol(Z)) {
-    std.Z <- std.Z[, nz, drop = F]
+    std.Z <- std.Z[, nz, drop = FALSE]
     G <- subsetG(G, nz)
   }
   # Reorder groups
@@ -184,7 +184,7 @@ newZG.Std.grplasso <- function(data, Z.char, g, m){
 
 # Only orthogonalize covariate matrix
 newZG.Unstd.grplasso <- function(data, Z.char, g, m){
-  Z <- as.matrix(data[, Z.char, drop = F])
+  Z <- as.matrix(data[, Z.char, drop = FALSE])
   if (any(is.na(Z))){
     stop("Missing data (NA's) detected in covariate matrix!", call. = FALSE)
   }
@@ -210,7 +210,7 @@ newZG.Unstd.grplasso <- function(data, Z.char, g, m){
   
   nz <- which(scale > 1e-6) #remove constant columns
   if (length(nz) != ncol(Z)) {
-    std.Z <- Z[, nz, drop = F]
+    std.Z <- Z[, nz, drop = FALSE]
     G <- subsetG(G, nz)
   } else {
     std.Z <- Z

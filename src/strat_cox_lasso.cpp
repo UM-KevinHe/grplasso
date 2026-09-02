@@ -219,7 +219,7 @@ List StratCox_lasso(arma::vec &delta_obs, arma::mat &Z, arma::vec &weight, arma:
   for (int l = 0; l < n_lambda; l++) {
     R_CheckUserInterrupt();
     if (trace_lambda == true) {
-      cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
+      Rcpp::Rcout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
 
@@ -236,7 +236,7 @@ List StratCox_lasso(arma::vec &delta_obs, arma::mat &Z, arma::vec &weight, arma:
     iter_vec(l) = iter_l;
 
     if (iter_l == max_each_iter) {
-      cout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
+      Rcpp::Rcout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
     }
 
     int ng = 0, nv = 0;
@@ -248,11 +248,11 @@ List StratCox_lasso(arma::vec &delta_obs, arma::mat &Z, arma::vec &weight, arma:
     }
     if (ng > group_max || nv > nvar_max || tol_iter == max_total_iter) {
       if (tol_iter == max_total_iter) {
-        cout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
       } else if (ng > group_max) {
-        cout << "Algorithm has selected the maximum number of groups, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has selected the maximum number of groups, stops..." << endl;
       } else {
-        cout << "Algorithm has selected the maximum number of variables, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has selected the maximum number of variables, stops..." << endl;
       }
       for (int ll = (l + 1); ll < n_lambda; ll++) { iter_vec(ll) = NA_REAL; }
       break;

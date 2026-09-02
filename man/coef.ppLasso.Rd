@@ -5,12 +5,12 @@
 \alias{coef.gr_ppLasso}
 \title{Extract coefficients of a ppLasso or gr_ppLasso object}
 \usage{
-\method{coef}{ppLasso}(fit, lambda, which = 1:length(fit$lambda), drop = TRUE, ...)
+\method{coef}{ppLasso}(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...)
 
-\method{coef}{gr_ppLasso}(fit, lambda, which = 1:length(fit$lambda), drop = TRUE, ...)
+\method{coef}{gr_ppLasso}(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...)
 }
 \arguments{
-\item{fit}{a \code{ppLasso} or \code{gr_ppLasso} object.}
+\item{object}{a \code{ppLasso} or \code{gr_ppLasso} object.}
 
 \item{lambda}{values of the regularization parameter lambda at which coefficients are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.}
 
@@ -18,7 +18,7 @@
 
 \item{drop}{whether to keep coefficient names}
 
-\item{...}{}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the model coefficients of a \code{ppLasso} or \code{gr_ppLasso} object

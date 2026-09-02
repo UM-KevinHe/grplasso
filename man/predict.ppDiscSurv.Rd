@@ -5,14 +5,14 @@
 \title{Predictions of a ppDiscSurv object}
 \usage{
 \method{predict}{ppDiscSurv}(
-  fit,
+  object,
   data,
   Event.char,
   prov.char,
   Z.char,
   Time.char,
   lambda,
-  which = 1:length(fit$lambda),
+  which = 1:length(object$lambda),
   type = c("response", "vars", "nvars"),
   return.Array = TRUE,
   which.lambda = "all",
@@ -20,7 +20,7 @@
 )
 }
 \arguments{
-\item{fit}{a \code{ppDiscSurv} object.}
+\item{object}{a \code{ppDiscSurv} object.}
 
 \item{data}{an \code{dataframe} or \code{list} object that contains the variables for prediction.}
 
@@ -43,9 +43,11 @@
 \item \code{nvars}: the number of non-zero coefficients
 }}
 
+\item{return.Array}{whether to return the predictions as a 3-dimensional array indexed by subject, time point and lambda.}
+
 \item{which.lambda}{determine which lambda values are included in the output of the prediction. By default, its value is set to "all," resulting in a matrix of predicted values for each lambda presented as a list. However, if specific numeric values are provided, only the predicted matrix corresponding to those specified values will be included in the output.}
 
-\item{...}{}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the model predictions of a \code{ppDiscSurv} object
@@ -58,6 +60,8 @@ prov.char <- DiscTime$prov.char
 Z.char <- DiscTime$Z.char
 Time.char <- DiscTime$Time.char
 fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
-predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[1:5,]
+predict(fit, data, Event.char, prov.char, Z.char, Time.char,
+        lambda = fit$lambda, type = "response",
+        which.lambda = fit$lambda[1])[1:5, ]
 predict(fit, data, Event.char, prov.char, Z.char, Time.char, lambda = 0.04, type = "vars")
 }

@@ -313,7 +313,7 @@ List pp_DiscSurv_lasso(arma::vec &delta_obs, int max_timepoint, arma::mat &Z, ar
   for (int l = 0; l < n_lambda; l++) {
     R_CheckUserInterrupt();
     if (trace_lambda == true) {
-      cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
+      Rcpp::Rcout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
 
@@ -333,7 +333,7 @@ List pp_DiscSurv_lasso(arma::vec &delta_obs, int max_timepoint, arma::mat &Z, ar
     iter_vec(l) = iter_l;
 
     if (iter_l == max_each_iter) {
-      cout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
+      Rcpp::Rcout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
     }
 
     int nv = 0;
@@ -343,9 +343,9 @@ List pp_DiscSurv_lasso(arma::vec &delta_obs, int max_timepoint, arma::mat &Z, ar
 
     if (nv > nvar_max || tol_iter == max_total_iter) {
       if (tol_iter == max_total_iter) {
-        cout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
       } else {
-        cout << "Algorithm has selected the maximum number of penalized variables, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has selected the maximum number of penalized variables, stops..." << endl;
       }
       for (int ll = (l + 1); ll < n_lambda; ll++) { iter_vec(ll) = NA_REAL; }
       break;
@@ -553,7 +553,7 @@ List DiscSurv_lasso(arma::vec &delta_obs, int max_timepoint, arma::mat &Z, arma:
   for (int l = 0; l < n_lambda; l++) {
     R_CheckUserInterrupt();
     if (trace_lambda == true) {
-      cout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
+      Rcpp::Rcout << "processing lambda: " << l + 1 << " (total: " << l + 1 << "/" << n_lambda << ")..." << endl;
     }
     double lambda = lambda_seq(l);
 
@@ -571,7 +571,7 @@ List DiscSurv_lasso(arma::vec &delta_obs, int max_timepoint, arma::mat &Z, arma:
     iter_vec(l) = iter_l;
 
     if (iter_l == max_each_iter) {
-      cout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
+      Rcpp::Rcout << "Warning: lambda " << l + 1 << "/" << n_lambda << " failed to converge within " << max_each_iter << " iterations!" << endl;
     }
 
     int nv = 0;
@@ -581,9 +581,9 @@ List DiscSurv_lasso(arma::vec &delta_obs, int max_timepoint, arma::mat &Z, arma:
 
     if (nv > nvar_max || tol_iter == max_total_iter) {
       if (tol_iter == max_total_iter) {
-        cout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has reached the maximum number of total iterations, stops..." << endl;
       } else {
-        cout << "Algorithm has selected the maximum number of penalized variables, stops..." << endl;
+        Rcpp::Rcout << "Algorithm has selected the maximum number of penalized variables, stops..." << endl;
       }
       for (int ll = (l + 1); ll < n_lambda; ll++) { iter_vec(ll) = NA_REAL; }
       break;

@@ -1,5 +1,26 @@
 ##################---------LINEAR MODEL----------##################
 ## linear_data <- sim.linear(m = 100, n.beta = 10, prov.size.mean = 80, rho = 0.7)
+#' Simulate clustered data with a continuous outcome
+#'
+#' Generates a linear model in which each provider contributes its own random
+#' intercept and the covariates are correlated with that intercept.
+#'
+#' @param m number of providers.
+#' @param n.beta number of covariates.
+#' @param prov.size.mean mean provider size; sizes are Poisson draws floored at 11.
+#' @param rho correlation between the covariates and the provider effect, and
+#'   between any two covariates.
+#'
+#' @return A list with the simulated `data`, the `true.beta` and `true.gamma`
+#'   used to generate it, and the column names `prov.char`, `Z.char`, `Y.char`.
+#'
+#' @examples
+#' set.seed(1)
+#' sim <- sim.linear(m = 10, n.beta = 5, prov.size.mean = 30)
+#' str(sim$data)
+#' sim$true.beta
+#'
+#' @export
 sim.linear <- function(m, n.beta, prov.size.mean = 80, rho = 0.7) {
   prov.size <- pmax(c(rpois(m, prov.size.mean)), 11)
   N <- sum(prov.size) # total number of discharges
@@ -36,7 +57,45 @@ sim.linear <- function(m, n.beta, prov.size.mean = 80, rho = 0.7) {
 #     prop.outlier: proportion of outlying providers
 #              rho: corr(Z, gamma) = rho (note: also equals to corr(Z_p1, Z_p2), for all p1, p2 \in {1,2, ..., n.beta} )
 
-Simulation_data_GroupLasso <- function(ls, prov.size.mean = 80, unpenalized.beta = F, 
+#' Simulate clustered data with a binary outcome and grouped covariates
+#'
+#' Generates the logistic model `logit P(Y = 1) = gamma_k + z' beta`, with one
+#' provider effect `gamma_k` per provider and the covariates arranged in groups.
+#'
+#' @param ls a list with elements `m` (providers), `n.beta` (covariates),
+#'   `n.groups` (penalised groups), `prop.NonZero.group` (proportion of groups
+#'   with non-zero coefficients), `prop.outlier` (proportion of providers whose
+#'   effect is drawn from an outlying distribution) and `rho`.
+#' @param prov.size.mean mean provider size.
+#' @param unpenalized.beta whether some covariates should be left unpenalised
+#'   (assigned to group 0).
+#' @param prop.unpenalized.beta the proportion left unpenalised when
+#'   `unpenalized.beta = TRUE`.
+#'
+#' @return A list with `sim.data`, and the `beta`, `gamma` and `group` used to
+#'   generate it.
+#'
+#' @section Note on column order:
+#' The covariate COLUMN POSITIONS are shuffled, and the returned `beta` and
+#' `group` are aligned with the new positions rather than with the variable
+#' names. Take the covariate names from `colnames(sim.data)` rather than
+#' constructing them, or `beta` and the fitted coefficients will not correspond.
+#'
+#' @examples
+#' set.seed(2)
+#' sim <- Simulation_data_GroupLasso(
+#'   list(m = 10, n.beta = 6, n.groups = 3, prop.NonZero.group = 0.5,
+#'        prop.outlier = 0, rho = 0.5),
+#'   prov.size.mean = 30)
+#' # the covariate columns are returned in a shuffled order, so read their
+#' # names off the data rather than assuming Z_1 ... Z_p
+#' Z.char <- colnames(sim$sim.data)[3:8]
+#' fit <- grp.lasso(sim$sim.data, "Y", Z.char, "Prov.ID",
+#'                  group = sim$group, nlambda = 10)
+#' dim(fit$beta)
+#'
+#' @export
+Simulation_data_GroupLasso <- function(ls, prov.size.mean = 80, unpenalized.beta = FALSE, 
                                        prop.unpenalized.beta = 0.25) {
   m <- ls$m  # number of providers
   n <- ls$n.beta  # number of risk factors
@@ -111,11 +170,43 @@ Simulation_data_GroupLasso <- function(ls, prov.size.mean = 80, unpenalized.beta
 
 ##################---------Discrete Survival Model----------##################
 # ls <- list(n.center = 1000, n.beta = 5, n.time.point = 10, n.groups = 5, prop.outlier.center = 0, prop.NonZero.group = 1)
-# data <- sim.disc(ls, censor_max_t = 10, non_integer_time = F)$data
+# data <- sim.disc(ls, censor_max_t = 10, non_integer_time = FALSE)$data
+#' Simulate discrete-time survival data with centre effects
+#'
+#' Generates a discrete-time logistic hazard model with a separate effect for
+#' each centre and a Weibull-shaped baseline hazard.
+#'
+#' @param ls a list with elements `n.center`, `n.beta`, `n.time.point`,
+#'   `n.groups`, `prop.outlier.center` and `prop.NonZero.group`.
+#' @param censor_max_t the largest possible censoring time.
+#' @param prop.continuous proportion of covariates that are continuous; the rest
+#'   are Bernoulli(0.5).
+#' @param prov.size.mean mean centre size.
+#' @param unpenalized.beta,prop.unpenalized.beta as in
+#'   [Simulation_data_GroupLasso()].
+#' @param rho correlation between the covariates and the centre effect.
+#' @param baseline.Hazard.r,baseline.Hazard.lambda shape and scale of the
+#'   Weibull baseline hazard.
+#' @param non_integer_time whether to map the integer event times onto
+#'   non-integer values.
+#'
+#' @return A list with `data`, the generating `beta`, `group`, `alpha` and
+#'   `gamma`, and the column names.
+#'
+#' @examples
+#' set.seed(3)
+#' sim <- sim.disc(
+#'   list(n.center = 10, n.beta = 6, n.time.point = 5, n.groups = 3,
+#'        prop.outlier.center = 0, prop.NonZero.group = 0.5),
+#'   censor_max_t = 5, prov.size.mean = 30)
+#' str(sim$data)
+#' table(sim$data[[sim$Event.char]])
+#'
+#' @export
 sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8, prov.size.mean = 80, 
-                     unpenalized.beta = F, prop.unpenalized.beta = 0, rho = 0.8, 
+                     unpenalized.beta = FALSE, prop.unpenalized.beta = 0, rho = 0.8, 
                      baseline.Hazard.r = 1.2, baseline.Hazard.lambda = 0.01,
-                     non_integer_time = T) {
+                     non_integer_time = TRUE) {
   K <- ls$n.center
   n.groups <- ls$n.groups
   n.outlier.center <- floor(ls$prop.outlier.center * K)
@@ -206,7 +297,7 @@ sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8, prov.size.mean = 8
   char <- c(prov.char, Z.char, "time", "status")
   
   # change "integer time" into "non-integer"
-  if (non_integer_time == T){
+  if (non_integer_time == TRUE){
     non_int_time <- sort(round(runif(ls$n.time.point, 0, 2 * ls$n.time.point), 2))
     time.ref <- as.data.frame(cbind(sort(unique(data$time)), non_int_time[1:length(unique(data$time))]))
     colnames(time.ref) <- c("time", "non_int_time")
@@ -230,8 +321,48 @@ sim.disc <- function(ls, censor_max_t, prop.continuous = 0.8, prov.size.mean = 8
 ##################---------Cox model----------##################
 #sim <- sim.cox(n.center = 20, n.beta = 5)
 #data <- sim$data
+#' Simulate right-censored survival data with provider effects
+#'
+#' Generates survival times from a proportional hazards model in which the
+#' hazard of provider k is `gamma_k * exp(z' beta)`, so `gamma_k` acts as a
+#' provider-specific baseline hazard.
+#'
+#' @param n.center number of providers.
+#' @param n.beta number of covariates.
+#' @param prop.zero_beta the proportion of covariates with a NON-zero
+#'   coefficient. The name is historical and does not match the behaviour.
+#' @param prov.size.mean mean provider size.
+#' @param unpenalized.beta,prop.unpenalized.beta currently unused.
+#' @param rho correlation between the covariates and the provider effect.
+#'
+#' @return A list with `data`, the generating `beta`, and the column names
+#'   `prov.char`, `Z.char`, `Time.char`, `Event.char`.
+#'
+#' @section Known issue:
+#' The covariates are centred using the mean and standard deviation of the
+#' provider effect in [Simulation_data_GroupLasso()] (`log(4/11)` and `0.4`)
+#' rather than those of this function's own `gamma ~ Uniform(0, 2)`. The
+#' covariate mean is therefore displaced by roughly `2*rho` to `6*rho`, the
+#' linear predictor inherits a large offset, and the hazard either explodes or
+#' vanishes: measured event rates range from 0.000 to 0.998 depending on `rho`
+#' and `n.beta`. Standardise `gamma` with its own moments (mean 1, standard
+#' deviation `sqrt(1/3)`) before relying on this function.
+#'
+#' @examples
+#' set.seed(4)
+#' sim <- sim.cox(n.center = 10, n.beta = 6, prov.size.mean = 30)
+#' d <- as.data.frame(sim$data)
+#' # NOTE the event rate: see the "Known issue" section above.  This example
+#' # documents the behaviour as shipped, it does not endorse it.
+#' mean(d[[sim$Event.char]])
+#' fit <- Strat.cox(d, Event.char = sim$Event.char, Z.char = sim$Z.char,
+#'                  Time.char = sim$Time.char, prov.char = sim$prov.char,
+#'                  nlambda = 5)
+#' dim(fit$beta)
+#'
+#' @export
 sim.cox <- function(n.center, n.beta, prop.zero_beta = 0.1, prov.size.mean = 80,
-                    unpenalized.beta = F, prop.unpenalized.beta = 0, rho = 0.8) {
+                    unpenalized.beta = FALSE, prop.unpenalized.beta = 0, rho = 0.8) {
   
   prov.size <- pmax(c(rpois(n.center, prov.size.mean)), 11)
   gamma <- runif(n.center, 0, 2)

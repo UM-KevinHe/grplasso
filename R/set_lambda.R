@@ -8,7 +8,7 @@ set.lambda.grplasso <- function(Y, Z, ID, group, n.prov, gamma.prov, beta, group
   K1 <- if (min(group) == 0) cumsum(K) else c(0, cumsum(K))
   storage.mode(K1) <- "integer"
   if (K1[1] != 0) {
-    fit <- SerBIN.residuals(Y, Z[, group == 0, drop = F], n.prov, gamma.prov, beta[1:sum(group == 0)])
+    fit <- SerBIN.residuals(Y, Z[, group == 0, drop = FALSE], n.prov, gamma.prov, beta[1:sum(group == 0)])
     r <- fit$residual
     beta.initial <- c(fit$beta, rep(0, length(beta) - length(fit$beta)))
     gamma.initial <- fit$gamma
@@ -49,7 +49,7 @@ set.lambda.pp_DiscSurv <- function(delta.obs, Z, time, ID, alpha, beta, gamma.pr
   if (K1[1] != 0) {  ## if some beta are unpenalized
     dummy_center <- fastDummies::dummy_cols(ID, select_columns = prov.char, remove_selected_columns = TRUE, 
                                             remove_first_dummy = TRUE)
-    new.Z <- cbind(Z[, group == 0, drop = F], dummy_center) #create new dummy variables for center effect (remove 1st center, which is treated as reference center)
+    new.Z <- cbind(Z[, group == 0, drop = FALSE], dummy_center) #create new dummy variables for center effect (remove 1st center, which is treated as reference center)
     beta.new <- c(beta[1:sum(group == 0)], gamma.prov[2:(ncol(dummy_center) + 1)])
     n.true_beta <- sum(group == 0)
     fit <- pp.DiscSurv.residuals(delta.obs, new.Z, time, alpha, beta.new, n.true_beta)
@@ -86,7 +86,7 @@ set.lambda.DiscSurv <- function(delta.obs, Z, time, alpha, beta, group, group.mu
   storage.mode(K1) <- "integer"
   if (K1[1] != 0) {  ## use Di's code
     n.true_beta <- sum(group == 0)
-    fit <- DiscSurv.residuals(delta.obs, Z[, group == 0, drop = F], time, alpha, beta[1:sum(group == 0)])
+    fit <- DiscSurv.residuals(delta.obs, Z[, group == 0, drop = FALSE], time, alpha, beta[1:sum(group == 0)])
     r <- fit$residual
     beta.initial <- c(fit$beta[1:sum(group == 0)], rep(0, length(beta) - sum(group == 0)))
     alpha.initial <- fit$alpha
@@ -114,7 +114,7 @@ set.lambda.DiscSurv <- function(delta.obs, Z, time, alpha, beta, group, group.mu
 #   storage.mode(K1) <- "integer"
 #   n <- sum(n.each_prov)
 #   if (K1[1] != 0) {  ## some covariates are not penalized (use cox stratified)
-#     nullFit <- survival::coxph(survival::Surv(time, delta.obs) ~ Z[, group == 0, drop = F] + strata(ID),
+#     nullFit <- survival::coxph(survival::Surv(time, delta.obs) ~ Z[, group == 0, drop = FALSE] + strata(ID),
 #                                weights = weight)
 #     eta <- nullFit$linear.predictors
 #     beta.initial <- c(nullFit$beta, rep(0, length(beta) - length(nullFit$beta)))
@@ -161,7 +161,7 @@ set.lambda.cox <- function(delta.obs, Z, time, ID, beta, weight, group, group.mu
   n <- sum(n.each_prov)
   
   if (K1[1] != 0) {  ## some covariates are not penalized (use cox stratified)
-    nullFit <- survival::coxph(survival::Surv(time, delta.obs) ~ Z[, group == 0, drop = F] + strata(ID),
+    nullFit <- survival::coxph(survival::Surv(time, delta.obs) ~ Z[, group == 0, drop = FALSE] + strata(ID),
                                weights = weight)
     eta <- nullFit$linear.predictors
     beta.initial <- c(nullFit$beta, rep(0, length(beta) - length(nullFit$beta)))

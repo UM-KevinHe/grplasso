@@ -65,7 +65,7 @@ data <- DiscTime$data
 Event.char <- DiscTime$Event.char
 Z.char <- DiscTime$Z.char
 Time.char <- DiscTime$Time.char
-cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = TRUE)
 cv.fit$cve
 cv.fit$lambda.min
 

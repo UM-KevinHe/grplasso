@@ -66,6 +66,12 @@
 #'
 #' \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 #'
+#' @param stop.dev.ratio if `lambda.early.stop = TRUE`, the ratio of deviance at which to stop early. Default is 1e-3.
+#'
+#' @param actVarNum if `actSet = TRUE`, the maximum number of variables that can enter the active set each time it is updated.
+#'
+#' @param return.transform.data whether to return the transformed (long-format) data used internally. Default is `FALSE`.
+#'
 #' @export
 #'
 #' @seealso \code{\link{coef}}, \code{\link{plot}} function.
@@ -76,7 +82,8 @@
 #' Event.char <- DiscTime$Event.char
 #' Z.char <- DiscTime$Z.char
 #' Time.char <- DiscTime$Time.char
-#' fit <- DiscSurv(data, Event.char, Z.char, Time.char) # fit a discrete survival model without any given provider information.
+#' # a discrete survival model without any given provider information
+#' fit <- DiscSurv(data, Event.char, Z.char, Time.char)
 #' fit$beta[, 1:5] # covariate coefficient
 #' fit$alpha[, 1:5] #time effect
 #'
@@ -90,11 +97,11 @@
 #' \emph{Lifetime Data Analysis}, \strong{19}: 490-512.
 #' \cr
 
-DiscSurv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
+DiscSurv <- function(data, Event.char, Z.char, Time.char, standardize = TRUE, lambda, nlambda = 100, lambda.min.ratio = 1e-4, 
                      penalize.x = rep(1, length(Z.char)), penalized.multiplier, 
                      nvar.max = p, stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE, tol = 1e-4, 
                      max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE,
-                     actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE,
+                     actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = FALSE, returnX = FALSE,
                      trace.lambda = FALSE, threads = 1, MM = FALSE, return.transform.data = FALSE, ...){
   count.alpha <- length(unique(data[, Time.char]))
   timepoint.increase <- sort(unique(data[, Time.char]))
@@ -116,12 +123,12 @@ DiscSurv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambd
   sum.failure <- fit$n.event
   KM.baseline.hazard <- c(fit$cumhaz[1], fit$cumhaz[2:length(fit$cumhaz)] - fit$cumhaz[1:(length(fit$cumhaz) - 1)])
 
-  if (standardize == T){
+  if (standardize == TRUE){
     std.Z <- newZG.Std.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
   } else {
     std.Z <- newZG.Unstd.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
   }
-  Z <- std.Z$std.Z[, , drop = F] 
+  Z <- std.Z$std.Z[, , drop = FALSE] 
   pseudo.group <- std.Z$g 
   penalized.multiplier <- std.Z$m 
 
@@ -192,10 +199,10 @@ DiscSurv <- function(data, Event.char, Z.char, Time.char, standardize = T, lambd
   beta <- unorthogonalize(beta, std.Z$std.Z, pseudo.group)
   rownames(beta) <- colnames(Z)
   if (std.Z$reorder == TRUE){  # original order of beta
-    beta <- beta[std.Z$ord.inv, , drop = F]
+    beta <- beta[std.Z$ord.inv, , drop = FALSE]
   }
   
-  if (standardize == T) {
+  if (standardize == TRUE) {
     unstandardize.para <- unstandardize(beta, alpha, std.Z)
     beta <- unstandardize.para$beta
     alpha <- unstandardize.para$gamma

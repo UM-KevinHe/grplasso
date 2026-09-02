@@ -4,14 +4,16 @@
 \alias{plot.ppDiscSurv}
 \title{Plot regularization path of coefficients from a ppDiscSurv object}
 \usage{
-\method{plot}{ppDiscSurv}(fit, log.x = T, label = F)
+\method{plot}{ppDiscSurv}(x, log.x = TRUE, label = FALSE, ...)
 }
 \arguments{
-\item{fit}{a \code{ppDiscSurv} object.}
+\item{x}{a \code{ppDiscSurv} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{label}{whether annotates the plot with labels.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the plot the regularization path from a \code{ppDiscSurv} object
@@ -24,5 +26,5 @@ prov.char <- DiscTime$prov.char
 Z.char <- DiscTime$Z.char
 Time.char <- DiscTime$Time.char
 fit <- pp.DiscSurv(data, Event.char, prov.char, Z.char, Time.char)
-plot(fit, label = T)
+plot(fit, label = TRUE)
 }

@@ -2,13 +2,15 @@
 #'
 #' Return the plot of the cross entropy loss from a \code{cv.strat_cox} object
 #'
-#' @param fit a \code{cv.strat_cox} object.
+#' @param x a \code{cv.strat_cox} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'
 #' @param vertical.line whether draws a vertical line at the value where cross-validaton error is minimized.
 #'
 #' @importFrom ggplot2 ggplot geom_line geom_vline geom_point geom_errorbar aes theme element_line element_text element_blank labs scale_x_continuous
+#'
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @exportS3Method plot cv.strat_cox
 #'
@@ -19,17 +21,26 @@
 #' prov.char <- ContTime$prov.char
 #' Z.char <- ContTime$Z.char
 #' Time.char <- ContTime$Time.char
-#' cv.fit.strat_cox <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10)
+#' cv.fit.strat_cox <- cv.strat_cox(data, Event.char, Z.char, Time.char,
+#'                                  prov.char, group = c(1, 2, 2, 3, 3),
+#'                                  nfolds = 10)
 #' plot(cv.fit.strat_cox)
 
 
-plot.cv.strat_cox <- function(fit, log.x = T, vertical.line = T, col.vertical.line = "blue",
-                              col.dot = "red"){
+#' @param col.vertical.line colour of the vertical line marking the selected lambda.
+#' @param col.dot colour of the plotted cross-validation error points.
+#'
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+plot.cv.strat_cox <- function(x, log.x = TRUE, vertical.line = TRUE, col.vertical.line = "blue",
+                              col.dot = "red", ...){
+  fit <- x
   CVE <- fit$cve
   CVE.upper <- fit$cve + fit$cvse
   CVE.lower <- fit$cve - fit$cvse
   
-  if (log.x == T){
+  if (log.x == TRUE){
     lambda <- log(fit$lambda)
   } else {
     lambda <- fit$lambda
@@ -49,8 +60,8 @@ plot.cv.strat_cox <- function(fit, log.x = T, vertical.line = T, col.vertical.li
     scale_x_continuous(trans = scales::reverse_trans(),
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
   
-  if (vertical.line == T){
-    if (log.x == T){
+  if (vertical.line == TRUE){
+    if (log.x == TRUE){
       xintercept <- log(fit$lambda.min)
     } else {
       xintercept <- fit$lambda.min
@@ -60,7 +71,7 @@ plot.cv.strat_cox <- function(fit, log.x = T, vertical.line = T, col.vertical.li
       geom_vline(xintercept = xintercept, size = 0.5, linetype = "dashed", color = col.vertical.line)
   }
   
-  if (log.x == T){
+  if (log.x == TRUE){
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(log(lambda)),

@@ -12,6 +12,14 @@ You can install 'grplasso' via github:
     require("remotes")
     remotes::install_github("UM-KevinHe/grplasso", ref = "main")
 
+or, if you were sent the source tarball directly:
+
+    install.packages("grplasso_1.0.tar.gz", repos = NULL, type = "source")
+
+Either route compiles C++ (Rcpp / RcppArmadillo), so a working toolchain is
+required: **Rtools** on Windows, Xcode command line tools on macOS, or a
+system compiler on Linux.
+
 We recommand to start with <a href="https://um-kevinhe.github.io/grplasso/articles/grplasso.html" target="_blank">tutorial</a>, as it provides an overview of the package's usage, including model training, selection of penalization parameters, and post-estimation procedures.
 
 

@@ -2,7 +2,7 @@
 #'
 #' Return the model predictions of a \code{strat_cox} object
 #'
-#' @param fit a \code{strat_cox} object.
+#' @param object a \code{strat_cox} object.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
 #'
@@ -34,8 +34,12 @@
 #' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 #' predict(fit, data, Z.char, lambda = fit$lambda, type = "response")[1:5, 1:5]
 
-predict.strat_cox <- function(fit, data, Z.char, lambda, which = 1:length(fit$lambda),
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+predict.strat_cox <- function(object, data, Z.char, lambda, which = 1:length(object$lambda),
                                type = c("link", "response", "vars", "nvars", "groups", "ngroups"), ...){
+  fit <- object
   beta <- coef.strat_cox(fit, lambda = lambda, which = which, drop = FALSE)
 
   if (type == "vars"){
@@ -70,7 +74,7 @@ predict.strat_cox <- function(fit, data, Z.char, lambda, which = 1:length(fit$la
     stop("Must supply data for predictions", call. = FALSE)
   }
   
-  eta <- as.matrix(data[, Z.char, drop = F]) %*% beta
+  eta <- as.matrix(data[, Z.char, drop = FALSE]) %*% beta
   if (type == "link") {
     return(eta)
   }

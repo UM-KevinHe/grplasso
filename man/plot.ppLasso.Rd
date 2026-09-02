@@ -5,16 +5,18 @@
 \alias{plot.gr_ppLasso}
 \title{Plot regularization path of coefficients from a ppLasso or gr_ppLasso object}
 \usage{
-\method{plot}{ppLasso}(fit, log.x = T, label = F)
+\method{plot}{ppLasso}(x, log.x = TRUE, label = FALSE, ...)
 
-\method{plot}{gr_ppLasso}(fit, log.x = T, label = F)
+\method{plot}{gr_ppLasso}(x, log.x = TRUE, label = FALSE, ...)
 }
 \arguments{
-\item{fit}{a \code{gr_ppLasso} object.}
+\item{x}{a \code{gr_ppLasso} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{label}{whether annotates the plot with labels.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the plot the regularization path from a \code{ppLasso} or \code{gr_ppLasso} object
@@ -26,7 +28,7 @@ Y.char <- BinaryData$Y.char
 prov.char <- BinaryData$prov.char
 Z.char <- BinaryData$Z.char
 fit <- pp.lasso(data, Y.char, Z.char, prov.char)
-plot(fit, label = T)
+plot(fit, label = TRUE)
 data(BinaryData)
 data <- BinaryData$data
 Y.char <- BinaryData$Y.char
@@ -34,5 +36,5 @@ prov.char <- BinaryData$prov.char
 Z.char <- BinaryData$Z.char
 group <- BinaryData$group
 fit <- grp.lasso(data, Y.char, Z.char, prov.char, group = group)
-plot(fit, label = T)
+plot(fit, label = TRUE)
 }

@@ -1,14 +1,15 @@
-
-## With R 3.1.0 or later, you can uncomment the following line to tell R to 
-## enable compilation with C++11 (where available)
+## C++ standard: do NOT pin this.
 ##
-## Also, OpenMP support in Armadillo prefers C++11 support. However, for wider
-## availability of the package we do not yet enforce this here.  It is however
-## recommended for client packages to set it.
+## This used to say `CXX_STD = CXX11`.  Modern RcppArmadillo needs C++14 or
+## later -- pinning C++11 fails to compile with
+##     armadillo_bits/fn_accu.hpp: note: deduced return type only available
+##     with '-std=c++14' or '-std=gnu++14'
+## and RcppArmadillo itself warns to remove the directive ("Using fallback
+## compilation with Armadillo 14.6.3 ... consider removing C++11 compilation
+## directive").  On some machines the fallback hides the problem; on Great Lakes
+## with R 4.5.1 it does not, and the build dies.
 ##
-## And with R 3.4.0, and RcppArmadillo 0.7.960.*, we turn C++11 on as OpenMP
-## support within Armadillo prefers / requires it
-CXX_STD = CXX11
-
+## R 4.3 and later default to C++17, which is what both Armadillo and OpenMP
+## want, so leaving this unset is correct and portable.
 PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) 
 PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)

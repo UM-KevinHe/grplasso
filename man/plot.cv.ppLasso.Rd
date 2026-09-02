@@ -6,27 +6,37 @@
 \title{Plot the cross entropy loss from a cv.ppLasso or cv.gr_ppLasso object}
 \usage{
 \method{plot}{cv.ppLasso}(
-  fit,
-  log.x = T,
-  vertical.line = T,
+  x,
+  log.x = TRUE,
+  vertical.line = TRUE,
   col.vertical.line = "blue",
-  col.dot = "red"
+  col.dot = "red",
+  ...
 )
 
 \method{plot}{cv.gr_ppLasso}(
-  fit,
-  log.x = T,
-  vertical.line = T,
+  x,
+  log.x = TRUE,
+  vertical.line = TRUE,
   col.vertical.line = "blue",
-  col.dot = "red"
+  col.dot = "red",
+  ...
 )
 }
 \arguments{
-\item{fit}{a \code{cv.gr_ppLasso} object.}
+\item{x}{a \code{cv.gr_ppLasso} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{vertical.line}{whether draws a vertical line at the value where cross-validaton error is minimized.}
+
+\item{col.vertical.line}{colour of the vertical line marking the selected lambda.}
+
+\item{col.dot}{colour of the plotted cross-validation error points.
+
+plot(cv.fit.grplasso)}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
@@ -46,6 +56,4 @@ prov.char <- BinaryData$prov.char
 Z.char <- BinaryData$Z.char
 group <- BinaryData$group
 cv.fit.grplasso <- cv.grp.lasso(data, Y.char, Z.char, prov.char, group = group, nfolds = 10)
-plot(cv.fit.grplasso)
-
 }

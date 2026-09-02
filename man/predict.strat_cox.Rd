@@ -5,17 +5,17 @@
 \title{Predictions of a strat_cox object}
 \usage{
 \method{predict}{strat_cox}(
-  fit,
+  object,
   data,
   Z.char,
   lambda,
-  which = 1:length(fit$lambda),
+  which = 1:length(object$lambda),
   type = c("link", "response", "vars", "nvars", "groups", "ngroups"),
   ...
 )
 }
 \arguments{
-\item{fit}{a \code{strat_cox} object.}
+\item{object}{a \code{strat_cox} object.}
 
 \item{data}{an \code{dataframe} or \code{list} object that contains the variables for prediction.}
 
@@ -35,7 +35,7 @@
 \item \code{ngroups}: the number of non-zero coefficients
 }}
 
-\item{...}{}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the model predictions of a \code{strat_cox} object

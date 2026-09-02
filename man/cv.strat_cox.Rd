@@ -33,6 +33,8 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 
 \item{group}{a vector describing the grouping of the coefficients. If there are coefficients to be included in the model without being penalized, assign them to group 0 (or "0").}
 
+\item{se}{the method used to compute the standard error of the cross-validation error, either \code{"quick"} or \code{"bootstrap"}.}
+
 \item{...}{extra arguments to be passed to function.}
 
 \item{nfolds}{the number of cross-validation folds. Default is 10.}
@@ -70,7 +72,8 @@ Event.char <- ContTime$Event.char
 prov.char <- ContTime$prov.char
 Z.char <- ContTime$Z.char
 Time.char <- ContTime$Time.char
-cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
+cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char,
+                       group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
 # the best lambda using cross validation
 cv.fit$lambda.min
 

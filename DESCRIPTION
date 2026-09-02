@@ -1,8 +1,8 @@
 Package: grplasso
 Type: Package
-Title: Computationally Efficient Variable Selection Framework for Data with High-Dimensional clustered Effects
+Title: Computationally Efficient Variable Selection Framework for Data with High-Dimensional Clustered Effects
 Version: 1.0
-Date: 2025-07-02
+Date: 2026-09-02
 Authors@R: person("Yubo", "Shao", email = "ybshao@umich.edu", role = c("aut", "cre"))
 Description: A computationally efficient framework for penalized regression modeling of generalized linear and survival models, specifically designed to handle high-dimensional grouped effects in clustered data.
 License: GPL-3
@@ -10,22 +10,29 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     Rcpp,
+    MASS,
+    Matrix,
     dplyr,
     ggplot2,
+    scales,
     survival,
     fastDummies,
-    discSurv
+    discSurv,
+    plyr,
+    tidyr
 LinkingTo: 
     Rcpp, 
     RcppArmadillo
 Depends: 
     R (>= 3.5)
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    caret,
+    olsrr
 VignetteBuilder: knitr
 URL: https://github.com/UM-KevinHe/grplasso, https://um-kevinhe.github.io/grplasso/
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

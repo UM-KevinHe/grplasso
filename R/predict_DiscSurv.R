@@ -2,7 +2,7 @@
 #'
 #' Return the model predictions of a \code{DiscSurv} object
 #'
-#' @param fit a \code{DiscSurv} object.
+#' @param object a \code{DiscSurv} object.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
 #' 
@@ -34,13 +34,20 @@
 #' Z.char <- DiscTime$Z.char
 #' Time.char <- DiscTime$Time.char
 #' fit <- DiscSurv(data, Event.char, Z.char, Time.char)
-#' predict(fit, data, Event.char, Z.char, Time.char, lambda = fit$lambda, type = "response", which.lambda = fit$lambda[1])[1:5,]
+#' predict(fit, data, Event.char, Z.char, Time.char, lambda = fit$lambda,
+#'         type = "response", which.lambda = fit$lambda[1])[1:5, ]
 #' predict(fit, data, Event.char, Z.char, Time.char, lambda = 0.01, type = "vars")
 
 
-predict.DiscSurv <- function(fit, data, Event.char, Z.char, Time.char, lambda, which = 1:length(fit$lambda),
+#' @param return.Array whether to return the predictions as a 3-dimensional array indexed by subject, time point and lambda.
+#'
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+predict.DiscSurv <- function(object, data, Event.char, Z.char, Time.char, lambda, which = 1:length(object$lambda),
                              type = c("response", "vars", "nvars"), return.Array = TRUE, which.lambda = "all", 
                              ...){
+  fit <- object
   alpha <- coef.DiscSurv(fit, lambda = lambda, which = which, drop = FALSE)$alpha #time effect
   beta <- coef.DiscSurv(fit, lambda = lambda, which = which, drop = FALSE)$beta
   
@@ -74,9 +81,9 @@ predict.DiscSurv <- function(fit, data, Event.char, Z.char, Time.char, lambda, w
   
   if (type == "response") { # need expand data. The return value corresponds to the fitted value of each person at each time point 
     n.obs <- nrow(data)
-    eta <- as.matrix(data[, Z.char, drop = F]) %*% beta # eta = Z\beta
-    sum.time <- sum(data[, Time.char, drop = F])
-    time <- as.matrix(data[, Time.char, drop = F])
+    eta <- as.matrix(data[, Z.char, drop = FALSE]) %*% beta # eta = Z\beta
+    sum.time <- sum(data[, Time.char, drop = FALSE])
+    time <- as.matrix(data[, Time.char, drop = FALSE])
     nlambda <- ncol(eta)
     pred.prob <- predict_linear_predictor(nlambda, n.obs, sum.time, time, alpha, eta)  # return a matrix
     

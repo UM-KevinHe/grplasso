@@ -42,6 +42,8 @@
 #'
 #' \item{lambda.min}{the value of lambda with the minimum cross-validation error.}
 #'
+#' @param se the method used to compute the standard error of the cross-validation error, either `"quick"` or `"bootstrap"`.
+#'
 #' @export
 #'
 #' @examples
@@ -51,7 +53,8 @@
 #' prov.char <- ContTime$prov.char
 #' Z.char <- ContTime$Z.char
 #' Time.char <- ContTime$Time.char
-#' cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
+#' cv.fit <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char,
+#'                        group = c(1, 2, 2, 3, 3), nfolds = 10, se = "quick")
 #' # the best lambda using cross validation
 #' cv.fit$lambda.min
 #'
@@ -157,7 +160,7 @@ cv.strat_cox <- function(data, Event.char, Z.char, Time.char, prov.char, group =
   colnames(prov.ref) <- c("New.ID", prov.char)
   ID <- as.matrix(data[, prov.char])  #stratum indicator
   colnames(ID) <- prov.char
-  ID <- merge(ID, prov.ref, by = prov.char)[, 2, drop = F] 
+  ID <- merge(ID, prov.ref, by = prov.char)[, 2, drop = FALSE] 
   colnames(ID) <- prov.char
   
   w_denom <- sum(w_for_loss * as.vector(delta.obs))  # weighted event count for normalisation

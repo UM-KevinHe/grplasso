@@ -100,11 +100,12 @@
 #' \cr
 
 
+#' @export
 Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, group = 1:length(Z.char), group.multiplier,
-                      standardize = T, lambda, nlambda = 100, lambda.min.ratio = 1e-3, lambda.early.stop = FALSE,
+                      standardize = TRUE, lambda, nlambda = 100, lambda.min.ratio = 1e-3, lambda.early.stop = FALSE,
                       nvar.max = p, group.max = length(unique(group)), stop.loss.ratio = 1e-3, tol = 1e-4, 
                       max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE, 
-                      actIter = max.each.iter, actGroupNum = sum(unique(group) != 0), actSetRemove = F,
+                      actIter = max.each.iter, actGroupNum = sum(unique(group) != 0), actSetRemove = FALSE,
                       returnX = FALSE, trace.lambda = FALSE,...){
   
   if (missing(prov.char)) {  # single intercept
@@ -133,12 +134,12 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
   n.each_prov <- table(ID)
 
   initial.group <- group
-  if (standardize == T){
+  if (standardize == TRUE){
     std.Z <- newZG.Std.grplasso(data, Z.char, group, group.multiplier)
   } else {
     std.Z <- newZG.Unstd.grplasso(data, Z.char, group, group.multiplier)
   }
-  Z <- std.Z$std.Z[, , drop = F]
+  Z <- std.Z$std.Z[, , drop = FALSE]
   group <- std.Z$g  
   group.multiplier <- std.Z$m 
 
@@ -212,9 +213,9 @@ Strat.cox <- function(data, Event.char, Z.char, Time.char, prov.char, weight, gr
   beta <- unorthogonalize(beta, std.Z$std.Z, group)
   rownames(beta) <- colnames(Z)
   if (std.Z$reorder == TRUE){  # original order of beta
-    beta <- beta[std.Z$ord.inv, , drop = F]
+    beta <- beta[std.Z$ord.inv, , drop = FALSE]
   }
-  if (standardize == T) {
+  if (standardize == TRUE) {
     original.beta <- matrix(0, nrow = length(std.Z$scale), ncol = ncol(beta))
     original.beta[std.Z$nz, ] <- beta / std.Z$scale[std.Z$nz]
     beta <- original.beta

@@ -2,13 +2,15 @@
 #'
 #' Return the plot the regularization path from a \code{strat_cox} object
 #'
-#' @param fit a \code{strat_cox} object.
+#' @param x a \code{strat_cox} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'
 #' @param label whether annotates the plot with labels.
 #'
 #' @importFrom ggplot2 ggplot geom_line geom_abline aes theme element_line element_text element_blank labs scale_x_continuous scale_color_manual
+#'
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @exportS3Method plot strat_cox
 #'
@@ -20,11 +22,15 @@
 #' Z.char <- ContTime$Z.char
 #' Time.char <- ContTime$Time.char
 #' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
-#' plot(fit, label = T)
+#' plot(fit, label = TRUE)
 
-plot.strat_cox <- function(fit, log.x = T, label = F){
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+plot.strat_cox <- function(x, log.x = TRUE, label = FALSE, ...){
+  fit <- x
   beta <- fit$beta
-  if (log.x == T){
+  if (log.x == TRUE){
     iter.num <- rep(log(fit$lambda), each = nrow(beta))
   } else {
     iter.num <- rep(fit$lambda, each = nrow(beta))
@@ -43,7 +49,7 @@ plot.strat_cox <- function(fit, log.x = T, label = F){
     theme(axis.text = element_text(size = 11)) +
     scale_x_continuous(trans = scales::reverse_trans(), breaks = round(seq(round(max(iter.num), 0), round(min(iter.num), 0), by = - 1), 1))
   
-  if (label == T) {
+  if (label == TRUE) {
     Regularization.path <- Regularization.path +
       theme(legend.text = element_text(size = 8, family = "serif"),
             legend.text.align = 0, legend.title = element_blank(),
@@ -54,7 +60,7 @@ plot.strat_cox <- function(fit, log.x = T, label = F){
     Regularization.path <- Regularization.path + theme(legend.position = "none")
   }
   
-  if (log.x == T){
+  if (log.x == TRUE){
     Regularization.path <- Regularization.path +
       labs(title = "",
            x = expression(log(lambda)),

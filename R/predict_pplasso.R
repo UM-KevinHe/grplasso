@@ -2,7 +2,7 @@
 #'
 #' Return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object
 #'
-#' @param fit a \code{ppLasso} or \code{gr_ppLasso} object.
+#' @param object a \code{ppLasso} or \code{gr_ppLasso} object.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
 #'
@@ -37,8 +37,12 @@
 #' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
 #'
 
-predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:length(fit$lambda),
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+predict.ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
                             type = c("link", "response", "class", "vars", "nvars"),  ...){
+  fit <- object
   beta <- coef.ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$gamma
 
@@ -57,13 +61,13 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
     stop("Must supply data for predictions", call. = FALSE)
   }
 
-  Prov.id <- data[, prov.char, drop = F]
+  Prov.id <- data[, prov.char, drop = FALSE]
   obs.prov.effect <- as.matrix(apply(Prov.id, 1, function(x) gamma[x, ]))
 
   if (ncol(obs.prov.effect) == 1){
-    eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + obs.prov.effect
+    eta <- as.matrix(data[, Z.char, drop = FALSE]) %*% beta + obs.prov.effect
   } else {
-    eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + t(obs.prov.effect)
+    eta <- as.matrix(data[, Z.char, drop = FALSE]) %*% beta + t(obs.prov.effect)
   }
   
   if (type == "link") {
@@ -83,7 +87,7 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
 
 #' @rdname predict.ppLasso
 #'
-#' @param fit a \code{ppLasso} or \code{gr_ppLasso}.
+#' @param object a \code{ppLasso} or \code{gr_ppLasso}.
 #'
 #' @param data an `dataframe` or `list` object that contains the variables for prediction.
 #'
@@ -123,8 +127,12 @@ predict.ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:leng
 #' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "vars")
 #' predict(fit, data, Z.char, prov.char, lambda = 0.04, type = "groups")
 
-predict.gr_ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:length(fit$lambda),
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+predict.gr_ppLasso <- function(object, data, Z.char, prov.char, lambda, which = 1:length(object$lambda),
                                type = c("link", "response", "class", "vars", "groups", "nvars", "ngroups", "beta.norm"),  ...){
+  fit <- object
   beta <- coef.gr_ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$beta
   gamma <- coef.gr_ppLasso(fit, lambda = lambda, which = which, drop = FALSE)$gamma
 
@@ -164,13 +172,13 @@ predict.gr_ppLasso <- function(fit, data, Z.char, prov.char, lambda, which = 1:l
     stop("Must supply data for predictions", call. = FALSE)
   }
 
-  Prov.id <- data[, prov.char, drop = F]
+  Prov.id <- data[, prov.char, drop = FALSE]
   obs.prov.effect <- as.matrix(apply(Prov.id, 1, function(x) gamma[x, ]))
 
   if (ncol(obs.prov.effect) == 1){
-    eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + obs.prov.effect
+    eta <- as.matrix(data[, Z.char, drop = FALSE]) %*% beta + obs.prov.effect
   } else {
-    eta <- as.matrix(data[, Z.char, drop = F]) %*% beta + t(obs.prov.effect)
+    eta <- as.matrix(data[, Z.char, drop = FALSE]) %*% beta + t(obs.prov.effect)
   }
   
   if (type == "link") {

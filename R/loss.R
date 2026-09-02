@@ -2,7 +2,7 @@ loss.grp.lasso <- function(Y.i, yhat.i){
   yhat.i[yhat.i < 0.00001] <- 0.00001
   yhat.i[yhat.i > 0.99999] <- 0.99999
   
-  if (is.matrix(yhat.i) == T) {
+  if (is.matrix(yhat.i) == TRUE) {
     val <- matrix(NA, nrow = nrow(yhat.i), ncol = ncol(yhat.i))
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
       val[Y.i == 1,] <- - 2 * log(yhat.i[Y.i == 1, , drop = FALSE])
@@ -27,7 +27,7 @@ loss.Disc.Surv <- function(Y.i, yhat.i){
   yhat.i[yhat.i < 0.00001] <- 0.00001
   yhat.i[yhat.i > 0.99999] <- 0.99999
   
-  if (is.matrix(yhat.i) == T) {
+  if (is.matrix(yhat.i) == TRUE) {
     val <- matrix(NA, nrow = nrow(yhat.i), ncol = ncol(yhat.i))
     if (sum(Y.i == 1)) {  # if all 1 or all zero, then we only need calculate one of the following "if"
       val[Y.i == 1,] <- - 2 * log(yhat.i[Y.i == 1, , drop = FALSE])

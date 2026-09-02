@@ -4,14 +4,16 @@
 \alias{plot.strat_cox}
 \title{Plot regularization path of coefficients from a strat_cox object}
 \usage{
-\method{plot}{strat_cox}(fit, log.x = T, label = F)
+\method{plot}{strat_cox}(x, log.x = TRUE, label = FALSE, ...)
 }
 \arguments{
-\item{fit}{a \code{strat_cox} object.}
+\item{x}{a \code{strat_cox} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{label}{whether annotates the plot with labels.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the plot the regularization path from a \code{strat_cox} object
@@ -24,5 +26,5 @@ prov.char <- ContTime$prov.char
 Z.char <- ContTime$Z.char
 Time.char <- ContTime$Time.char
 fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
-plot(fit, label = T)
+plot(fit, label = TRUE)
 }

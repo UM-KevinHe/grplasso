@@ -9,7 +9,7 @@ DiscSurv(
   Event.char,
   Z.char,
   Time.char,
-  standardize = T,
+  standardize = TRUE,
   lambda,
   nlambda = 100,
   lambda.min.ratio = 1e-04,
@@ -25,7 +25,7 @@ DiscSurv(
   actSet = TRUE,
   actIter = max.each.iter,
   actVarNum = sum(penalize.x == 1),
-  actSetRemove = F,
+  actSetRemove = FALSE,
   returnX = FALSE,
   trace.lambda = FALSE,
   threads = 1,
@@ -58,6 +58,8 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 
 \item{nvar.max}{number of maximum selected variables. Default is the number of all covariates.}
 
+\item{stop.dev.ratio}{if \code{lambda.early.stop = TRUE}, the ratio of deviance at which to stop early. Default is 1e-3.}
+
 \item{bound}{a positive number to avoid inflation of provider effect. Default is 10.}
 
 \item{backtrack}{for updating the provider effect, whether to use the "backtracking line search" with Newton method.}
@@ -72,6 +74,8 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 
 \item{actIter}{if \code{actSet = TRUE}, the maximum number of iterations for a new updated active set. Default is \code{max.each.iter} (i.e. we will update the current active set until convergence ).}
 
+\item{actVarNum}{if \code{actSet = TRUE}, the maximum number of variables that can enter the active set each time it is updated.}
+
 \item{actSetRemove}{if \code{actSet = TRUE}, whether we remove the zero coefficients from the current active set. Default is FALSE.}
 
 \item{returnX}{whether return the standardized design matrix. Default is FALSE.}
@@ -81,6 +85,8 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 \item{threads}{number of cores that are used for parallel computing.}
 
 \item{MM}{whether we use the "Majorize-Minimization" algorithm to optimize the objective function.}
+
+\item{return.transform.data}{whether to return the transformed (long-format) data used internally. Default is \code{FALSE}.}
 
 \item{...}{extra arguments to be passed to function.}
 }
@@ -111,7 +117,8 @@ data <- DiscTime$data
 Event.char <- DiscTime$Event.char
 Z.char <- DiscTime$Z.char
 Time.char <- DiscTime$Time.char
-fit <- DiscSurv(data, Event.char, Z.char, Time.char) # fit a discrete survival model without any given provider information.
+# a discrete survival model without any given provider information
+fit <- DiscSurv(data, Event.char, Z.char, Time.char)
 fit$beta[, 1:5] # covariate coefficient
 fit$alpha[, 1:5] #time effect
 

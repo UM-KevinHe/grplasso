@@ -72,6 +72,12 @@
 #'
 #' \item{iter}{the number of iterations until convergence at each value of `lambda`.}
 #'
+#' @param actVarNum if `actSet = TRUE`, the maximum number of variables that
+#'   may enter the active set each time it is updated.
+#'
+#' @param return.transform.data whether to return the transformed (long-format)
+#'   data built internally. Default is `FALSE`.
+#'
 #' @export
 #'
 #' @seealso \code{\link{coef}}, \code{\link{plot}} function.
@@ -102,7 +108,7 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
                         lambda.min.ratio = 1e-4, penalize.x = rep(1, length(Z.char)), penalized.multiplier,
                         lambda.early.stop = FALSE, nvar.max = p, stop.dev.ratio = 1e-3, bound = 10.0, backtrack = FALSE,
                         tol = 1e-4, max.each.iter = 1e4, max.total.iter = (max.each.iter * nlambda), actSet = TRUE,
-                        actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = F, returnX = FALSE,
+                        actIter = max.each.iter, actVarNum = sum(penalize.x == 1), actSetRemove = FALSE, returnX = FALSE,
                         trace.lambda = FALSE, threads = 1, MM = FALSE, return.transform.data = FALSE, ...){
   
   # Convert the observed time in discrete intervals
@@ -136,16 +142,16 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   failure.each.center <- tapply(data$status, data$Prov.ID, sum)
   
   
-  # !!! Since "standardize = T" may cause problems in transforming gamma and alpha back, currently we only consider "standardize = F"
+  # !!! Since "standardize = TRUE" may cause problems in transforming gamma and alpha back, currently we only consider "standardize = FALSE"
   
-  #if (standardize == T){
+  #if (standardize == TRUE){
   #  std.Z <- newZG.Std.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
-  #  Z <- std.Z$std.Z[, , drop = F]  # standardized covariate matrix
+  #  Z <- std.Z$std.Z[, , drop = FALSE]  # standardized covariate matrix
   #  pseudo.group <- std.Z$g  # new group order
   #  penalized.multiplier <- std.Z$m # new group multiplier
   #} else {
   std.Z <- newZG.Unstd.grplasso(data, Z.char, pseudo.group, penalized.multiplier)
-  Z <- std.Z$std.Z[, , drop = F]
+  Z <- std.Z$std.Z[, , drop = FALSE]
   pseudo.group <- std.Z$g
   penalized.multiplier <- std.Z$m
   #}
@@ -229,9 +235,9 @@ pp.DiscSurv <- function(data, Event.char, prov.char, Z.char, Time.char, lambda, 
   beta <- unorthogonalize(beta, std.Z$std.Z, pseudo.group)
   rownames(beta) <- colnames(Z)
   if (std.Z$reorder == TRUE){  # original order of beta
-    beta <- beta[std.Z$ord.inv, , drop = F]
+    beta <- beta[std.Z$ord.inv, , drop = FALSE]
   }
-  #if (standardize == T) {
+  #if (standardize == TRUE) {
   #  unstandardize.para <- unstandardize(beta, gamma, std.Z)
   #  beta <- unstandardize.para$beta
   #  gamma <- unstandardize.para$gamma

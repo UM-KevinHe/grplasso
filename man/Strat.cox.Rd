@@ -13,7 +13,7 @@ Strat.cox(
   weight,
   group = 1:length(Z.char),
   group.multiplier,
-  standardize = T,
+  standardize = TRUE,
   lambda,
   nlambda = 100,
   lambda.min.ratio = 0.001,
@@ -27,7 +27,7 @@ Strat.cox(
   actSet = TRUE,
   actIter = max.each.iter,
   actGroupNum = sum(unique(group) != 0),
-  actSetRemove = F,
+  actSetRemove = FALSE,
   returnX = FALSE,
   trace.lambda = FALSE,
   ...

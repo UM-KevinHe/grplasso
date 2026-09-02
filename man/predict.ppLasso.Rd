@@ -6,30 +6,30 @@
 \title{Predictions of a ppLasso or gr_ppLasso object}
 \usage{
 \method{predict}{ppLasso}(
-  fit,
+  object,
   data,
   Z.char,
   prov.char,
   lambda,
-  which = 1:length(fit$lambda),
+  which = 1:length(object$lambda),
   type = c("link", "response", "class", "vars", "nvars"),
   ...
 )
 
 \method{predict}{gr_ppLasso}(
-  fit,
+  object,
   data,
   Z.char,
   prov.char,
   lambda,
-  which = 1:length(fit$lambda),
+  which = 1:length(object$lambda),
   type = c("link", "response", "class", "vars", "groups", "nvars", "ngroups",
     "beta.norm"),
   ...
 )
 }
 \arguments{
-\item{fit}{a \code{ppLasso} or \code{gr_ppLasso}.}
+\item{object}{a \code{ppLasso} or \code{gr_ppLasso}.}
 
 \item{data}{an \code{dataframe} or \code{list} object that contains the variables for prediction.}
 
@@ -53,7 +53,7 @@
 \item \code{beta.norm}: L2 norm of the coefficients in each group
 }}
 
-\item{...}{}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the model predictions of a \code{ppLasso} or \code{gr_ppLasso} object

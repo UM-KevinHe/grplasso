@@ -2,7 +2,7 @@
 #'
 #' Return the model coefficients of a \code{strat_cox} object
 #'
-#' @param fit a \code{strat_cox} object.
+#' @param object a \code{strat_cox} object.
 #'
 #' @param lambda values of the regularization parameter lambda at which coefficients are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.
 #'
@@ -24,7 +24,11 @@
 #' fit <- Strat.cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3))
 #' coef(fit, lambda = fit$lambda)[, 1:5]
 
-coef.strat_cox <- function(fit, lambda, which=1:length(fit$lambda), drop = TRUE, ...) {
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+coef.strat_cox <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
+  fit <- object
   if (!missing(lambda)) {
     if (any(lambda > max(fit$lambda) | lambda < min(fit$lambda))){
       stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)

@@ -2,7 +2,7 @@
 #'
 #' Return the model coefficients of a \code{DiscSurv} object
 #'
-#' @param fit a \code{DiscSurv} object.
+#' @param object a \code{DiscSurv} object.
 #'
 #' @param lambda values of the regularization parameter lambda at which coefficients are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.
 #'
@@ -26,7 +26,11 @@
 
 
 
-coef.DiscSurv <- function(fit, lambda, which=1:length(fit$lambda), drop = TRUE, ...) {
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+coef.DiscSurv <- function(object, lambda, which=1:length(object$lambda), drop = TRUE, ...) {
+  fit <- object
   if (!missing(lambda)) {
     if (any(lambda > max(fit$lambda) | lambda < min(fit$lambda))){
       stop('lambda must lie within the range of the fitted coefficient path', call.=FALSE)

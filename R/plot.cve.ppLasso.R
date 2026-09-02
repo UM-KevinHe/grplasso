@@ -2,13 +2,15 @@
 #'
 #' Return the plot of the cross entropy loss from a \code{cv.ppLasso} or \code{cv.gr_ppLasso} object
 #'
-#' @param fit a \code{cv.ppLasso} object.
+#' @param x a \code{cv.ppLasso} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'
 #' @param vertical.line whether draws a vertical line at the value where cross-validaton error is minimized.
 #'
 #' @importFrom ggplot2 ggplot geom_line geom_vline geom_point geom_errorbar aes theme element_line element_text element_blank labs scale_x_continuous
+#'
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @exportS3Method plot cv.ppLasso
 #'
@@ -22,13 +24,20 @@
 #' plot(cv.fit.pplasso)
 
 
-plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line = "blue",
-                            col.dot = "red"){
+#' @param col.vertical.line colour of the vertical line marking the selected lambda.
+#' @param col.dot colour of the plotted cross-validation error points.
+#'
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+plot.cv.ppLasso <- function(x, log.x = TRUE, vertical.line = TRUE, col.vertical.line = "blue",
+                            col.dot = "red", ...){
+  fit <- x
   CVE <- fit$cve
   CVE.upper <- fit$cve + fit$cvse
   CVE.lower <- fit$cve - fit$cvse
 
-  if (log.x == T){
+  if (log.x == TRUE){
     lambda <- log(fit$lambda)
   } else {
     lambda <- fit$lambda
@@ -48,8 +57,8 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
     scale_x_continuous(trans = scales::reverse_trans(),
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
 
-  if (vertical.line == T){
-    if (log.x == T){
+  if (vertical.line == TRUE){
+    if (log.x == TRUE){
       xintercept <- log(fit$lambda.min)
     } else {
       xintercept <- fit$lambda.min
@@ -59,7 +68,7 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
       geom_vline(xintercept = xintercept, size = 0.5, linetype = "dashed", color = col.vertical.line)
   }
 
-  if (log.x == T){
+  if (log.x == TRUE){
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(log(lambda)),
@@ -75,13 +84,15 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
 
 #' @rdname plot.cv.ppLasso
 #'
-#' @param fit a \code{cv.gr_ppLasso} object.
+#' @param x a \code{cv.gr_ppLasso} object.
 #'
 #' @param log.x whether the horizontal axis be on the log scale.
 #'
 #' @param vertical.line whether draws a vertical line at the value where cross-validaton error is minimized.
 #'
 #' @importFrom ggplot2 ggplot geom_line geom_vline geom_point geom_errorbar aes theme element_line element_text element_blank labs scale_x_continuous
+#'
+#' @param ... further arguments passed to or from other methods.
 #'
 #' @exportS3Method plot cv.gr_ppLasso
 #'
@@ -93,16 +104,23 @@ plot.cv.ppLasso <- function(fit, log.x = T, vertical.line = T, col.vertical.line
 #' Z.char <- BinaryData$Z.char
 #' group <- BinaryData$group
 #' cv.fit.grplasso <- cv.grp.lasso(data, Y.char, Z.char, prov.char, group = group, nfolds = 10)
+#' @param col.vertical.line colour of the vertical line marking the selected lambda.
+#' @param col.dot colour of the plotted cross-validation error points.
+#'
 #' plot(cv.fit.grplasso)
 #'
 
-plot.cv.gr_ppLasso <- function(fit, log.x = T, vertical.line = T,
-                               col.vertical.line = "blue", col.dot = "red"){
+#' @param ... further arguments passed to or from other methods.
+#'
+#' @export
+plot.cv.gr_ppLasso <- function(x, log.x = TRUE, vertical.line = TRUE,
+                               col.vertical.line = "blue", col.dot = "red", ...){
+  fit <- x
   CVE <- fit$cve
   CVE.upper <- fit$cve + fit$cvse
   CVE.lower <- fit$cve - fit$cvse
 
-  if (log.x == T){
+  if (log.x == TRUE){
     lambda <- log(fit$lambda)
   } else {
     lambda <- fit$lambda
@@ -122,8 +140,8 @@ plot.cv.gr_ppLasso <- function(fit, log.x = T, vertical.line = T,
     scale_x_continuous(trans = scales::reverse_trans(),
                        breaks = round(seq(round(max(lambda), 0), round(min(lambda), 0), by = - 1), 1))
 
-  if (vertical.line == T){
-    if (log.x == T){
+  if (vertical.line == TRUE){
+    if (log.x == TRUE){
       xintercept <- log(fit$lambda.min)
     } else {
       xintercept <- fit$lambda.min
@@ -133,7 +151,7 @@ plot.cv.gr_ppLasso <- function(fit, log.x = T, vertical.line = T,
       geom_vline(xintercept = xintercept, size = 0.5, linetype = "dashed", color = col.vertical.line)
   }
 
-  if (log.x == T){
+  if (log.x == TRUE){
     cv.plot <- cv.plot +
       labs(title = "",
            x = expression(log(lambda)),

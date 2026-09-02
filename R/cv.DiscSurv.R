@@ -47,7 +47,7 @@
 #' Event.char <- DiscTime$Event.char
 #' Z.char <- DiscTime$Z.char
 #' Time.char <- DiscTime$Time.char
-#' cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = T)
+#' cv.fit <- cv.DiscSurv(data, Event.char, Z.char, Time.char, nfolds = 10, trace.cv = TRUE)
 #' cv.fit$cve
 #' cv.fit$lambda.min
 #'
@@ -58,6 +58,7 @@
 
 
 
+#' @export
 cv.DiscSurv <- function(data, Event.char, Z.char, Time.char, penalize.x = rep(1, length(Z.char)),
                         ..., nfolds = 10, seed, fold, trace.cv = FALSE){
   fit.args <- list(...)

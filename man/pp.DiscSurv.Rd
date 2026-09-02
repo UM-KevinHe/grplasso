@@ -26,7 +26,7 @@ pp.DiscSurv(
   actSet = TRUE,
   actIter = max.each.iter,
   actVarNum = sum(penalize.x == 1),
-  actSetRemove = F,
+  actSetRemove = FALSE,
   returnX = FALSE,
   trace.lambda = FALSE,
   threads = 1,
@@ -77,6 +77,9 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 
 \item{actIter}{if \code{actSet = TRUE}, the maximum number of iterations for a new updated active set. Default is \code{max.each.iter} (i.e. we will update the current active set until convergence ).}
 
+\item{actVarNum}{if \code{actSet = TRUE}, the maximum number of variables that
+may enter the active set each time it is updated.}
+
 \item{actSetRemove}{if \code{actSet = TRUE}, whether we remove the zero coefficients from the current active set. Default is FALSE.}
 
 \item{returnX}{whether return the standardized design matrix. Default is FALSE.}
@@ -86,6 +89,9 @@ binary variable with 1 indicating that the event has occurred and 0 indicating (
 \item{threads}{number of cores that are used for parallel computing.}
 
 \item{MM}{whether we use the "Majorize-Minimization" algorithm to optimize the objective function.}
+
+\item{return.transform.data}{whether to return the transformed (long-format)
+data built internally. Default is \code{FALSE}.}
 
 \item{...}{extra arguments to be passed to function.}
 }

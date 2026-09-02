@@ -4,10 +4,10 @@
 \alias{coef.strat_cox}
 \title{Extract coefficients of a strat_cox object}
 \usage{
-\method{coef}{strat_cox}(fit, lambda, which = 1:length(fit$lambda), drop = TRUE, ...)
+\method{coef}{strat_cox}(object, lambda, which = 1:length(object$lambda), drop = TRUE, ...)
 }
 \arguments{
-\item{fit}{a \code{strat_cox} object.}
+\item{object}{a \code{strat_cox} object.}
 
 \item{lambda}{values of the regularization parameter lambda at which coefficients are requested. For values of lambda not in the sequence of fitted models, linear interpolation is used.}
 
@@ -15,7 +15,7 @@
 
 \item{drop}{whether to keep coefficient names}
 
-\item{...}{}
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the model coefficients of a \code{strat_cox} object

@@ -5,19 +5,26 @@
 \title{Plot the cross entropy loss from a cv.strat_cox object}
 \usage{
 \method{plot}{cv.strat_cox}(
-  fit,
-  log.x = T,
-  vertical.line = T,
+  x,
+  log.x = TRUE,
+  vertical.line = TRUE,
   col.vertical.line = "blue",
-  col.dot = "red"
+  col.dot = "red",
+  ...
 )
 }
 \arguments{
-\item{fit}{a \code{cv.strat_cox} object.}
+\item{x}{a \code{cv.strat_cox} object.}
 
 \item{log.x}{whether the horizontal axis be on the log scale.}
 
 \item{vertical.line}{whether draws a vertical line at the value where cross-validaton error is minimized.}
+
+\item{col.vertical.line}{colour of the vertical line marking the selected lambda.}
+
+\item{col.dot}{colour of the plotted cross-validation error points.}
+
+\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Return the plot of the cross entropy loss from a \code{cv.strat_cox} object
@@ -29,6 +36,8 @@ Event.char <- ContTime$Event.char
 prov.char <- ContTime$prov.char
 Z.char <- ContTime$Z.char
 Time.char <- ContTime$Time.char
-cv.fit.strat_cox <- cv.strat_cox(data, Event.char, Z.char, Time.char, prov.char, group = c(1, 2, 2, 3, 3), nfolds = 10)
+cv.fit.strat_cox <- cv.strat_cox(data, Event.char, Z.char, Time.char,
+                                 prov.char, group = c(1, 2, 2, 3, 3),
+                                 nfolds = 10)
 plot(cv.fit.strat_cox)
 }
